@@ -1,0 +1,9 @@
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CityRunFunction\bin\Release\netcoreapp3.1\CityRunFunction.deps.json
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CityRunFunction\bin\Release\netcoreapp3.1\CityRunFunction.dll
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CityRunFunction\bin\Release\netcoreapp3.1\CityRunFunction.pdb
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CityRunFunction\obj\Release\netcoreapp3.1\CityRunFunction.csprojAssemblyReference.cache
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CityRunFunction\obj\Release\netcoreapp3.1\CityRunFunction.AssemblyInfoInputs.cache
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CityRunFunction\obj\Release\netcoreapp3.1\CityRunFunction.AssemblyInfo.cs
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CityRunFunction\obj\Release\netcoreapp3.1\CityRunFunction.csproj.CoreCompileInputs.cache
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CityRunFunction\obj\Release\netcoreapp3.1\CityRunFunction.dll
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CityRunFunction\obj\Release\netcoreapp3.1\CityRunFunction.pdb

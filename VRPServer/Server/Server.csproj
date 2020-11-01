@@ -16,4 +16,10 @@
     <ProjectReference Include="..\Model\Model.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="jsconfig1.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

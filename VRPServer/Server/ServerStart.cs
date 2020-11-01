@@ -12,6 +12,7 @@ namespace Server
         TcpListener server = null;
         public ServerStart(string ip, int port)
         {
+            throw new Exception("");
             IPAddress localAddr = IPAddress.Parse(ip);
             server = new TcpListener(localAddr, port);
             server.Start();

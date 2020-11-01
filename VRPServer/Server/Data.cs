@@ -27,14 +27,15 @@ namespace Server
         {
 
             string configStr;
-            if (select.ToUpper().Trim() == "DEBUG")
-            {
-                configStr = "jsconfig1";
-            }
-            else
-            {
-                configStr = "jsconfig2";
-            }
+            configStr = "jsconfig1";
+            //if (select.ToUpper().Trim() == "DEBUG")
+            //{
+            //    configStr = "jsconfig1";
+            //}
+            //else
+            //{
+            //    configStr = "jsconfig2";
+            //}
             var builder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile($"{configStr}.json");
             var config = builder.Build();
             Console.WriteLine($"{config["roadPath"]}");
@@ -86,10 +87,10 @@ namespace Server
             //}
         }
 
-        //internal void GetData(out Dictionary<string, Dictionary<int, SaveRoad.RoadInfo>> result)
-        //{
-        //    result = this._road;
-        //}
+        internal void GetData(out Dictionary<string, Dictionary<int, OssModel.SaveRoad.RoadInfo>> result)
+        {
+            result = this._road;
+        }
 
         internal int Get61Fp()
         {
@@ -105,11 +106,11 @@ namespace Server
 
         }
 
-       
+
 
         internal OssModel.FastonPosition GetFpByIndex(int indexValule)
         {
-            
+
             if (indexValule >= this._allFp.Count || indexValule < 0)
             {
                 return null;
@@ -204,11 +205,11 @@ namespace Server
             }
         }
 
-        
 
-        
 
-      
+
+
+
 
         internal string GetAFromB(string fpID1, string fpID2)
         {
@@ -223,7 +224,7 @@ namespace Server
             //Console.WriteLine($"计算时间{(dt2 - dt1).TotalSeconds}");
             return json;
         }
-         
+
 
     }
 }
