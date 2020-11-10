@@ -1,0 +1,14 @@
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CityRunServerRouteApp\bin\Debug\netcoreapp3.1\CityRunServerRouteApp.deps.json
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CityRunServerRouteApp\bin\Debug\netcoreapp3.1\CityRunServerRouteApp.dll
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CityRunServerRouteApp\bin\Debug\netcoreapp3.1\CityRunServerRouteApp.pdb
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CityRunServerRouteApp\bin\Debug\netcoreapp3.1\CityRunFunction.dll
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CityRunServerRouteApp\bin\Debug\netcoreapp3.1\Model.dll
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CityRunServerRouteApp\bin\Debug\netcoreapp3.1\CityRunFunction.pdb
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CityRunServerRouteApp\bin\Debug\netcoreapp3.1\Model.pdb
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CityRunServerRouteApp\obj\Debug\netcoreapp3.1\CityRunServerRouteApp.csprojAssemblyReference.cache
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CityRunServerRouteApp\obj\Debug\netcoreapp3.1\CityRunServerRouteApp.AssemblyInfoInputs.cache
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CityRunServerRouteApp\obj\Debug\netcoreapp3.1\CityRunServerRouteApp.AssemblyInfo.cs
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CityRunServerRouteApp\obj\Debug\netcoreapp3.1\CityRunServerRouteApp.csproj.CoreCompileInputs.cache
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CityRunServerRouteApp\obj\Debug\netcoreapp3.1\CityRunServerRouteApp.csproj.CopyComplete
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CityRunServerRouteApp\obj\Debug\netcoreapp3.1\CityRunServerRouteApp.dll
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CityRunServerRouteApp\obj\Debug\netcoreapp3.1\CityRunServerRouteApp.pdb

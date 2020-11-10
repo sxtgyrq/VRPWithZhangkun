@@ -7,7 +7,15 @@ namespace WsOfWebClient
     public class State
     {
         public int WebsocketID { get; set; }
-        public string LoginState { get; set; }
+        public LoginState Ls { get; set; }
 
+    }
+    public enum LoginState
+    {
+        empty,
+        selectSingleTeamJoin,
+        OnLine,
+        WaitingToStart,
+        WaitingToGetTeam
     }
 }

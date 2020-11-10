@@ -1,0 +1,9 @@
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Model\bin\Debug\netcoreapp3.1\Model.deps.json
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Model\bin\Debug\netcoreapp3.1\Model.dll
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Model\bin\Debug\netcoreapp3.1\Model.pdb
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Model\obj\Debug\netcoreapp3.1\Model.csprojAssemblyReference.cache
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Model\obj\Debug\netcoreapp3.1\Model.AssemblyInfoInputs.cache
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Model\obj\Debug\netcoreapp3.1\Model.AssemblyInfo.cs
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Model\obj\Debug\netcoreapp3.1\Model.csproj.CoreCompileInputs.cache
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Model\obj\Debug\netcoreapp3.1\Model.dll
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Model\obj\Debug\netcoreapp3.1\Model.pdb

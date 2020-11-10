@@ -1,16 +1,43 @@
-﻿using System;
+﻿using CommonClass;
+using Microsoft.VisualBasic;
+using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace WsOfWebClient.BLL
 {
     class CheckSessionBLL
     {
-        internal static bool checkIsOK(CheckSession checkSession)
+        internal static async Task<bool> checkIsOK(CheckSession checkSession)
         {
-            return false;
-            //这里要和房间进行匹配
-            throw new NotImplementedException();
+            //
+            try
+            {
+                var playerCheck = Newtonsoft.Json.JsonConvert.DeserializeObject<PlayerCheck>(checkSession.session);
+                playerCheck.c = "PlayerCheck";
+                playerCheck.FromUrl = ConnectInfo.ConnectedInfo + "/notify";
+                if (Room.CheckSign(playerCheck))
+                {
+                    var sendMsg = Newtonsoft.Json.JsonConvert.SerializeObject(playerCheck);
+                    var reqResult = await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[playerCheck.RoomIndex], sendMsg);
+                    if (reqResult.ToLower() == "ok")
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+
+        }
+
+        internal static string getSession()
+        {
+            return "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_0";
         }
     }
 }

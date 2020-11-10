@@ -32,8 +32,6 @@ namespace MateWsAndHouse
         }
         public void Configure(IApplicationBuilder app, Microsoft.AspNetCore.Hosting.IWebHostEnvironment env)
         {
-
-            app.Map("/single", single);
             app.Map("/createTeam", createTeam);
 
             //if (env.IsDevelopment())
@@ -117,33 +115,7 @@ namespace MateWsAndHouse
         {
             app.Run(async context =>
             {
-                var fromUrl = context.Request.Form["fromUrl"].ToString();
-                var wsocketID = context.Request.Form["wsocketID"].ToString();
-                int teamID = 0;
-
-                var result = new { ok = "ok" };
-                await context.Response.WriteAsync(Newtonsoft.Json.JsonConvert.SerializeObject(result));
-
-                var json = Newtonsoft.Json.JsonConvert.SerializeObject(new
-                {
-                    command = "createTeam",
-                    wsocketID = wsocketID,
-                    teamID = teamID
-                });
-                await sendMsg(fromUrl, json);
-                // HttpClient hc= new HttpClient(ne)
-                //if (context.WebSockets.IsWebSocketRequest)
-                //{
-
-                //    var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                //    //Task task = new Task(() => SendMsg(webSocket));
-                //    //task.Start();
-                //    // BufferImage.webSockets.Add(webSocket);
-                //    await Echo(webSocket);
-                //    //  Console.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}--累计登陆{sumVisitor},当前在线{sumVisitor - sumLeaver}");
-
-
-                //}
+                
             });
         }
 

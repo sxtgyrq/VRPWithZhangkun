@@ -4,12 +4,33 @@ using System.Text;
 
 namespace WsOfWebClient
 {
-    public class Command
+
+    public class CheckSession : CommonClass.Command
     {
-        public string c { get; set; }
+        public string session { get; set; }
     }
-    public class CheckSession: Command
+
+    public class JoinGameSingle : CommonClass.Command
     {
-        public string c { get; set; }
+        public string joinType { get; set; }
+    }
+
+    public class CreateTeam : CommonClass.Command
+    { 
+    }
+
+    public class JoinTeam : CommonClass.Command
+    {
+    }
+
+    public class SetPlayerName : CommonClass.Command
+    {
+        public string Name { get; set; }
+    }
+
+    public class SetCarName : CommonClass.Command
+    {
+        public string Name { get; set; }
+        public int CarIndex { get; set; }
     }
 }

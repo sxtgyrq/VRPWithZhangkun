@@ -23,3 +23,6 @@ F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\obj
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\obj\Debug\netcoreapp3.1\WsOfWebClient.dll
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\obj\Debug\netcoreapp3.1\WsOfWebClient.pdb
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\obj\Debug\netcoreapp3.1\WsOfWebClient.genruntimeconfig.cache
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\obj\Debug\netcoreapp3.1\WsOfWebClient.csprojAssemblyReference.cache
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Debug\netcoreapp3.1\CommonClass.dll
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Debug\netcoreapp3.1\CommonClass.pdb
