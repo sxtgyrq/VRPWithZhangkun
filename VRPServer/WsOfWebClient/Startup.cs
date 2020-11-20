@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.WebSockets;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -58,26 +59,10 @@ namespace WsOfWebClient
                 ReceiveBufferSize = 1024 * 1000
             };
             app.UseWebSockets(webSocketOptions);
+
             app.Map("/websocket", WebSocketF);
 
             app.Map("/notify", notify);
-            //app.Map("/websocket", builder =>
-            //{
-            //    builder.Use(async (context, next) =>
-            //    {
-            //        if (context.WebSockets.IsWebSocketRequest)
-            //        {
-
-            //            {
-            //                //  Console.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}--累计登陆{sumVisitor},当前在线{sumVisitor - sumLeaver}");
-            //                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-            //                await Echo(webSocket);
-            //            }
-            //        }
-
-            //        await next();
-            //    });
-            //});
         }
 
         private static void WebSocketF(IApplicationBuilder app)
@@ -129,19 +114,11 @@ namespace WsOfWebClient
                                         var checkResult = await BLL.CheckSessionBLL.checkIsOK(checkSession);
                                         if (checkResult)
                                         {
-                                            s.Ls = LoginState.OnLine;
-                                            var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { c = "setState", state = Enum.GetName(typeof(LoginState), s.Ls) });
-                                            var sendData = Encoding.UTF8.GetBytes(msg);
-                                            await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), wResult.MessageType, true, CancellationToken.None);
+                                            s = await Room.setState(s, webSocket, LoginState.OnLine);
                                         }
                                         else
                                         {
-                                            //int roomID = 0;
-                                            //  string sessession = BLL.CheckSessionBLL.getSession();
-                                            s.Ls = LoginState.selectSingleTeamJoin;
-                                            var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { c = "setState", state = Enum.GetName(typeof(LoginState), s.Ls) });
-                                            var sendData = Encoding.UTF8.GetBytes(msg);
-                                            await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), wResult.MessageType, true, CancellationToken.None);
+                                            s = await Room.setState(s, webSocket, LoginState.selectSingleTeamJoin);
                                         }
                                     }
                                 }; break;
@@ -150,36 +127,25 @@ namespace WsOfWebClient
                                     JoinGameSingle joinType = Newtonsoft.Json.JsonConvert.DeserializeObject<JoinGameSingle>(returnResult.result);
                                     if (s.Ls == LoginState.selectSingleTeamJoin)
                                     {
-                                        // if (joinType.joinType == "signle")
-                                        {
-                                            s = await Room.GetRoomThenStart(s, webSocket);
-                                        }
+                                        s = await Room.GetRoomThenStart(s, webSocket);
                                     }
+
                                 }; break;
                             case "CreateTeam":
                                 {
                                     CreateTeam ct = Newtonsoft.Json.JsonConvert.DeserializeObject<CreateTeam>(returnResult.result);
                                     if (s.Ls == LoginState.selectSingleTeamJoin)
                                     {
-
-                                        // if (joinType.joinType == "team")
                                         {
-                                            // var command_start = CommonClass.Random.GetMD5HashFromStr(s.WebsocketID.ToString() + s.WebsocketID);
-                                            //var team = await Team.createTeam(s.WebsocketID, command_start);
-                                            //   var command_start = CommonClass.Random.GetMD5HashFromStr(s.WebsocketID.ToString() + s.WebsocketID);
                                             string command_start;
                                             CommonClass.TeamResult team;
                                             {
-                                                //将状态设置为等待开始和等待加入
-                                                s.Ls = LoginState.WaitingToStart;
-                                                var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { c = "setState", state = Enum.GetName(typeof(LoginState), s.Ls) });
-                                                var sendData = Encoding.UTF8.GetBytes(msg);
-                                                await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), wResult.MessageType, true, CancellationToken.None);
+                                                s = await Room.setState(s, webSocket, LoginState.WaitingToStart);
                                             }
                                             {
                                                 //
                                                 command_start = CommonClass.Random.GetMD5HashFromStr(s.WebsocketID.ToString() + s.WebsocketID);
-                                                team = await Team.createTeam2(s.WebsocketID, command_start);
+                                                team = await Team.createTeam2(s.WebsocketID, playerName, command_start);
                                             }
                                             {
                                                 //var command_start = CommonClass.Random.GetMD5HashFromStr(s.WebsocketID.ToString() + s.WebsocketID); 
@@ -188,44 +154,14 @@ namespace WsOfWebClient
                                                 wResult = returnResult.wr;
                                                 if (returnResult.result == command_start)
                                                 {
-                                                    // throw new Exception("");
                                                     s = await Room.GetRoomThenStartAfterCreateTeam(s, webSocket, team);
-                                                    //var roomInfo = Room.getRoomNum(s.WebsocketID);
-                                                    //var sendMsg = Newtonsoft.Json.JsonConvert.SerializeObject(roomInfo);
-                                                    //var receivedMsg = await sendInmationToUrlAndGetRes(Room.roomUrls[roomInfo.RoomIndex], sendMsg);
-                                                    //if (receivedMsg == "ok")
-                                                    //{
-                                                    //    {
-                                                    //        // roomNumber
-                                                    //        /*
-                                                    //         * 在发送到前台以前，必须将PlayerAdd对象中的FromUrl属性擦除
-                                                    //         */
-                                                    //        roomInfo.FromUrl = "";
-                                                    //        var session = Newtonsoft.Json.JsonConvert.SerializeObject(roomInfo);
-                                                    //        var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { session = session, c = "setSession" });
-                                                    //        var sendData = Encoding.UTF8.GetBytes(msg);
-                                                    //        await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), wResult.MessageType, true, CancellationToken.None);
-                                                    //    }
-                                                    //    {
-                                                    //        //int roomID = 0;
-                                                    //        //  string sessession = BLL.CheckSessionBLL.getSession();
-                                                    //        s.Ls = LoginState.OnLine;
-                                                    //        var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { c = "setState", state = Enum.GetName(typeof(LoginState), s.Ls) });
-                                                    //        var sendData = Encoding.UTF8.GetBytes(msg);
-                                                    //        await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), wResult.MessageType, true, CancellationToken.None);
-                                                    //    }
-
-                                                    //}
-                                                    //s.Ls = LoginState.OnLine;
-                                                    //var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { c = "setState", state = Enum.GetName(typeof(LoginState), s.Ls) });
-                                                    //var sendData = Encoding.UTF8.GetBytes(msg);
-                                                    //await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), wResult.MessageType, true, CancellationToken.None);
+                                                }
+                                                else
+                                                {
+                                                    return;
                                                 }
                                             }
                                         }
-                                        //else if()
-
-
                                     }
                                 }; break;
                             case "JoinTeam":
@@ -233,98 +169,62 @@ namespace WsOfWebClient
                                     JoinTeam ct = Newtonsoft.Json.JsonConvert.DeserializeObject<JoinTeam>(returnResult.result);
                                     if (s.Ls == LoginState.selectSingleTeamJoin)
                                     {
-
-                                        // if (joinType.joinType == "team")
                                         {
-                                            // var command_start = CommonClass.Random.GetMD5HashFromStr(s.WebsocketID.ToString() + s.WebsocketID);
-                                            //var team = await Team.createTeam(s.WebsocketID, command_start);
-                                            //   var command_start = CommonClass.Random.GetMD5HashFromStr(s.WebsocketID.ToString() + s.WebsocketID);
                                             string command_start;
-                                            CommonClass.TeamResult team;
                                             {
                                                 //将状态设置为等待开始和等待加入
-                                                s.Ls = LoginState.WaitingToGetTeam;
-                                                var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { c = "setState", state = Enum.GetName(typeof(LoginState), s.Ls) });
-                                                var sendData = Encoding.UTF8.GetBytes(msg);
-                                                await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), wResult.MessageType, true, CancellationToken.None);
+                                                s = await Room.setState(s, webSocket, LoginState.WaitingToGetTeam);
                                             }
                                             {
                                                 returnResult = await ReceiveStringAsync(webSocket);
 
                                                 wResult = returnResult.wr;
                                                 var teamID = returnResult.result;
-                                                command_start = CommonClass.Random.GetMD5HashFromStr(s.WebsocketID.ToString() + s.WebsocketID);
-                                                var teamFound = await Team.findTeam2(s.WebsocketID, command_start);
-                                                if (teamFound.HasResult)
+                                                command_start = CommonClass.Random.GetMD5HashFromStr(s.WebsocketID.ToString() + s.WebsocketID + DateTime.Now.ToString());
+                                                var result = await Team.findTeam2(s.WebsocketID, playerName, command_start, teamID);
+
+                                                if (result == "ok")
                                                 {
                                                     returnResult = await ReceiveStringAsync(webSocket);
 
                                                     wResult = returnResult.wr;
-                                                    if (returnResult.result == command_start)
+
+                                                    int roomIndex;
+                                                    if (Room.CheckSecret(returnResult.result, command_start, out roomIndex))
                                                     {
-                                                        s = await Room.GetRoomThenStartAfterJoinTeam(s, webSocket, teamID);
+                                                        s = await Room.GetRoomThenStartAfterJoinTeam(s, webSocket, roomIndex);
                                                     }
+                                                    else
+                                                    {
+                                                        return;
+                                                    } 
+                                                }
+                                                else if (result == "game has begun")
+                                                {
+                                                    s = await Room.setState(s, webSocket, LoginState.selectSingleTeamJoin);
+                                                    await Room.Alert(webSocket, $"他们已经开始了！");
+                                                }
+                                                else if (result == "is not number")
+                                                {
+                                                    s = await Room.setState(s, webSocket, LoginState.selectSingleTeamJoin);
+                                                    await Room.Alert(webSocket, $"请输入数字");
+                                                }
+                                                else if (result == "not has the team")
+                                                {
+                                                    s = await Room.setState(s, webSocket, LoginState.selectSingleTeamJoin);
+                                                    await Room.Alert(webSocket, $"没有该队伍({teamID})");
+                                                }
+                                                else if (result == "team is full")
+                                                {
+                                                    s = await Room.setState(s, webSocket, LoginState.selectSingleTeamJoin);
+                                                    await Room.Alert(webSocket, "该队伍已满员");
                                                 }
                                                 else
                                                 {
-                                                    await WaitForSelection.SelectSingleTeamJoin(s, webSocket);
-                                                    var notifyMsg = $"没有通过{teamID}找到队伍！";
-
-                                                    await Message.Notify(webSocket, notifyMsg);
-                                                    continue;
-                                                }
-                                                //if (returnResult.result == command_start) { }
-                                            }
-                                            {
-                                                //
-                                                command_start = CommonClass.Random.GetMD5HashFromStr(s.WebsocketID.ToString() + s.WebsocketID);
-                                                team = await Team.createTeam2(s.WebsocketID, command_start);
-                                            }
-                                            {
-                                                //var command_start = CommonClass.Random.GetMD5HashFromStr(s.WebsocketID.ToString() + s.WebsocketID); 
-                                                returnResult = await ReceiveStringAsync(webSocket);
-
-                                                wResult = returnResult.wr;
-                                                if (returnResult.result == command_start)
-                                                {
-                                                    // throw new Exception("");
-                                                    s = await Room.GetRoomThenStartAfterCreateTeam(s, webSocket, team);
-                                                    //var roomInfo = Room.getRoomNum(s.WebsocketID);
-                                                    //var sendMsg = Newtonsoft.Json.JsonConvert.SerializeObject(roomInfo);
-                                                    //var receivedMsg = await sendInmationToUrlAndGetRes(Room.roomUrls[roomInfo.RoomIndex], sendMsg);
-                                                    //if (receivedMsg == "ok")
-                                                    //{
-                                                    //    {
-                                                    //        // roomNumber
-                                                    //        /*
-                                                    //         * 在发送到前台以前，必须将PlayerAdd对象中的FromUrl属性擦除
-                                                    //         */
-                                                    //        roomInfo.FromUrl = "";
-                                                    //        var session = Newtonsoft.Json.JsonConvert.SerializeObject(roomInfo);
-                                                    //        var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { session = session, c = "setSession" });
-                                                    //        var sendData = Encoding.UTF8.GetBytes(msg);
-                                                    //        await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), wResult.MessageType, true, CancellationToken.None);
-                                                    //    }
-                                                    //    {
-                                                    //        //int roomID = 0;
-                                                    //        //  string sessession = BLL.CheckSessionBLL.getSession();
-                                                    //        s.Ls = LoginState.OnLine;
-                                                    //        var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { c = "setState", state = Enum.GetName(typeof(LoginState), s.Ls) });
-                                                    //        var sendData = Encoding.UTF8.GetBytes(msg);
-                                                    //        await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), wResult.MessageType, true, CancellationToken.None);
-                                                    //    }
-
-                                                    //}
-                                                    //s.Ls = LoginState.OnLine;
-                                                    //var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { c = "setState", state = Enum.GetName(typeof(LoginState), s.Ls) });
-                                                    //var sendData = Encoding.UTF8.GetBytes(msg);
-                                                    //await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), wResult.MessageType, true, CancellationToken.None);
+                                                    s = await Room.setState(s, webSocket, LoginState.selectSingleTeamJoin);
                                                 }
                                             }
                                         }
-                                        //else if()
-
-
                                     }
                                 }; break;
                             case "setCarName":
@@ -503,18 +403,31 @@ namespace WsOfWebClient
                     //var notifyJson = getBodyStr(context);
 
                     Console.WriteLine($"notify receive:{notifyJson}");
-                    CommonClass.Command c = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.Command>(notifyJson);
+                    CommonClass.CommandNotify c = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.CommandNotify>(notifyJson);
 
-                    if (c.c == "PlayerAdd")
+                    // CommonClass.TeamCreateFinish teamCreateFinish = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.TeamCreateFinish>(notifyJson);
+                    bool hasSocket = false;
+                    WebSocket ws = null;
+                    lock (ConnectInfo.connectedWs_LockObj)
                     {
-                        CommonClass.PlayerAdd addItem = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.PlayerAdd>(notifyJson);
-                        //BaseInfomation.rm.Players.Add(addItem.Key, new Player()
-                        //{
-                        //    Key = addItem.Key,
-                        //    FromUrl = addItem.FromUrl,
-
-                        //});
-                        //await sendInmationToUrl(addItem.FromUrl, notifyJson);
+                        if (ConnectInfo.connectedWs.ContainsKey(c.WebSocketID))
+                        {
+                            if (!ConnectInfo.connectedWs[c.WebSocketID].CloseStatus.HasValue)
+                            {
+                                hasSocket = true;
+                                ws = ConnectInfo.connectedWs[c.WebSocketID];
+                                //  ConnectInfo.connectedWs[teamCreateFinish.WebSocketID].SendAsync();
+                            }
+                            else
+                            {
+                                ConnectInfo.connectedWs.Remove(c.WebSocketID);
+                            }
+                        }
+                    }
+                    if (hasSocket)
+                    {
+                        var sendData = Encoding.UTF8.GetBytes(notifyJson);
+                        await ws.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
                     }
                     await context.Response.WriteAsync("ok");
                 }

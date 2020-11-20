@@ -9,6 +9,12 @@ namespace CommonClass
         public string c { get; set; }
     }
 
+    public class CommandNotify: Command
+    {
+        public string c { get; set; }
+        public int WebSocketID { get; set; }
+    }
+
     public class PlayerAdd : Command
     {
         public string Key { get; set; }
@@ -26,6 +32,43 @@ namespace CommonClass
         public string FromUrl { get; set; }
         public string CommandStart { get; set; }
         public int WebSocketID { get; set; }
+        public string PlayerName { get; set; }
+    }
+
+    public class TeamBegain : Command
+    {
+        public int TeamNum { get; set; }
+        public int RoomIndex { get; set; }
+}
+
+    public class TeamJoin : Command
+    {
+        public string FromUrl { get; set; }
+        public string CommandStart { get; set; }
+        public int WebSocketID { get; set; }
+        public string PlayerName { get; set; }
+        public string TeamIndex { get; set; }
+
+    }
+
+    public class TeamCreateFinish : CommandNotify
+    {
+        public string CommandStart { get; set; } 
+        public int TeamNum { get; set; }
+        public string PlayerName { get; set; }
+    }
+    public class TeamJoinBroadInfo : CommandNotify
+    {
+        public string PlayerName { get; set; } 
+    }
+    public class TeamJoinFinish : CommandNotify
+    {
+        public int TeamNum { get; set; }
+        public List<string> PlayerNames { get; set; } 
+    }
+    public class TeamNumWithSecret : CommandNotify
+    {
+        public string Secret { get; set; } 
     }
     public class TeamResult : Command
     {
@@ -36,6 +79,10 @@ namespace CommonClass
         /// </summary>
         public int TeamNumber { get; set; }
     }
+    public class TeamResultForGameBegain : TeamResult
+    { 
+        public int roomIndex { get; set; }
+    }
 
     public class TeamFoundResult : Command
     {
@@ -45,8 +92,25 @@ namespace CommonClass
         /// </summary>
         public int TeamNumber { get; set; }
     }
-    public class TeamBegain : Command
+    //public class TeamBegain : Command
+    //{
+    //    public int TeamNumber { get; set; }
+    //}
+
+    public class RoomNumberResult : Command
     {
-        public int TeamNumber { get; set; }
+        public int RoomIndex { get; set; }
+        public string PassMd5 { get; set; }
+        public string CheckMd5 { get; set; }
+
+    }
+
+    public class PassRoomMd5Check
+    {
+        public int RoomIndex { get; set; }
+        public string StartMd5 { get; set; }
+        public string CheckMd5 { get; set; }
+
+        public string RoomIndexWithAes { get; set; }
     }
 }

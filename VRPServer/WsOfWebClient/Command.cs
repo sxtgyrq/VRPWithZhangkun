@@ -12,7 +12,6 @@ namespace WsOfWebClient
 
     public class JoinGameSingle : CommonClass.Command
     {
-        public string joinType { get; set; }
     }
 
     public class CreateTeam : CommonClass.Command
@@ -33,4 +32,6 @@ namespace WsOfWebClient
         public string Name { get; set; }
         public int CarIndex { get; set; }
     }
+
+   
 }

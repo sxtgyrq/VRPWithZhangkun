@@ -1,3 +1,7 @@
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\obj\Debug\netcoreapp3.1\WsOfWebClient.AssemblyInfoInputs.cache
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\obj\Debug\netcoreapp3.1\WsOfWebClient.AssemblyInfo.cs
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\obj\Debug\netcoreapp3.1\WsOfWebClient.csproj.CoreCompileInputs.cache
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\obj\Debug\netcoreapp3.1\WsOfWebClient.csprojAssemblyReference.cache
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Debug\netcoreapp3.1\WsOfWebClient.exe
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Debug\netcoreapp3.1\WsOfWebClient.deps.json
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Debug\netcoreapp3.1\WsOfWebClient.runtimeconfig.json
@@ -16,13 +20,9 @@ F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Primitives.dll
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Debug\netcoreapp3.1\Newtonsoft.Json.dll
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Debug\netcoreapp3.1\Newtonsoft.Json.Bson.dll
-F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\obj\Debug\netcoreapp3.1\WsOfWebClient.AssemblyInfoInputs.cache
-F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\obj\Debug\netcoreapp3.1\WsOfWebClient.AssemblyInfo.cs
-F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\obj\Debug\netcoreapp3.1\WsOfWebClient.csproj.CoreCompileInputs.cache
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Debug\netcoreapp3.1\CommonClass.dll
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Debug\netcoreapp3.1\CommonClass.pdb
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\obj\Debug\netcoreapp3.1\WsOfWebClient.csproj.CopyComplete
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\obj\Debug\netcoreapp3.1\WsOfWebClient.dll
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\obj\Debug\netcoreapp3.1\WsOfWebClient.pdb
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\obj\Debug\netcoreapp3.1\WsOfWebClient.genruntimeconfig.cache
-F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\obj\Debug\netcoreapp3.1\WsOfWebClient.csprojAssemblyReference.cache
-F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Debug\netcoreapp3.1\CommonClass.dll
-F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Debug\netcoreapp3.1\CommonClass.pdb

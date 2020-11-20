@@ -16,6 +16,8 @@ F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\MateWsAndHouse\bi
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\MateWsAndHouse\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Primitives.dll
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\MateWsAndHouse\bin\Debug\netcoreapp3.1\Newtonsoft.Json.dll
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\MateWsAndHouse\bin\Debug\netcoreapp3.1\Newtonsoft.Json.Bson.dll
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\MateWsAndHouse\bin\Debug\netcoreapp3.1\CommonClass.dll
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\MateWsAndHouse\bin\Debug\netcoreapp3.1\CommonClass.pdb
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\MateWsAndHouse\obj\Debug\netcoreapp3.1\MateWsAndHouse.csprojAssemblyReference.cache
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\MateWsAndHouse\obj\Debug\netcoreapp3.1\MateWsAndHouse.AssemblyInfoInputs.cache
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\MateWsAndHouse\obj\Debug\netcoreapp3.1\MateWsAndHouse.AssemblyInfo.cs
