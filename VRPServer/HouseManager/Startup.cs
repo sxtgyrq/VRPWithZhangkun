@@ -71,7 +71,74 @@ namespace HouseManager
                                 else
                                 {
                                     await context.Response.WriteAsync("ng");
-                                } 
+                                }
+                            }; break;
+                        case "Map":
+                            {
+                                //CommonClass.PlayerCheck checkItem = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.PlayerCheck>(notifyJson);
+                                //if (BaseInfomation.rm.Players.ContainsKey(checkItem.Key))
+                                //{
+                                //    {
+                                //        Dictionary<string, bool> Cs = new Dictionary<string, bool>();
+                                //        List<object> listOfCrosses = new List<object>();
+                                //        Dictionary<string, Dictionary<int, OssModel.SaveRoad.RoadInfo>> result;
+                                //        Program.dt.GetData(out result);
+                                //        List<double[]> meshPoints = new List<double[]>();
+                                //        //   List<int> colors = new List<int>();
+                                //        foreach (var item in result)
+                                //        {
+                                //            foreach (var itemj in item.Value)
+                                //            {
+                                //                var value = itemj.Value;
+                                //                var ps = getRoadRectangle(value, item.Value);
+                                //                meshPoints.Add(ps);
+
+
+                                //                for (var i = 0; i < value.Cross1.Length; i++)
+                                //                {
+                                //                    var cross = value.Cross1[i];
+                                //                    var key = cross.RoadCode1.CompareTo(cross.RoadCode2) > 0 ?
+                                //                        $"{cross.RoadCode1}_{cross.RoadOrder1}_{cross.RoadCode2}_{cross.RoadOrder2}" :
+                                //                        $"{cross.RoadCode2}_{cross.RoadOrder2}_{cross.RoadCode1}_{cross.RoadOrder1}";
+                                //                    if (Cs.ContainsKey(key)) { }
+                                //                    else
+                                //                    {
+                                //                        Cs.Add(key, false);
+                                //                        listOfCrosses.Add(new { lon = cross.BDLongitude, lat = cross.BDLatitude, state = cross.CrossState });
+                                //                    }
+                                //                }
+                                //                //value.Cross1
+                                //            }
+                                //        }
+                                //        {
+                                //            var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { reqMsg = str, t = "road", obj = meshPoints });
+                                //            var sendData = Encoding.UTF8.GetBytes(msg);
+                                //            await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), wResult.MessageType, true, CancellationToken.None);
+                                //        }
+                                //        {
+                                //            var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { reqMsg = str, t = "cross", obj = listOfCrosses });
+                                //            var sendData = Encoding.UTF8.GetBytes(msg);
+                                //            await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), wResult.MessageType, true, CancellationToken.None);
+                                //        }
+
+                                //        //foreach (var item in result)
+                                //        //{
+                                //        //    foreach (var itemj in item.Value)
+                                //        //    {
+                                //        //        var value = itemj.Value;
+                                //        //        var ps = getCrossPoints(value, result);
+                                //        //        meshPoints.Add(ps);
+
+                                //        //    }
+                                //        //}
+
+                                //    }
+                                //    await context.Response.WriteAsync("ok");
+                                //}
+                                //else
+                                //{
+                                //    await context.Response.WriteAsync("ng");
+                                //}
                             }; break;
                     }
                     //if (c.c == "PlayerAdd")

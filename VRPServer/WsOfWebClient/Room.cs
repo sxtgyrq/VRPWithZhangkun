@@ -109,21 +109,31 @@ namespace WsOfWebClient
              */
             int roomIndex;
             var roomInfo = Room.getRoomNum(s.WebsocketID, out roomIndex);
+
             var sendMsg = Newtonsoft.Json.JsonConvert.SerializeObject(roomInfo);
             var receivedMsg = await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[roomInfo.RoomIndex], sendMsg);
             if (receivedMsg == "ok")
             {
                 await WriteSession(roomInfo, webSocket);
+                s.roomIndex = roomIndex;
                 s = await setOnLine(s, webSocket);
 
             }
             return s;
         }
 
-        static async Task<State> setOnLine(State s, WebSocket webSocket)
+        public static async Task<State> setOnLine(State s, WebSocket webSocket)
         {
             var result = await setState(s, webSocket, LoginState.OnLine);
+
+            getRoadInfomation(s);
+
             return result;
+        }
+
+        private static void getRoadInfomation(State s)
+        {
+            throw new NotImplementedException();
         }
 
         public static async Task<State> GetRoomThenStartAfterCreateTeam(State s, System.Net.WebSockets.WebSocket webSocket, TeamResult team)
@@ -142,6 +152,7 @@ namespace WsOfWebClient
                 if (receivedMsg == "ok")
                 {
                     await WriteSession(roomInfo, webSocket);
+                    s.roomIndex = roomIndex;
                     s = await setOnLine(s, webSocket);
                 }
             }
@@ -162,6 +173,7 @@ namespace WsOfWebClient
             if (receivedMsg == "ok")
             {
                 await WriteSession(roomInfo, webSocket);
+                s.roomIndex = roomIndex;
                 s = await setOnLine(s, webSocket);
             }
             return s;

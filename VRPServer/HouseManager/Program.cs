@@ -8,13 +8,15 @@ namespace HouseManager
 {
     class Program
     {
-
+        public static Data dt;
         static void Main(string[] args)
         {
+            namal();
             Console.WriteLine("你好！此服务为网页端的webSocket服务！");
             var ip = "http://127.0.0.1:11100";
             Console.WriteLine($"输入ip和端口如“{ip}”");
             var inputIp = Console.ReadLine();
+            return;
             if (string.IsNullOrEmpty(inputIp)) { }
             else
             {
@@ -24,6 +26,12 @@ namespace HouseManager
             CreateWebHostBuilder(new string[] { ip }).Build().Run();
 
             //  Console.WriteLine("Hello World!");
+        }
+
+        static void namal()
+        {
+            Program.dt = new Data();
+            Program.dt.LoadRoad(); 
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>

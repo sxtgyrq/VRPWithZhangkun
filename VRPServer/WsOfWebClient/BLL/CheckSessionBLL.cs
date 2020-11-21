@@ -9,7 +9,12 @@ namespace WsOfWebClient.BLL
 {
     class CheckSessionBLL
     {
-        internal static async Task<bool> checkIsOK(CheckSession checkSession)
+        internal class CheckIsOKResult
+        {
+            public bool CheckOK { get; set; }
+            public int roomIndex { get; set; }
+        }
+        internal static async Task<CheckIsOKResult> checkIsOK(CheckSession checkSession)
         {
             //
             try
@@ -23,14 +28,26 @@ namespace WsOfWebClient.BLL
                     var reqResult = await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[playerCheck.RoomIndex], sendMsg);
                     if (reqResult.ToLower() == "ok")
                     {
-                        return true;
+                        return new CheckIsOKResult()
+                        {
+                            CheckOK = true,
+                            roomIndex = playerCheck.RoomIndex
+                        };
                     }
                 }
-                return false;
+                return new CheckIsOKResult()
+                {
+                    CheckOK = false,
+                    roomIndex = -1
+                };
             }
             catch
             {
-                return false;
+                return new CheckIsOKResult()
+                {
+                    CheckOK = false,
+                    roomIndex = -1
+                };
             }
 
         }

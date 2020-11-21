@@ -8,6 +8,7 @@ namespace WsOfWebClient
     {
         public int WebsocketID { get; set; }
         public LoginState Ls { get; set; }
+        public int roomIndex { get; set; }
 
     }
     public enum LoginState

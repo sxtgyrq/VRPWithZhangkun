@@ -87,6 +87,7 @@ namespace WsOfWebClient
                 State s = new State();
                 s.WebsocketID = ConnectInfo.webSocketID++;
                 s.Ls = LoginState.empty;
+                s.roomIndex = -1;
                 removeWsIsNotOnline();
                 addWs(webSocket, s.WebsocketID);
 
@@ -112,9 +113,10 @@ namespace WsOfWebClient
                                     {
                                         CheckSession checkSession = Newtonsoft.Json.JsonConvert.DeserializeObject<CheckSession>(returnResult.result);
                                         var checkResult = await BLL.CheckSessionBLL.checkIsOK(checkSession);
-                                        if (checkResult)
+                                        if (checkResult.CheckOK)
                                         {
-                                            s = await Room.setState(s, webSocket, LoginState.OnLine);
+                                            s.roomIndex = checkResult.roomIndex;
+                                            s = await Room.setOnLine(s, webSocket);
                                         }
                                         else
                                         {
@@ -197,7 +199,7 @@ namespace WsOfWebClient
                                                     else
                                                     {
                                                         return;
-                                                    } 
+                                                    }
                                                 }
                                                 else if (result == "game has begun")
                                                 {
