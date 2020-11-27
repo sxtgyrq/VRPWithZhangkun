@@ -149,6 +149,9 @@
         }
       },
       "CommonClass/1.0.0": {
+        "dependencies": {
+          "Model": "1.0.0"
+        },
         "runtime": {
           "CommonClass.dll": {}
         }

@@ -7,3 +7,6 @@ F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CommonClass\obj\R
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CommonClass\obj\Release\netcoreapp3.1\CommonClass.csproj.CoreCompileInputs.cache
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CommonClass\obj\Release\netcoreapp3.1\CommonClass.dll
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CommonClass\obj\Release\netcoreapp3.1\CommonClass.pdb
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CommonClass\bin\Release\netcoreapp3.1\Model.dll
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CommonClass\bin\Release\netcoreapp3.1\Model.pdb
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CommonClass\obj\Release\netcoreapp3.1\CommonClass.csproj.CopyComplete

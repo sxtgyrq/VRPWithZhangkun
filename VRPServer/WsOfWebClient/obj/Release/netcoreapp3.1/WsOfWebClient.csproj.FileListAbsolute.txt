@@ -26,3 +26,12 @@ F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\obj
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\obj\Release\netcoreapp3.1\WsOfWebClient.genruntimeconfig.cache
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Release\netcoreapp3.1\CommonClass.dll
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Release\netcoreapp3.1\CommonClass.pdb
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Release\netcoreapp3.1\Model.dll
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Release\netcoreapp3.1\Model.pdb
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Release\netcoreapp3.1\RobotExpressive.glb
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Release\netcoreapp3.1\car1.mtl
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Release\netcoreapp3.1\car1.obj
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Release\netcoreapp3.1\Car_01.png
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Release\netcoreapp3.1\Car_02.png
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Release\netcoreapp3.1\Car_03.png
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Release\netcoreapp3.1\Car_04.png

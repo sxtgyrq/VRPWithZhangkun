@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
@@ -27,6 +28,10 @@ namespace HouseManager
                         builder.WithOrigins("http://*");
                     });
             });
+            services.Configure<FormOptions>(config =>
+            {
+                config.MultipartBodyLengthLimit = UInt32.MaxValue / 2;
+            });
         }
 
         const int size = 1024 * 3;
@@ -52,93 +57,49 @@ namespace HouseManager
                         case "PlayerAdd":
                             {
                                 CommonClass.PlayerAdd addItem = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.PlayerAdd>(notifyJson);
-                                BaseInfomation.rm.Players.Add(addItem.Key, new Player()
-                                {
-                                    Key = addItem.Key,
-                                    FromUrl = addItem.FromUrl,
-
-                                });
-                                // await sendInmationToUrl(addItem.FromUrl, notifyJson);
-                                await context.Response.WriteAsync("ok");
+                                var result = BaseInfomation.rm.AddPlayer(addItem);
+                                await context.Response.WriteAsync(result);
                             }; break;
                         case "PlayerCheck":
                             {
                                 CommonClass.PlayerCheck checkItem = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.PlayerCheck>(notifyJson);
-                                if (BaseInfomation.rm.Players.ContainsKey(checkItem.Key))
-                                {
-                                    await context.Response.WriteAsync("ok");
-                                }
-                                else
-                                {
-                                    await context.Response.WriteAsync("ng");
-                                }
+                                var result = BaseInfomation.rm.UpdatePlayer(checkItem);
+                                await context.Response.WriteAsync(result);
                             }; break;
                         case "Map":
                             {
-                                //CommonClass.PlayerCheck checkItem = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.PlayerCheck>(notifyJson);
-                                //if (BaseInfomation.rm.Players.ContainsKey(checkItem.Key))
-                                //{
-                                //    {
-                                //        Dictionary<string, bool> Cs = new Dictionary<string, bool>();
-                                //        List<object> listOfCrosses = new List<object>();
-                                //        Dictionary<string, Dictionary<int, OssModel.SaveRoad.RoadInfo>> result;
-                                //        Program.dt.GetData(out result);
-                                //        List<double[]> meshPoints = new List<double[]>();
-                                //        //   List<int> colors = new List<int>();
-                                //        foreach (var item in result)
-                                //        {
-                                //            foreach (var itemj in item.Value)
-                                //            {
-                                //                var value = itemj.Value;
-                                //                var ps = getRoadRectangle(value, item.Value);
-                                //                meshPoints.Add(ps);
+                                CommonClass.Map map = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.Map>(notifyJson);
+                                switch (map.DataType)
+                                {
+                                    case "All":
+                                        {
+                                            //    public void getAll(out List<double[]> meshPoints, out List<object> listOfCrosses)
+                                            List<double[]> meshPoints;
+                                            List<object> listOfCrosses;
+                                            Program.dt.getAll(out meshPoints, out listOfCrosses);
+                                            var json = Newtonsoft.Json.JsonConvert.SerializeObject(new { meshPoints = meshPoints, listOfCrosses = listOfCrosses });
+                                            await context.Response.WriteAsync(json);
+                                        }; break;
+                                }
+                            }; break;
+                        case "GetPosition":
+                            {
+                                CommonClass.GetPosition getPosition = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.GetPosition>(notifyJson);
+                                string fromUrl;
+                                int webSocketID;
+                                Model.FastonPosition fp;
+                                if (BaseInfomation.rm.GetPosition(getPosition, out fromUrl, out webSocketID, out fp))
+                                {
+                                    CommonClass.GetPositionNotify notify = new CommonClass.GetPositionNotify()
+                                    {
+                                        c = "GetPositionNotify",
+                                        fp = fp,
+                                        WebSocketID = webSocketID
+                                    };
 
-
-                                //                for (var i = 0; i < value.Cross1.Length; i++)
-                                //                {
-                                //                    var cross = value.Cross1[i];
-                                //                    var key = cross.RoadCode1.CompareTo(cross.RoadCode2) > 0 ?
-                                //                        $"{cross.RoadCode1}_{cross.RoadOrder1}_{cross.RoadCode2}_{cross.RoadOrder2}" :
-                                //                        $"{cross.RoadCode2}_{cross.RoadOrder2}_{cross.RoadCode1}_{cross.RoadOrder1}";
-                                //                    if (Cs.ContainsKey(key)) { }
-                                //                    else
-                                //                    {
-                                //                        Cs.Add(key, false);
-                                //                        listOfCrosses.Add(new { lon = cross.BDLongitude, lat = cross.BDLatitude, state = cross.CrossState });
-                                //                    }
-                                //                }
-                                //                //value.Cross1
-                                //            }
-                                //        }
-                                //        {
-                                //            var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { reqMsg = str, t = "road", obj = meshPoints });
-                                //            var sendData = Encoding.UTF8.GetBytes(msg);
-                                //            await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), wResult.MessageType, true, CancellationToken.None);
-                                //        }
-                                //        {
-                                //            var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { reqMsg = str, t = "cross", obj = listOfCrosses });
-                                //            var sendData = Encoding.UTF8.GetBytes(msg);
-                                //            await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), wResult.MessageType, true, CancellationToken.None);
-                                //        }
-
-                                //        //foreach (var item in result)
-                                //        //{
-                                //        //    foreach (var itemj in item.Value)
-                                //        //    {
-                                //        //        var value = itemj.Value;
-                                //        //        var ps = getCrossPoints(value, result);
-                                //        //        meshPoints.Add(ps);
-
-                                //        //    }
-                                //        //}
-
-                                //    }
-                                //    await context.Response.WriteAsync("ok");
-                                //}
-                                //else
-                                //{
-                                //    await context.Response.WriteAsync("ng");
-                                //}
+                                    await sendMsg(fromUrl, Newtonsoft.Json.JsonConvert.SerializeObject(notify));
+                                }
+                                await context.Response.WriteAsync("ok");
                             }; break;
                     }
                     //if (c.c == "PlayerAdd")
@@ -170,13 +131,38 @@ namespace HouseManager
 
         }
 
-        private static async Task sendInmationToUrl(string roomUrl, string sendMsg)
+        //private static async Task sendInmationToUrl(string roomUrl, string sendMsg)
+        //{
+        //    // ConnectInfo.Client.PostAsync(roomUrl,)
+        //    var buffer = Encoding.UTF8.GetBytes(sendMsg);
+        //    var byteContent = new ByteArrayContent(buffer);
+        //    await BaseInfomation.Client.PostAsync(roomUrl, byteContent);
+        //}
+
+        private static async Task sendMsg(Microsoft.Extensions.Primitives.StringValues fromUrl, string json)
         {
-            // ConnectInfo.Client.PostAsync(roomUrl,)
-            var buffer = Encoding.UTF8.GetBytes(sendMsg);
-            var byteContent = new ByteArrayContent(buffer);
-            await BaseInfomation.Client.PostAsync(roomUrl, byteContent);
+            // using (HttpClient client = new HttpClient())
+            {
+                Uri u = new Uri(fromUrl);
+                HttpContent c = new StringContent(json, Encoding.UTF8, "application/json");
+                HttpRequestMessage request = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Post,
+                    RequestUri = u,
+                    Content = c
+                };
+                HttpResponseMessage result = await BaseInfomation.Client.SendAsync(request);
+                if (result.IsSuccessStatusCode)
+                {
+                    //    response = result.StatusCode.ToString();
+                }
+                else
+                {
+                    Console.WriteLine($"{fromUrl}推送失败！");
+                }
+            }
         }
+
 
     }
 }

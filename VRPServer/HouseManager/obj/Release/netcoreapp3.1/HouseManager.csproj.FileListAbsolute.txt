@@ -26,3 +26,5 @@ F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\HouseManager\obj\
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\HouseManager\obj\Release\netcoreapp3.1\HouseManager.dll
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\HouseManager\obj\Release\netcoreapp3.1\HouseManager.pdb
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\HouseManager\obj\Release\netcoreapp3.1\HouseManager.genruntimeconfig.cache
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\HouseManager\bin\Release\netcoreapp3.1\Model.dll
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\HouseManager\bin\Release\netcoreapp3.1\Model.pdb

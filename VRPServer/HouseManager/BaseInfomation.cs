@@ -7,10 +7,7 @@ namespace HouseManager
 {
     public static class BaseInfomation
     {
-        public static RoomMain rm = new RoomMain()
-        {
-            Players = new Dictionary<string, Player>()
-        };
+        public static RoomMain rm = new RoomMain();
 
         public static HttpClient Client = new HttpClient();
     }

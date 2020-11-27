@@ -10,6 +10,11 @@ namespace WsOfWebClient
         public string session { get; set; }
     }
 
+    public class MapRoadAndCrossMd5 : CommonClass.Command
+    {
+        public string mapRoadAndCrossMd5 { get; set; }
+    }
+
     public class JoinGameSingle : CommonClass.Command
     {
     }

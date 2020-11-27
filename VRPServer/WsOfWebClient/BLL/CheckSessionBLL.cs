@@ -13,8 +13,13 @@ namespace WsOfWebClient.BLL
         {
             public bool CheckOK { get; set; }
             public int roomIndex { get; set; }
+
+            /// <summary>
+            /// 由AddPlayer 产生的key
+            /// </summary>
+            public string Key { get; set; }
         }
-        internal static async Task<CheckIsOKResult> checkIsOK(CheckSession checkSession)
+        internal static async Task<CheckIsOKResult> checkIsOK(CheckSession checkSession, State s)
         {
             //
             try
@@ -22,23 +27,29 @@ namespace WsOfWebClient.BLL
                 var playerCheck = Newtonsoft.Json.JsonConvert.DeserializeObject<PlayerCheck>(checkSession.session);
                 playerCheck.c = "PlayerCheck";
                 playerCheck.FromUrl = ConnectInfo.ConnectedInfo + "/notify";
+                // pl
+                playerCheck.WebSocketID = s.WebsocketID;
+
                 if (Room.CheckSign(playerCheck))
                 {
                     var sendMsg = Newtonsoft.Json.JsonConvert.SerializeObject(playerCheck);
                     var reqResult = await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[playerCheck.RoomIndex], sendMsg);
                     if (reqResult.ToLower() == "ok")
                     {
+
                         return new CheckIsOKResult()
                         {
                             CheckOK = true,
-                            roomIndex = playerCheck.RoomIndex
+                            roomIndex = playerCheck.RoomIndex,
+                            Key = playerCheck.Key
                         };
                     }
                 }
                 return new CheckIsOKResult()
                 {
                     CheckOK = false,
-                    roomIndex = -1
+                    roomIndex = -1,
+                    Key = "不存在"
                 };
             }
             catch
@@ -46,7 +57,8 @@ namespace WsOfWebClient.BLL
                 return new CheckIsOKResult()
                 {
                     CheckOK = false,
-                    roomIndex = -1
+                    roomIndex = -1,
+                    Key = "不存在"
                 };
             }
 

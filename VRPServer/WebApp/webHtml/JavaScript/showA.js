@@ -544,7 +544,7 @@ var drawRoadInfomation = function (obj, colors) {
     }
     function disposeArray() {
 
-        this.array = null;
+      //  this.array = null;
 
     }
     console.log('p', positions);

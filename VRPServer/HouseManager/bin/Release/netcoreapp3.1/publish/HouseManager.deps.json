@@ -11,7 +11,8 @@
           "CommonClass": "1.0.0",
           "Microsoft.AspNetCore.Mvc.NewtonsoftJson": "3.1.3",
           "Microsoft.Extensions.Configuration": "3.1.3",
-          "Microsoft.Extensions.Configuration.Json": "3.1.3"
+          "Microsoft.Extensions.Configuration.Json": "3.1.3",
+          "Model": "1.0.0"
         },
         "runtime": {
           "HouseManager.dll": {}
@@ -148,8 +149,16 @@
         }
       },
       "CommonClass/1.0.0": {
+        "dependencies": {
+          "Model": "1.0.0"
+        },
         "runtime": {
           "CommonClass.dll": {}
+        }
+      },
+      "Model/1.0.0": {
+        "runtime": {
+          "Model.dll": {}
         }
       }
     }
@@ -252,6 +261,11 @@
       "hashPath": "newtonsoft.json.bson.1.0.2.nupkg.sha512"
     },
     "CommonClass/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Model/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using OssModel = Model;
 namespace HouseManager
@@ -15,74 +16,46 @@ namespace HouseManager
         /// all shop infomation
         /// </summary>
         List<OssModel.FastonPosition> _allFp;
-        string rewardRecord = "";
+        // string rewardRecord = "";
 
         public string IP { get; private set; }
 
         public void LoadRoad()
         {
+            var rootPath = System.IO.Directory.GetCurrentDirectory();
+            Console.WriteLine($"path:{rootPath}");
+            var roadPath = $"{rootPath}\\DBPublish\\allroaddata.txt";
 
-            //string configStr;
-            //configStr = "jsconfig1";
-            //if (select.ToUpper().Trim() == "DEBUG")
-            //{
-            //    configStr = "jsconfig1";
-            //}
-            //else
-            //{
-            //    configStr = "jsconfig2";
-            //}
-            //  var builder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile($"{configStr}.json");
-            //var config = builder.Build();
-            //Console.WriteLine($"{config["roadPath"]}");
-            var d = System.IO.Directory.GetCurrentDirectory();
-            Console.WriteLine(d);
-            //var roadPath = config["roadPath"];
+            // "fpDictionary": "F:\\MyProject\\VRPWithZhangkun\\MainApp\\DBPublish\\",
+            var fpDictionary = $"{rootPath}\\DBPublish\\";
 
-            //var fpDictionary = config["fpDictionary"];
+            string json;
+            using (StreamReader sr = new StreamReader(roadPath))
+            {
+                json = sr.ReadToEnd();
+            }
 
-            //this.rewardRecord = config["rewardRecord"];
-            //this.IP = config["ip"];
+            this._road = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, Dictionary<int, OssModel.SaveRoad.RoadInfo>>>(json);
 
-            //string json;
-            //using (StreamReader sr = new StreamReader(roadPath))
-            //{
-            //    // Read the stream to a string, and write the string to the console.
-            //    json = sr.ReadToEnd();
-            //}
+            this._allFp = GetAllFp(fpDictionary);
 
-            //this._road = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, Dictionary<int, OssModel.SaveRoad.RoadInfo>>>(json);
-
-            //this._allFp = GetAllFp(fpDictionary);
-
-            //Console.WriteLine($"{this._road.Count}_{this._allFp.Count}");
+            Console.WriteLine($"{this._road.Count}_{this._allFp.Count}");
         }
 
         static List<OssModel.FastonPosition> GetAllFp(string fpDictionary)
         {
-            throw new Exception("");
+            //  throw new Exception("");
             ////var fpConfig = Config.map.getFastonPositionConfigInfo(city, false);
-            //List<OssModel.FastonPosition> result = new List<OssModel.FastonPosition>();
-            //var index = 0;
-            //while (File.Exists($"{fpDictionary}fpindex\\fp_{index }.txt"))
-            //{
-            //    var json = File.ReadAllText($"{fpDictionary}fpindex\\fp_{index }.txt");
-            //    var item = Newtonsoft.Json.JsonConvert.DeserializeObject<OssModel.FastonPosition>(json);
-            //    result.Add(item);
-            //    index++;
-            //}
-            //return result;
-            ////var index = 0;
-            ////var path = string.Format("{0}/{1}.txt", fpConfig.versionNumber, "allfastonpositions");
-            ////if (mainConfig.Exist(key))
-            ////{
-            ////    var json = mainConfig.GetStringBuilder(key).ToString();
-            ////    return CityRunFunction.JsonConvertf.DeserializeListObject<CityRunModel.OssModel.FastonPosition>(json);
-            ////}
-            ////else
-            ////{
-            ////    return new List<CityRunModel.OssModel.FastonPosition>();
-            ////}
+            List<OssModel.FastonPosition> result = new List<OssModel.FastonPosition>();
+            var index = 0;
+            while (File.Exists($"{fpDictionary}fpindex\\fp_{index }.txt"))
+            {
+                var json = File.ReadAllText($"{fpDictionary}fpindex\\fp_{index }.txt");
+                var item = Newtonsoft.Json.JsonConvert.DeserializeObject<OssModel.FastonPosition>(json);
+                result.Add(item);
+                index++;
+            }
+            return result;
         }
 
         internal void GetData(out Dictionary<string, Dictionary<int, OssModel.SaveRoad.RoadInfo>> result)
@@ -94,13 +67,6 @@ namespace HouseManager
         {
 
             return this._allFp.Count;
-            //var rm
-            //List<int> result = new List<int>();
-            //int sum = 61;
-            //for (int i = 0; i < sum; i++) 
-            //{
-            //   var v=
-            //}
 
         }
 
@@ -121,6 +87,11 @@ namespace HouseManager
         {
             if (this._road.ContainsKey(roadCode)) if (this._road[roadCode].ContainsKey(0)) return this._road[roadCode][0].CarInOpposeDirection;
             return -1;
+        }
+
+        internal int GetFpCount()
+        {
+            return this._allFp.Count;
         }
 
         public decimal getCurrentTimeCostOfEveryStep()
@@ -225,6 +196,190 @@ namespace HouseManager
             //return json;
         }
 
+        public void getAll(out List<double[]> meshPoints, out List<object> listOfCrosses)
+        {
+            Dictionary<string, bool> Cs = new Dictionary<string, bool>();
+            listOfCrosses = new List<object>();
+            Dictionary<string, Dictionary<int, OssModel.SaveRoad.RoadInfo>> result;
 
+            Program.dt.GetData(out result);
+            meshPoints = new List<double[]>();
+            //        //   List<int> colors = new List<int>();
+            foreach (var item in result)
+            {
+                foreach (var itemj in item.Value)
+                {
+                    var value = itemj.Value;
+                    var ps = getRoadRectangle(value, item.Value);
+                    meshPoints.Add(ps);
+
+
+                    for (var i = 0; i < value.Cross1.Length; i++)
+                    {
+                        var cross = value.Cross1[i];
+                        var key = cross.RoadCode1.CompareTo(cross.RoadCode2) > 0 ?
+                            $"{cross.RoadCode1}_{cross.RoadOrder1}_{cross.RoadCode2}_{cross.RoadOrder2}" :
+                            $"{cross.RoadCode2}_{cross.RoadOrder2}_{cross.RoadCode1}_{cross.RoadOrder1}";
+                        if (Cs.ContainsKey(key)) { }
+                        else
+                        {
+                            Cs.Add(key, false);
+                            listOfCrosses.Add(new { lon = cross.BDLongitude, lat = cross.BDLatitude, state = cross.CrossState });
+                        }
+                    }
+                }
+            }
+        }
+
+        const double roadZoomValue = 0.0000003;
+        private static double[] getRoadRectangle(OssModel.SaveRoad.RoadInfo value, Dictionary<int, OssModel.SaveRoad.RoadInfo> result)
+        {
+            double KofPointStretchFirstAndSecond = 1;
+            double KofPointStretchThirdAndFourth = 1;
+            if (value.CarInOpposeDirection == 0)
+            {
+                KofPointStretchFirstAndSecond = 0.1;
+                KofPointStretchThirdAndFourth = 1.5;
+            }
+
+            double[] point1, point2, point3, point4;
+            var vec = new double[] { value.endLongitude - value.startLongitude, value.endLatitude - value.startLatitude };
+            vec = setToOne(vec);
+            System.Numerics.Complex c = new System.Numerics.Complex(vec[0], vec[1]);
+            if (!result.ContainsKey(value.RoadOrder - 1))
+            {
+                var c2 = new System.Numerics.Complex(0, 1);
+                var c3 = c * c2;
+
+                point1 = new double[] {
+                    value.startLongitude + c3.Real * value.MaxSpeed * roadZoomValue*KofPointStretchFirstAndSecond,
+                    value.startLatitude + c3.Imaginary * value.MaxSpeed * roadZoomValue*KofPointStretchFirstAndSecond
+                    };
+                var c5 = c / c2;
+                point2 = new double[] {
+                    value.startLongitude + c5.Real * value.MaxSpeed * roadZoomValue*KofPointStretchFirstAndSecond,
+                    value.startLatitude + c5.Imaginary * value.MaxSpeed * roadZoomValue*KofPointStretchFirstAndSecond  };
+
+            }
+            else
+            {
+                var valueP = result[value.RoadOrder - 1];//previows
+                var vecP = new double[] { valueP.endLongitude - valueP.startLongitude, valueP.endLatitude - valueP.startLatitude };
+                vecP = setToOne(vecP);
+                System.Numerics.Complex cP = new System.Numerics.Complex(-vecP[0], -vecP[1]);
+                var vecDiv2 = c + cP;
+                {
+                    if (Math.Abs((vecDiv2 / c).Imaginary) < 1e-6)
+                    {
+                        var c2 = new System.Numerics.Complex(0, 1);
+                        var c3 = c * c2;
+                        point1 = new double[] {
+                    value.startLongitude + c3.Real * value.MaxSpeed * roadZoomValue*KofPointStretchFirstAndSecond,
+                    value.startLatitude + c3.Imaginary * value.MaxSpeed * roadZoomValue*KofPointStretchFirstAndSecond  };
+                        var c5 = c / c2;
+                        point2 = new double[] {
+                    value.startLongitude + c5.Real * value.MaxSpeed * roadZoomValue*KofPointStretchFirstAndSecond,
+                    value.startLatitude + c5.Imaginary * value.MaxSpeed * roadZoomValue*KofPointStretchFirstAndSecond };
+                    }
+                    else
+                    {
+                        var k = 1 / (vecDiv2 / c).Imaginary;
+                        var s = Math.Sqrt(k * k + 1 / k / k);
+
+                        {
+                            var vecDivOperate = s / k * setToOne(vecDiv2);
+                            point1 = new double[] {
+                    value.startLongitude + vecDivOperate.Real * value.MaxSpeed * roadZoomValue*KofPointStretchFirstAndSecond,
+                    value.startLatitude + vecDivOperate.Imaginary * value.MaxSpeed * roadZoomValue  *KofPointStretchFirstAndSecond };
+                        }
+                        {
+                            var vecDiv2_opp_diretion = -1 * (vecDiv2);
+                            var vecDivOperate = s / k * setToOne(vecDiv2_opp_diretion);
+                            point2 = new double[] {
+                            value.startLongitude + vecDivOperate.Real * value.MaxSpeed * roadZoomValue*KofPointStretchFirstAndSecond,
+                            value.startLatitude + vecDivOperate.Imaginary * value.MaxSpeed * roadZoomValue *KofPointStretchFirstAndSecond };
+                        }
+                    }
+                }
+            }
+            c = new System.Numerics.Complex(-vec[0], -vec[1]);
+            if (!result.ContainsKey(value.RoadOrder + 1))
+            {
+                var c2 = new System.Numerics.Complex(0, 1);
+                var c3 = c * c2;
+                point3 = new double[] {
+                    value.endLongitude + c3.Real * value.MaxSpeed * roadZoomValue*KofPointStretchThirdAndFourth,
+                    value.endLatitude + c3.Imaginary * value.MaxSpeed * roadZoomValue*KofPointStretchThirdAndFourth
+                };
+                var c5 = c / c2;
+                point4 = new double[] {
+                    value.endLongitude + c5.Real * value.MaxSpeed * roadZoomValue*KofPointStretchThirdAndFourth,
+                    value.endLatitude + c5.Imaginary * value.MaxSpeed * roadZoomValue*KofPointStretchThirdAndFourth
+                };
+            }
+            else
+            {
+                var valueN = result[value.RoadOrder + 1];//next
+                var vecN = new double[] {
+                    valueN.endLongitude - valueN.startLongitude,
+                    valueN.endLatitude - valueN.startLatitude
+                };
+                vecN = setToOne(vecN);
+                System.Numerics.Complex cP = new System.Numerics.Complex(vecN[0], vecN[1]);
+                var vecDiv2 = c + cP;
+                if (Math.Abs((vecDiv2 / c).Imaginary) < 1e-6)
+                {
+                    var c2 = new System.Numerics.Complex(0, 1);
+                    var c3 = c * c2;
+                    point3 = new double[] {
+                    value.endLongitude + c3.Real * value.MaxSpeed * roadZoomValue*KofPointStretchThirdAndFourth,
+                    value.endLatitude + c3.Imaginary * value.MaxSpeed * roadZoomValue  *KofPointStretchThirdAndFourth};
+                    var c5 = c / c2;
+                    point4 = new double[] {
+                    value.endLongitude + c5.Real * value.MaxSpeed * roadZoomValue*KofPointStretchThirdAndFourth,
+                    value.endLatitude + c5.Imaginary * value.MaxSpeed * roadZoomValue*KofPointStretchThirdAndFourth };
+                }
+                else
+                {
+                    var k = 1 / (vecDiv2 / c).Imaginary;
+                    var s = Math.Sqrt(k * k + 1 / k / k);
+                    {
+
+                        var vecDivOperate = s / k * setToOne(vecDiv2);
+                        point3 = new double[] {
+                            value.endLongitude + vecDivOperate.Real * value.MaxSpeed * roadZoomValue*KofPointStretchThirdAndFourth,
+                            value.endLatitude + vecDivOperate.Imaginary * value.MaxSpeed * roadZoomValue*KofPointStretchThirdAndFourth  };
+                    }
+                    {
+                        var vecDiv2_opp_diretion = -1 * vecDiv2;
+                        var vecDivOperate = s / k * setToOne(vecDiv2_opp_diretion);
+                        point4 = new double[] {
+                            value.endLongitude + vecDivOperate.Real * value.MaxSpeed * roadZoomValue*KofPointStretchThirdAndFourth,
+                            value.endLatitude + vecDivOperate.Imaginary * value.MaxSpeed * roadZoomValue*KofPointStretchThirdAndFourth  };
+                    }
+                }
+
+
+            }
+            return new double[]
+            {
+              Math.Round(  point1[0],9),Math.Round(point1[1],9),
+             Math.Round(   point2[0],9),Math.Round(point2[1],9),
+             Math.Round(   point3[0],9),Math.Round(point3[1],9),
+             Math.Round(   point4[0],9),Math.Round(point4[1],9)
+            };
+        }
+
+        private static System.Numerics.Complex setToOne(System.Numerics.Complex vecRes)
+        {
+            var data = setToOne(new double[] { vecRes.Real, vecRes.Imaginary });
+            return new System.Numerics.Complex(data[0], data[1]);
+        }
+
+        private static double[] setToOne(double[] vec)
+        {
+            var l = Math.Sqrt(vec[0] * vec[0] + vec[1] * vec[1]);
+            return new double[] { vec[0] / l, vec[1] / l };
+        }
     }
 }

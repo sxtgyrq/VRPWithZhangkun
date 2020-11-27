@@ -16,7 +16,7 @@ namespace HouseManager
             var ip = "http://127.0.0.1:11100";
             Console.WriteLine($"输入ip和端口如“{ip}”");
             var inputIp = Console.ReadLine();
-            return;
+           // return;
             if (string.IsNullOrEmpty(inputIp)) { }
             else
             {

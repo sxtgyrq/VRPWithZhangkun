@@ -6,3 +6,4 @@ F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Geometry\obj\Debu
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Geometry\obj\Debug\netcoreapp3.1\Geometry.csproj.CoreCompileInputs.cache
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Geometry\obj\Debug\netcoreapp3.1\Geometry.dll
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Geometry\obj\Debug\netcoreapp3.1\Geometry.pdb
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Geometry\obj\Debug\netcoreapp3.1\Geometry.csprojAssemblyReference.cache

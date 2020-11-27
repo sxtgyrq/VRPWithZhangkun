@@ -1,6 +1,7 @@
 ﻿using CommonClass;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.WebSockets;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
@@ -16,7 +17,7 @@ namespace WsOfWebClient
             "http://127.0.0.1:11100" + "/notify"
         };
 
-        internal static PlayerAdd getRoomNum(int websocketID, out int roomIndex)
+        internal static PlayerAdd getRoomNum(int websocketID, string playerName, string[] carsNames, out int roomIndex)
         {
             roomIndex = 0;
             // var  
@@ -29,11 +30,13 @@ namespace WsOfWebClient
                 FromUrl = ConnectInfo.ConnectedInfo + "/notify",
                 RoomIndex = 0,
                 WebSocketID = websocketID,
-                Check = CommonClass.Random.GetMD5HashFromStr(key + roomUrl + CheckParameter)
+                Check = CommonClass.Random.GetMD5HashFromStr(key + roomUrl + CheckParameter),
+                PlayerName = playerName,
+                CarsNames = carsNames
             };
             // throw new NotImplementedException();
         }
-        private static PlayerAdd getRoomNumByRoom(int websocketID, int roomIndex)
+        private static PlayerAdd getRoomNumByRoom(int websocketID, int roomIndex, string playerName, string[] carsNames)
         {
             var key = CommonClass.Random.GetMD5HashFromStr(ConnectInfo.ConnectedInfo + websocketID + DateTime.Now.ToString());
             var roomUrl = roomUrls[roomIndex];
@@ -44,55 +47,12 @@ namespace WsOfWebClient
                 FromUrl = ConnectInfo.ConnectedInfo + "/notify",
                 RoomIndex = 0,
                 WebSocketID = websocketID,
-                Check = CommonClass.Random.GetMD5HashFromStr(key + roomUrl + CheckParameter)
+                Check = CommonClass.Random.GetMD5HashFromStr(key + roomUrl + CheckParameter),
+                CarsNames = carsNames,
+                PlayerName = playerName
             };
         }
 
-        public static async Task<State> enterRoomByTeam(string json, State s, WebSocket webSocket)
-        {
-            var roomNumberResult = Newtonsoft.Json.JsonConvert.DeserializeObject<RoomNumberResult>(json);
-#warning,这里从前台传入消息，没有进行Check
-            var key = CommonClass.Random.GetMD5HashFromStr(ConnectInfo.ConnectedInfo + s.WebsocketID + DateTime.Now.ToString());
-            var roomUrl = roomUrls[roomNumberResult.RoomIndex];
-            var roomInfo = new PlayerAdd()
-            {
-                Key = key,
-                c = "PlayerAdd",
-                FromUrl = ConnectInfo.ConnectedInfo + "/notify",
-                RoomIndex = 0,
-                WebSocketID = s.WebsocketID,
-                Check = CommonClass.Random.GetMD5HashFromStr(key + roomUrl + CheckParameter)
-            };
-            var sendMsg = Newtonsoft.Json.JsonConvert.SerializeObject(roomInfo);
-            var receivedMsg = await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[roomInfo.RoomIndex], sendMsg);
-            if (receivedMsg == "ok")
-            {
-                {
-                    // roomNumber
-                    /*
-                     * 在发送到前台以前，必须将PlayerAdd对象中的FromUrl属性擦除
-                     */
-                    roomInfo.FromUrl = "";
-                    var session = Newtonsoft.Json.JsonConvert.SerializeObject(roomInfo);
-                    var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { session = session, c = "setSession" });
-                    var sendData = Encoding.UTF8.GetBytes(msg);
-                    await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), System.Net.WebSockets.WebSocketMessageType.Text, true, CancellationToken.None);
-                }
-
-
-                {
-                    //int roomID = 0;
-                    //  string sessession = BLL.CheckSessionBLL.getSession();
-                    s.Ls = LoginState.OnLine;
-                    var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { c = "setState", state = Enum.GetName(typeof(LoginState), s.Ls) });
-                    var sendData = Encoding.UTF8.GetBytes(msg);
-                    await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), System.Net.WebSockets.WebSocketMessageType.Text, true, CancellationToken.None);
-
-                }
-                return s;
-            }
-            return null;
-        }
 
         static string CheckParameter = "_add_yrq";
         internal static bool CheckSign(PlayerCheck playerCheck)
@@ -102,14 +62,14 @@ namespace WsOfWebClient
             return playerCheck.Check == check;
         }
 
-        public static async Task<State> GetRoomThenStart(State s, System.Net.WebSockets.WebSocket webSocket)
+        public static async Task<State> GetRoomThenStart(State s, System.Net.WebSockets.WebSocket webSocket, string playerName, string[] carsNames)
         {
             /*
              * 单人组队下
              */
             int roomIndex;
-            var roomInfo = Room.getRoomNum(s.WebsocketID, out roomIndex);
-
+            var roomInfo = Room.getRoomNum(s.WebsocketID, playerName, carsNames, out roomIndex);
+            s.Key = roomInfo.Key;
             var sendMsg = Newtonsoft.Json.JsonConvert.SerializeObject(roomInfo);
             var receivedMsg = await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[roomInfo.RoomIndex], sendMsg);
             if (receivedMsg == "ok")
@@ -124,25 +84,133 @@ namespace WsOfWebClient
 
         public static async Task<State> setOnLine(State s, WebSocket webSocket)
         {
+            //var result = await setState(s, webSocket, LoginState.OnLine);
+            // string json;
+            if (string.IsNullOrEmpty(ConnectInfo.mapRoadAndCrossJson))
+            {
+                ConnectInfo.mapRoadAndCrossJson = await getRoadInfomation(s);
+                Console.WriteLine($"获取ConnectInfo.mapRoadAndCrossJson json的长度为{ConnectInfo.mapRoadAndCrossJson.Length}");
+            }
+            else
+            {
+                // json = ConnectInfo.mapRoadAndCrossJson;
+            }
+
+
+
+
+            {
+
+
+                //Console.WriteLine($"获取json的长度为{ConnectInfo.mapRoadAndCrossJson.Length}");
+
+                var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { c = "MapRoadAndCrossJson", action = "start" });
+                var sendData = Encoding.ASCII.GetBytes(msg);
+                await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+
+                for (var i = 0; i < ConnectInfo.mapRoadAndCrossJson.Length; i += 1000)
+                {
+                    var passStr = ConnectInfo.mapRoadAndCrossJson.Substring(i, (i + 1000) <= ConnectInfo.mapRoadAndCrossJson.Length ? 1000 : (ConnectInfo.mapRoadAndCrossJson.Length % 1000));
+                    msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { c = "MapRoadAndCrossJson", action = "mid", passStr = passStr });
+                    sendData = Encoding.ASCII.GetBytes(msg);
+                    await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+                }
+
+                msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { c = "MapRoadAndCrossJson", action = "end" });
+                sendData = Encoding.ASCII.GetBytes(msg);
+                await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+            }
+
+            if (ConnectInfo.RobotBase64.Length == 0)
+            {
+                string car1m, car2m, car3m, car4m, obj, mtl;
+                {
+                    var bytes = File.ReadAllBytes("Car_01.png");
+                    var Base64 = Convert.ToBase64String(bytes);
+                    car1m = Base64;
+                }
+                {
+                    var bytes = File.ReadAllBytes("Car_02.png");
+                    var Base64 = Convert.ToBase64String(bytes);
+                    car2m = Base64;
+                }
+                {
+                    var bytes = File.ReadAllBytes("Car_03.png");
+                    var Base64 = Convert.ToBase64String(bytes);
+                    car3m = Base64;
+                }
+                {
+                    var bytes = File.ReadAllBytes("Car_04.png");
+                    var Base64 = Convert.ToBase64String(bytes);
+                    car4m = Base64;
+                }
+                {
+                    mtl = File.ReadAllText("Car1.mtl"); ;
+                }
+                {
+                    obj = File.ReadAllText("Car1.obj"); ;
+                }
+                ConnectInfo.RobotBase64 = new string[] { obj, mtl, car1m, car2m, car3m, car4m };
+            }
+            else
+            {
+                // json = ConnectInfo.mapRoadAndCrossJson;
+            }
+            {
+                var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new
+                {
+                    c = "SetRobot",
+                    modelBase64 = ConnectInfo.RobotBase64
+                });
+                var sendData = Encoding.ASCII.GetBytes(msg);
+                await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+            }
+
             var result = await setState(s, webSocket, LoginState.OnLine);
 
-            getRoadInfomation(s);
+            await initializeOperation(s);
+
+            //    passRobotInfomation(s);
 
             return result;
         }
 
-        private static void getRoadInfomation(State s)
+
+
+        private async static Task initializeOperation(State s)
         {
-            throw new NotImplementedException();
+            // var key = CommonClass.Random.GetMD5HashFromStr(ConnectInfo.ConnectedInfo + websocketID + DateTime.Now.ToString());
+            //   var roomUrl = roomUrls[s.roomIndex];
+            var getPosition = new GetPosition()
+            {
+                c = "GetPosition",
+                Key = s.Key
+            };
+            var msg = Newtonsoft.Json.JsonConvert.SerializeObject(getPosition);
+            var result = await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[s.roomIndex], msg);
+
         }
 
-        public static async Task<State> GetRoomThenStartAfterCreateTeam(State s, System.Net.WebSockets.WebSocket webSocket, TeamResult team)
+        private async static Task<string> getRoadInfomation(State s)
+        {
+            var m = new Map()
+            {
+                c = "Map",
+                DataType = "All"
+            };
+            var msg = Newtonsoft.Json.JsonConvert.SerializeObject(m);
+            var result = await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[s.roomIndex], msg);
+            return result;
+        }
+
+        public static async Task<State> GetRoomThenStartAfterCreateTeam(State s, System.Net.WebSockets.WebSocket webSocket, TeamResult team, string playerName, string[] carsNames)
         {
             /*
              * 组队，队长状态下，队长点击了开始
              */
             int roomIndex;
-            var roomInfo = Room.getRoomNum(s.WebsocketID, out roomIndex);
+            var roomInfo = Room.getRoomNum(s.WebsocketID, playerName, carsNames, out roomIndex);
+            s.Key = roomInfo.Key;
             var sendMsg = Newtonsoft.Json.JsonConvert.SerializeObject(roomInfo);
             var receivedMsg = await Team.SetToBegain(team, roomIndex);
             // var receivedMsg = await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[roomInfo.RoomIndex], sendMsg);
@@ -165,9 +233,10 @@ namespace WsOfWebClient
             //  return true;
         }
 
-        internal static async Task<State> GetRoomThenStartAfterJoinTeam(State s, WebSocket webSocket, int roomIndex)
+        internal static async Task<State> GetRoomThenStartAfterJoinTeam(State s, WebSocket webSocket, int roomIndex, string playerName, string[] carsNames)
         {
-            var roomInfo = Room.getRoomNumByRoom(s.WebsocketID, roomIndex);
+            var roomInfo = Room.getRoomNumByRoom(s.WebsocketID, roomIndex, playerName, carsNames);
+            s.Key = roomInfo.Key;
             var sendMsg = Newtonsoft.Json.JsonConvert.SerializeObject(roomInfo);
             var receivedMsg = await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[roomIndex], sendMsg);
             if (receivedMsg == "ok")

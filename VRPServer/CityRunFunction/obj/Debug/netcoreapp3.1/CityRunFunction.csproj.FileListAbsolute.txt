@@ -6,3 +6,4 @@ F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CityRunFunction\o
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CityRunFunction\obj\Debug\netcoreapp3.1\CityRunFunction.csproj.CoreCompileInputs.cache
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CityRunFunction\obj\Debug\netcoreapp3.1\CityRunFunction.dll
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CityRunFunction\obj\Debug\netcoreapp3.1\CityRunFunction.pdb
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\CityRunFunction\obj\Debug\netcoreapp3.1\CityRunFunction.csprojAssemblyReference.cache

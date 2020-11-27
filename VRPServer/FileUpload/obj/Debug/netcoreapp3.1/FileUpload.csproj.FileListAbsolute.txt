@@ -10,3 +10,4 @@ F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\FileUpload\obj\De
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\FileUpload\obj\Debug\netcoreapp3.1\FileUpload.dll
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\FileUpload\obj\Debug\netcoreapp3.1\FileUpload.pdb
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\FileUpload\obj\Debug\netcoreapp3.1\FileUpload.genruntimeconfig.cache
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\FileUpload\obj\Debug\netcoreapp3.1\FileUpload.csprojAssemblyReference.cache

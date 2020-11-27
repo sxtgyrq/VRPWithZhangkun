@@ -88,6 +88,7 @@ namespace WsOfWebClient
                 s.WebsocketID = ConnectInfo.webSocketID++;
                 s.Ls = LoginState.empty;
                 s.roomIndex = -1;
+                s.mapRoadAndCrossMd5 = "";
                 removeWsIsNotOnline();
                 addWs(webSocket, s.WebsocketID);
 
@@ -107,14 +108,23 @@ namespace WsOfWebClient
                         CommonClass.Command c = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.Command>(returnResult.result);
                         switch (c.c)
                         {
+                            case "MapRoadAndCrossMd5":
+                                {
+                                    if (s.Ls == LoginState.empty)
+                                    {
+                                        MapRoadAndCrossMd5 mapRoadAndCrossMd5 = Newtonsoft.Json.JsonConvert.DeserializeObject<MapRoadAndCrossMd5>(returnResult.result);
+                                        s.mapRoadAndCrossMd5 = mapRoadAndCrossMd5.mapRoadAndCrossMd5;
+                                    }
+                                }; break;
                             case "CheckSession":
                                 {
                                     if (s.Ls == LoginState.empty)
                                     {
                                         CheckSession checkSession = Newtonsoft.Json.JsonConvert.DeserializeObject<CheckSession>(returnResult.result);
-                                        var checkResult = await BLL.CheckSessionBLL.checkIsOK(checkSession);
+                                        var checkResult = await BLL.CheckSessionBLL.checkIsOK(checkSession, s);
                                         if (checkResult.CheckOK)
                                         {
+                                            s.Key = checkResult.Key;
                                             s.roomIndex = checkResult.roomIndex;
                                             s = await Room.setOnLine(s, webSocket);
                                         }
@@ -129,7 +139,7 @@ namespace WsOfWebClient
                                     JoinGameSingle joinType = Newtonsoft.Json.JsonConvert.DeserializeObject<JoinGameSingle>(returnResult.result);
                                     if (s.Ls == LoginState.selectSingleTeamJoin)
                                     {
-                                        s = await Room.GetRoomThenStart(s, webSocket);
+                                        s = await Room.GetRoomThenStart(s, webSocket, playerName, carsNames);
                                     }
 
                                 }; break;
@@ -156,7 +166,7 @@ namespace WsOfWebClient
                                                 wResult = returnResult.wr;
                                                 if (returnResult.result == command_start)
                                                 {
-                                                    s = await Room.GetRoomThenStartAfterCreateTeam(s, webSocket, team);
+                                                    s = await Room.GetRoomThenStartAfterCreateTeam(s, webSocket, team, playerName, carsNames);
                                                 }
                                                 else
                                                 {
@@ -194,7 +204,7 @@ namespace WsOfWebClient
                                                     int roomIndex;
                                                     if (Room.CheckSecret(returnResult.result, command_start, out roomIndex))
                                                     {
-                                                        s = await Room.GetRoomThenStartAfterJoinTeam(s, webSocket, roomIndex);
+                                                        s = await Room.GetRoomThenStartAfterJoinTeam(s, webSocket, roomIndex, playerName, carsNames);
                                                     }
                                                     else
                                                     {

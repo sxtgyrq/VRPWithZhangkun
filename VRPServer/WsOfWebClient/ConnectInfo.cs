@@ -14,5 +14,32 @@ namespace WsOfWebClient
         public static Dictionary<int, WebSocket> connectedWs = new Dictionary<int, WebSocket>();
 
         public static HttpClient Client = new HttpClient();
+
+        static string _mapRoadAndCrossJson = "";
+        public static string mapRoadAndCrossJson
+        {
+            get
+            {
+                lock (mapRoadAndCrossJsonLock)
+                {
+                    return _mapRoadAndCrossJson;
+                }
+            }
+            set
+            {
+                lock (mapRoadAndCrossJsonLock)
+                {
+                    _mapRoadAndCrossJson = value;
+                    mapRoadAndCrossJsonMd5 = CommonClass.Random.GetMD5HashFromStr(_mapRoadAndCrossJson);
+                }
+            }
+        }
+        static object mapRoadAndCrossJsonLock = "";
+        public static string mapRoadAndCrossJsonMd5
+        {
+            get;
+            private set;
+        }
+        public static string[] RobotBase64 = new string[] { };
     }
 }
