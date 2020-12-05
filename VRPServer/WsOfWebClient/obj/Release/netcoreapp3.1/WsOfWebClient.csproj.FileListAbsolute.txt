@@ -35,3 +35,9 @@ F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Release\netcoreapp3.1\Car_02.png
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Release\netcoreapp3.1\Car_03.png
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Release\netcoreapp3.1\Car_04.png
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Release\netcoreapp3.1\Car_A.png
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Release\netcoreapp3.1\Car_B.png
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Release\netcoreapp3.1\Car_C.png
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Release\netcoreapp3.1\Car_D.png
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Release\netcoreapp3.1\Car_E.png
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\WsOfWebClient\bin\Release\netcoreapp3.1\diamond.obj

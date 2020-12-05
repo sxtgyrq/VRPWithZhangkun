@@ -2,8 +2,8 @@
   "ExpandedNodes": [
     "",
     "\\VRPServer",
-    "\\VRPServer\\Server",
-    "\\Webshow"
+    "\\VRPServer\\HouseManager",
+    "\\VRPServer\\Server"
   ],
   "SelectedNode": "\\VRPServer\\Server\\Server.sln",
   "PreviewInSolutionExplorer": false

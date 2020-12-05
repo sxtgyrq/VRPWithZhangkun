@@ -5,6 +5,7 @@ using System.IO;
 using System.Net.WebSockets;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -123,34 +124,44 @@ namespace WsOfWebClient
 
             if (ConnectInfo.RobotBase64.Length == 0)
             {
-                string car1m, car2m, car3m, car4m, obj, mtl;
+                string obj, mtl, carA, carB, carC, carD, carE;
                 {
-                    var bytes = File.ReadAllBytes("Car_01.png");
+                    var bytes = File.ReadAllBytes("Car_A.png");
                     var Base64 = Convert.ToBase64String(bytes);
-                    car1m = Base64;
+                    carA = Base64;
                 }
                 {
-                    var bytes = File.ReadAllBytes("Car_02.png");
+                    var bytes = File.ReadAllBytes("Car_B.png");
                     var Base64 = Convert.ToBase64String(bytes);
-                    car2m = Base64;
+                    carB = Base64;
                 }
                 {
-                    var bytes = File.ReadAllBytes("Car_03.png");
+                    var bytes = File.ReadAllBytes("Car_C.png");
                     var Base64 = Convert.ToBase64String(bytes);
-                    car3m = Base64;
+                    carC = Base64;
                 }
                 {
-                    var bytes = File.ReadAllBytes("Car_04.png");
+                    var bytes = File.ReadAllBytes("Car_D.png");
                     var Base64 = Convert.ToBase64String(bytes);
-                    car4m = Base64;
+                    carD = Base64;
                 }
+                {
+                    var bytes = File.ReadAllBytes("Car_E.png");
+                    var Base64 = Convert.ToBase64String(bytes);
+                    carE = Base64;
+                }
+                //{
+                //    var bytes = File.ReadAllBytes("Car_02.png");
+                //    var Base64 = Convert.ToBase64String(bytes);
+                //    carA = Base64;
+                //} 
                 {
                     mtl = File.ReadAllText("Car1.mtl"); ;
                 }
                 {
                     obj = File.ReadAllText("Car1.obj"); ;
                 }
-                ConnectInfo.RobotBase64 = new string[] { obj, mtl, car1m, car2m, car3m, car4m };
+                ConnectInfo.RobotBase64 = new string[] { obj, mtl, carA, carB, carC, carD, carE };
             }
             else
             {
@@ -161,6 +172,20 @@ namespace WsOfWebClient
                 {
                     c = "SetRobot",
                     modelBase64 = ConnectInfo.RobotBase64
+                });
+                var sendData = Encoding.ASCII.GetBytes(msg);
+                await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+            }
+
+            if (string.IsNullOrEmpty(ConnectInfo.DiamondObj))
+            {
+                ConnectInfo.DiamondObj = await File.ReadAllTextAsync("diamond.obj");
+            }
+            {
+                var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new
+                {
+                    c = "SetDiamond",
+                    DiamondObj = ConnectInfo.DiamondObj
                 });
                 var sendData = Encoding.ASCII.GetBytes(msg);
                 await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
@@ -177,6 +202,11 @@ namespace WsOfWebClient
 
 
 
+        /// <summary>
+        /// 发送此命令，必在await setState(s, webSocket, LoginState.OnLine) 之后。两者是在前台是依托关系！
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
         private async static Task initializeOperation(State s)
         {
             // var key = CommonClass.Random.GetMD5HashFromStr(ConnectInfo.ConnectedInfo + websocketID + DateTime.Now.ToString());
@@ -302,6 +332,52 @@ namespace WsOfWebClient
                 return false;
             }
         }
+
+        internal static async Task<string> setPromete(State s, Promote promote)
+        {
+            if (promote.pType == "mile")
+            {
+                // string A = "carA_bb6a1ef1cb8c5193bec80b7752c6d54c";
+                // A = Console.ReadLine();
+                Regex r = new Regex("^car(?<car>[A-E]{1})_(?<key>[a-f0-9]{32})$");
+
+                var m = r.Match(promote.car);
+                if (m.Success)
+                {
+                    Console.WriteLine($"正则匹配成功：{m.Groups["car"] }+{m.Groups["key"] }");
+                    if (m.Groups["key"].Value == s.Key)
+                    {
+                        var getPosition = new SetPromote()
+                        {
+                            c = "SetPromote",
+                            Key = s.Key,
+                            car = "car" + m.Groups["car"].Value,
+                            pType = promote.pType
+                        };
+                        var msg = Newtonsoft.Json.JsonConvert.SerializeObject(getPosition);
+                        await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[s.roomIndex], msg);
+                    }
+                }
+
+                //var "carA_bb6a1ef1cb8c5193bec80b7752c6d54c"
+
+            }
+            return "";
+        }
+
+        //[Obsolete]
+        //internal static async Task GetPromoteMilesInfo(State s)
+        //{
+        //    throw new Exception("此处已作废");
+        //    var m = new GetPromoteMiles()
+        //    {
+        //        c = "GetPromoteMiles",
+        //        FromUrl = ConnectInfo.ConnectedInfo + "/notify",
+        //        WebSocketID = s.WebsocketID
+        //    };
+        //    var msg = Newtonsoft.Json.JsonConvert.SerializeObject(m);
+        //    await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[s.roomIndex], msg);
+        //}
     }
 
 

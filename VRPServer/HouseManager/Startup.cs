@@ -57,13 +57,13 @@ namespace HouseManager
                         case "PlayerAdd":
                             {
                                 CommonClass.PlayerAdd addItem = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.PlayerAdd>(notifyJson);
-                                var result = BaseInfomation.rm.AddPlayer(addItem);
+                                var result = await BaseInfomation.rm.AddPlayer(addItem);
                                 await context.Response.WriteAsync(result);
                             }; break;
                         case "PlayerCheck":
                             {
                                 CommonClass.PlayerCheck checkItem = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.PlayerCheck>(notifyJson);
-                                var result = BaseInfomation.rm.UpdatePlayer(checkItem);
+                                var result = await BaseInfomation.rm.UpdatePlayer(checkItem);
                                 await context.Response.WriteAsync(result);
                             }; break;
                         case "Map":
@@ -88,18 +88,35 @@ namespace HouseManager
                                 string fromUrl;
                                 int webSocketID;
                                 Model.FastonPosition fp;
-                                if (BaseInfomation.rm.GetPosition(getPosition, out fromUrl, out webSocketID, out fp))
+                                string[] carsNames;
+                                if (BaseInfomation.rm.GetPosition(getPosition, out fromUrl, out webSocketID, out fp, out carsNames))
                                 {
                                     CommonClass.GetPositionNotify notify = new CommonClass.GetPositionNotify()
                                     {
                                         c = "GetPositionNotify",
                                         fp = fp,
-                                        WebSocketID = webSocketID
+                                        WebSocketID = webSocketID,
+                                        carsNames = carsNames,
+                                        key = getPosition.Key
+                                        // var xx=  getPosition.Key
                                     };
 
                                     await sendMsg(fromUrl, Newtonsoft.Json.JsonConvert.SerializeObject(notify));
                                 }
                                 await context.Response.WriteAsync("ok");
+                            }; break;
+                        case "FinishTask":
+                            {
+
+                            }; break;
+                        case "SetPromote":
+                            {
+                                CommonClass.SetPromote sp= Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.SetPromote>(notifyJson);
+                                var result = await BaseInfomation.rm.updatePromote(sp);
+                                await context.Response.WriteAsync(result); 
+                                //CommonClass.GetPromoteMiles getPosition = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.GetPromoteMiles>(notifyJson);
+                                //var infomation = BaseInfomation.rm.GetPromoteInfomation(getPosition.WebSocketID, "licheng");
+                                //await sendMsg(getPosition.FromUrl, Newtonsoft.Json.JsonConvert.SerializeObject(infomation));
                             }; break;
                     }
                     //if (c.c == "PlayerAdd")
@@ -139,7 +156,7 @@ namespace HouseManager
         //    await BaseInfomation.Client.PostAsync(roomUrl, byteContent);
         //}
 
-        private static async Task sendMsg(Microsoft.Extensions.Primitives.StringValues fromUrl, string json)
+        public static async Task sendMsg(Microsoft.Extensions.Primitives.StringValues fromUrl, string json)
         {
             // using (HttpClient client = new HttpClient())
             {

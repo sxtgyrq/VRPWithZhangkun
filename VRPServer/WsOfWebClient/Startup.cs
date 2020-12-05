@@ -267,6 +267,19 @@ namespace WsOfWebClient
                                         //playerName = setPlayerName.Name;
                                     }
                                 }; break;
+                            case "Promote":
+                                {
+                                    if (s.Ls == LoginState.OnLine)
+                                    {
+                                        Promote promote = Newtonsoft.Json.JsonConvert.DeserializeObject<Promote>(returnResult.result);
+
+                                        await Room.setPromete(s, promote);
+
+                                        //throw new Exception($"{c.c}已作废");
+                                        // await Room.GetPromoteMilesInfo(s);
+                                    }
+                                }; break;
+
                         }
                     }
                     catch

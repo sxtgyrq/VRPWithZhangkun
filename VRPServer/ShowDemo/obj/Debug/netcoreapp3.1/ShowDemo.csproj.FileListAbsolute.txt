@@ -14,3 +14,5 @@ F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\ShowDemo\obj\Debu
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\ShowDemo\obj\Debug\netcoreapp3.1\ShowDemo.dll
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\ShowDemo\obj\Debug\netcoreapp3.1\ShowDemo.pdb
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\ShowDemo\obj\Debug\netcoreapp3.1\ShowDemo.genruntimeconfig.cache
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\ShowDemo\bin\Debug\netcoreapp3.1\Model.dll
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\ShowDemo\bin\Debug\netcoreapp3.1\Model.pdb

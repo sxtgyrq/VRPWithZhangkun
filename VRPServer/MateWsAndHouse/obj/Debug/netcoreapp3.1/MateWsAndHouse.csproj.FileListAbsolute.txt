@@ -26,3 +26,5 @@ F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\MateWsAndHouse\ob
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\MateWsAndHouse\obj\Debug\netcoreapp3.1\MateWsAndHouse.dll
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\MateWsAndHouse\obj\Debug\netcoreapp3.1\MateWsAndHouse.pdb
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\MateWsAndHouse\obj\Debug\netcoreapp3.1\MateWsAndHouse.genruntimeconfig.cache
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\MateWsAndHouse\bin\Debug\netcoreapp3.1\Model.dll
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\MateWsAndHouse\bin\Debug\netcoreapp3.1\Model.pdb

@@ -37,6 +37,10 @@ namespace WsOfWebClient
         public string Name { get; set; }
         public int CarIndex { get; set; }
     }
+    public class Promote : CommonClass.Command
+    {
+        public string pType { get; set; }
+        public string car { get; set; }
+    }
 
-   
 }

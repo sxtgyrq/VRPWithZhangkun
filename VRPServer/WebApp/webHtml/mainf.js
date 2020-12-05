@@ -1,6 +1,7 @@
 ﻿
 var objMain =
 {
+    indexKey: '',
     state: '',
     receivedState: '',
     scene: null,
@@ -10,9 +11,249 @@ var objMain =
     roadGroup: null,
     basePoint: null,
     playerGroup: null,
+    carGroup: null,
     robotModel: null,
     cars: {},
-    light1: null
+    light1: null,
+    controls: null,
+    carsNames: null,
+    PromoteState: -1,
+    PromotePositions:
+    {
+        mile: null,
+        yewu: null,
+        volume: null,
+        speed: null
+    },
+    diamondGeometry: null,
+    mirrorCubeCamera: null,
+    promoteDiamond: null,
+    mainF:
+    {
+        drawLineOfFpToRoad: function (fp, group, color) {
+            {
+                var start = new THREE.Vector3(MercatorGetXbyLongitude(fp.Longitude), 0, -MercatorGetYbyLatitude(fp.Latitde));
+                var end = new THREE.Vector3(MercatorGetXbyLongitude(fp.positionLongitudeOnRoad), 0, -MercatorGetYbyLatitude(fp.positionLatitudeOnRoad));
+                var lineGeometry = new THREE.Geometry();
+                lineGeometry.vertices.push(start);
+                lineGeometry.vertices.push(end);
+                var lineMaterial = new THREE.LineBasicMaterial({ color: color });
+                var line = new THREE.Line(lineGeometry, lineMaterial);
+                group.add(line);
+            }
+        },
+        lookAtPosition: function (fp) {
+
+            var start = new THREE.Vector3(MercatorGetXbyLongitude(fp.Longitude), 0, -MercatorGetYbyLatitude(fp.Latitde));
+            var end = new THREE.Vector3(MercatorGetXbyLongitude(fp.positionLongitudeOnRoad), 0, -MercatorGetYbyLatitude(fp.positionLatitudeOnRoad));
+
+            var cc = new Complex(end.x - start.x, end.z - start.z);
+            cc.toOne();
+
+
+            //  cc.multiply(6);
+            // object.rotateY(-cc.toAngle() + Math.PI / 2);
+
+            //var positon1 = cc.multiply(new Complex(-0.309016994, 0.951056516));
+            //var positon2 = positon1.multiply(new Complex(0.809016994, 0.587785252));
+            //var positon3 = positon2.multiply(new Complex(0.809016994, 0.587785252));
+            //var positon4 = positon3.multiply(new Complex(0.809016994, 0.587785252));
+            //var positon5 = positon4.multiply(new Complex(0.809016994, 0.587785252));
+
+            //var positons = [positon1, positon2, positon3, positon4, positon5];
+            //var names = ['carA', 'carB', 'carC', 'carD', 'carE'];
+            //console.log('positons', positons);
+            //var percentOfPosition = 0.25;
+            //for (var i = 0; i < positons.length; i++) {
+            //    var start = new THREE.Vector3(MercatorGetXbyLongitude(fp.Longitude), 0, -MercatorGetYbyLatitude(fp.Latitde));
+            //    var end = new THREE.Vector3(start.x + positons[i].r * percentOfPosition, 0, start.z + positons[i].i * percentOfPosition);
+            //    var lineGeometry = new THREE.Geometry();
+            //    lineGeometry.vertices.push(start);
+            //    lineGeometry.vertices.push(end);
+            //    var lineMaterial = new THREE.LineBasicMaterial({ color: color });
+            //    var line = new THREE.Line(lineGeometry, lineMaterial);
+            //    objMain.scene.add(line);
+
+            //    var model = objMain.cars[names[i]].clone();
+            //    model.position.set(end.x, 0, end.z);
+            //    model.scale.set(0.002, 0.002, 0.002);
+            //    model.rotateY(-positons[i].toAngle());
+            //    objMain.roadGroup.add(model);
+            //}
+            var minDistance = objMain.controls.minDistance * 1.1;
+            var maxPolarAngle = objMain.controls.maxPolarAngle - Math.PI / 30;
+            {
+                var planePosition = new THREE.Vector3(start.x + cc.r * minDistance * Math.sin(maxPolarAngle), start.y + minDistance * Math.cos(maxPolarAngle), start.z + cc.i * minDistance * Math.sin(maxPolarAngle));
+                objMain.camera.position.set(planePosition.x, planePosition.y, planePosition.z);
+
+                objMain.controls.target.set(MercatorGetXbyLongitude(fp.Longitude), 0, -MercatorGetYbyLatitude(fp.Latitde));
+                objMain.camera.lookAt(MercatorGetXbyLongitude(fp.Longitude), 0, -MercatorGetYbyLatitude(fp.Latitde));
+            }
+        },
+        initilizeCars: function (fp, color, key) {
+            var start = new THREE.Vector3(MercatorGetXbyLongitude(fp.Longitude), 0, -MercatorGetYbyLatitude(fp.Latitde))
+            var end = new THREE.Vector3(MercatorGetXbyLongitude(fp.positionLongitudeOnRoad), 0, -MercatorGetYbyLatitude(fp.positionLatitudeOnRoad))
+            var cc = new Complex(end.x - start.x, end.z - start.z);
+            cc.toOne();
+
+            var positon1 = cc.multiply(new Complex(-0.309016994, 0.951056516));
+            var positon2 = positon1.multiply(new Complex(0.809016994, 0.587785252));
+            var positon3 = positon2.multiply(new Complex(0.809016994, 0.587785252));
+            var positon4 = positon3.multiply(new Complex(0.809016994, 0.587785252));
+            var positon5 = positon4.multiply(new Complex(0.809016994, 0.587785252));
+
+            var positons = [positon1, positon2, positon3, positon4, positon5];
+
+            var names = ['carA', 'carB', 'carC', 'carD', 'carE'];
+            //   console.log('positons', positons);
+            var percentOfPosition = 0.25;
+            for (var i = 0; i < positons.length; i++) {
+                var start = new THREE.Vector3(MercatorGetXbyLongitude(fp.Longitude), 0, -MercatorGetYbyLatitude(fp.Latitde));
+                var end = new THREE.Vector3(start.x + positons[i].r * percentOfPosition, 0, start.z + positons[i].i * percentOfPosition);
+                var lineGeometry = new THREE.Geometry();
+                lineGeometry.vertices.push(start);
+                lineGeometry.vertices.push(end);
+                var lineMaterial = new THREE.LineBasicMaterial({ color: color });
+                var line = new THREE.Line(lineGeometry, lineMaterial);
+                line.name = 'carRoad_' + key;
+                line.userData = { objectType: 'carRoad', parent: key, index: (i + 0) };
+                objMain.carGroup.add(line);
+
+                var model = objMain.cars[names[i]].clone();
+                model.name = names[i] + '_' + key;
+                model.position.set(end.x, 0, end.z);
+                model.scale.set(0.002, 0.002, 0.002);
+                model.rotateY(-positons[i].toAngle());
+                model.userData = { objectType: 'car', parent: key, index: names[i] };
+                objMain.carGroup.add(model);
+            }
+        },
+        lookTwoPositionCenter: function (p1, p2) {
+
+            var start = p1;
+            var end = p2;
+            var lengthTwoPoint = objMain.mainF.getLength(start, end);
+            if (lengthTwoPoint > 0.2) {
+                var cc = new Complex(end.x - start.x, end.z - start.z);
+                cc.toOne();
+                var x1 = lengthTwoPoint / (1 / Math.tan(Math.PI / 6) - 1 / Math.tan(Math.PI * 42 / 180));
+                var x2 = x1 / Math.tan(Math.PI * 42 / 180);
+                var x3 = x2 + lengthTwoPoint / 2;
+                var minDistance = x3 / Math.cos(Math.PI * 36 / 180);
+            }
+            //var minDistance = objMain.controls.minDistance * 1.1;
+            var maxPolarAngle = Math.PI * 54 / 180;
+            {
+                var planePosition = new THREE.Vector3(start.x + cc.r * minDistance * Math.sin(maxPolarAngle), start.y + minDistance * Math.cos(maxPolarAngle), start.z + cc.i * minDistance * Math.sin(maxPolarAngle));
+                objMain.camera.position.set(planePosition.x, planePosition.y, planePosition.z);
+
+                objMain.controls.target.set((start.x + end.x) / 2, 0, (start.z + end.z) / 2);
+                objMain.camera.lookAt((start.x + end.x) / 2, 0, (start.z + end.z) / 2);
+            }
+        },
+        getLength: function (p1, p2) {
+            return Math.sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y) + (p1.z - p2.z) * (p1.z - p2.z));
+        },
+        drawPanelOfPromotion: function (type) {
+
+            var lengthOfObjs = objMain.groupOfOperatePanle.children.length;
+            for (var i = lengthOfObjs - 1; i >= 0; i--) {
+                objMain.groupOfOperatePanle.remove(objMain.groupOfOperatePanle.children[i]);
+            }
+            var element = document.createElement('div');
+            element.style.width = '10em';
+            //element.style.marginLeft = 'calc(5em + 20px)';
+            element.style.marginTop = '3em';
+            element.style.border = '2px solid #ff0000';
+            element.style.borderTopLeftRadius = '0.5em';
+            element.style.backgroundColor = 'rgba(255, 255, 255, 0.5)';
+            element.style.color = '#1504f6';
+
+            var div2 = document.createElement('div');
+
+            var b = document.createElement('b');
+            b.innerHTML = '到[<span style="color:#05ffba">' + objMain.PromotePositions[type].Fp.FastenPositionName + '</span>]花费<span style="color:#05ffba">' + objMain.PromotePositions[type].Price.toFixed(2) + '</span>现金或汇兑购买红宝石。';
+            div2.appendChild(b);
+
+            var div3 = document.createElement('div');
+            div3.style.textAlign = 'center';
+            div3.style.width = '3em';
+            div3.style.border = '2px inset #ffc403';
+            div3.style.borderRadius = '0.3em';
+            div3.style.marginTop = '4px';
+            div3.style.marginBottom = '4px';
+            div3.style.position = 'relative';
+            div3.style.left = 'calc(100% - 3em - 4px)';
+
+            var span = document.createElement('span');
+            span.innerText = '执行';
+
+            div3.onclick = function () {
+                if (objMain.Task.state == '') {
+                    throw 'task not select';
+                }
+                else if (objMain.Task.carSelect == '') {
+                    alert('请选择要执行此任务的车辆');
+                }
+                else {
+                    objMain.ws.send(JSON.stringify({ 'c': 'Promote', 'pType': objMain.Task.state, 'car': objMain.Task.carSelect }));
+                    objMain.Task.state = '';
+                    objMain.Task.carSelect = '';
+                    objMain.mainF.removeF.removePanle('carsSelectionPanel');
+
+                    objMain.mainF.removeF.clearGroup(objMain.promoteDiamond);
+                    objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
+
+                }
+            }
+
+            div3.appendChild(span);
+
+            element.appendChild(div2);
+            element.appendChild(div3);
+
+            var object = new THREE.CSS2DObject(element);
+            var fp = objMain.PromotePositions[type].Fp;
+            object.position.set(MercatorGetXbyLongitude(fp.Longitude), 0, -MercatorGetYbyLatitude(fp.Latitde));
+
+            objMain.groupOfOperatePanle.add(object);
+
+
+        },
+        removeF:
+        {
+            removePanle: function (id) {
+                //carsSelectionPanel
+                while (document.getElementById(id) != null) {
+                    document.getElementById(id).remove();
+                }
+            },
+            clearGroup: function (group) {
+                var startIndex = group.children.length - 1;
+                for (var i = startIndex; i >= 0; i--) {
+                    group.remove(group.children[i]);
+                }
+            }
+        }
+    },
+    Task:
+    {
+        state: '',
+        carSelect: ''
+    },
+    animation:
+    {
+        animateCameraByCarAndTask: function () {
+            if (objMain.Task.state == 'mile') {
+                if (objMain.Task.carSelect != '') {
+                    var p1 = objMain.promoteDiamond.children[0].position;
+                    var p2 = objMain.carGroup.getObjectByName(objMain.Task.carSelect).position;
+
+                }
+            }
+        }
+    },
+    groupOfOperatePanle: null
 };
 var startA = function () {
     var connected = false;
@@ -62,6 +303,7 @@ var startA = function () {
                         case 'OnLine':
                             {
                                 set3DHtml();
+
                             }; break;
                         case 'WaitingToStart':
                             {
@@ -114,24 +356,34 @@ var startA = function () {
                 }; break;
             case 'GetPositionNotify':
                 {
-                    //console.log(evt.data);
-                    objMain.basePoint = JSON.parse(evt.data).fp;
+                    /*
+                     * 此命令的获取比在objMain.state="OnLine" 之下发生
+                     */
+                    if (objMain.state == "OnLine") {
 
-                    objMain.controls.target.set(objMain.basePoint.MacatuoX, 0, -objMain.basePoint.MacatuoY);
-                    objMain.camera.lookAt(objMain.basePoint.MacatuoX, 0, -objMain.basePoint.MacatuoY);
+                    }
+                    else {
+                        var msg = 'GetPositionNotify出入时，状态为' + objMain.state;
+                        throw (msg);
+                        return;
+                    }
+                    console.log(evt.data);
+                    var objInput = JSON.parse(evt.data);
+                    objMain.basePoint = objInput.fp;
+                    objMain.carsNames = objInput.carsNames;
+                    objMain.indexKey = objInput.key;
 
-                    var polarAngle = objMain.controls.getPolarAngle();
-                    objMain.camera.position.set(objMain.basePoint.MacatuoX, 10, -objMain.basePoint.MacatuoY - Math.tan(Math.PI / 6) * 10);
-
-                    objMain.camera.lookAt(objMain.basePoint.MacatuoX, 0, -objMain.basePoint.MacatuoY);
                     //if (objMain.receivedState == 'WaitingToGetTeam') {
                     //    objMain.ws.send(received_msg);
                     //}
                     //小车用 https://threejs.org/examples/#webgl_animation_skinning_morph
                     //小车用 基地用 https://threejs.org/examples/#webgl_animation_cloth
-                    // drawFlag();
-                    drawSelf();
-
+                    // drawFlag(); 
+                    drawPoint('green', objMain.basePoint, objMain.indexKey);
+                    objMain.mainF.drawLineOfFpToRoad(objMain.basePoint, objMain.playerGroup, 'green');
+                    objMain.mainF.lookAtPosition(objMain.basePoint);
+                    objMain.mainF.initilizeCars(objMain.basePoint, 'green', objMain.indexKey);
+                    drawCarBtns(objMain.carsNames);
                     //var model = objMain.robotModel.clone();
                     //model.position.set(objMain.basePoint.MacatuoX, 0, -objMain.basePoint.MacatuoY);
                     //objMain.roadGroup.add(model);
@@ -206,13 +458,42 @@ var startA = function () {
                                     }, function () { }, function () { });
                             });
                     };
-                    f(received_obj, 5, 'self');
-                    f(received_obj, 3, 'teamMate');
-                    f(received_obj, 4, 'opponent');
+                    f(received_obj, 2, 'carA');
+                    f(received_obj, 3, 'carB');
+                    f(received_obj, 4, 'carC');
+                    f(received_obj, 5, 'carD');
+                    f(received_obj, 6, 'carE');
                 }; break;
-
+            case 'BradCastPromoteInfoNotify':
+                {
+                    throw (received_obj.c + '已作废');
+                    // console.log(evt.data);
+                    //if (received_obj.PromoteState == objMain.PromoteState) { }
+                    //else {
+                    //    objMain.PromoteState = received_obj.PromoteState;
+                    //    objMain.ws.send(JSON.stringify({ c: 'PromoteMiles' }));
+                    //}
+                    /*
+                     * 之前这里需要广播，前台验证。这里采用服务器session机制，在服务器进行判断。
+                     * 
+                     */
+                }; break;
+            case 'BradCastPromoteInfoDetail':
+                {
+                    //  switch (received_obj.
+                    objMain.PromotePositions[received_obj.resultType] = received_obj;
+                }; break;
+            case 'SetDiamond':
+                {
+                    var manager = new THREE.LoadingManager();
+                    new THREE.OBJLoader(manager)
+                        .loadTextOnly(received_obj.DiamondObj, function (object) {
+                            console.log('SetDiamond', object.children[0].geometry);
+                            var geometry = object.children[0].geometry;
+                            objMain.diamondGeometry = geometry;
+                        }, function () { }, function () { });
+                }; break;
         }
-        //alert("数据已接收...");
     };
     ws.onclose = function () {
         // 关闭 websocket
@@ -245,9 +526,59 @@ function animate() {
             //    clothForRender.clothGeometry.computeVertexNormals();
             //}
             for (var i = 0; i < objMain.playerGroup.children.length; i++) {
-                objMain.playerGroup.children[i].userData.animateDataYrq.simulate(Date.now());
-                objMain.playerGroup.children[i].userData.animateDataYrq.refresh(Date.now());
+                if (objMain.playerGroup.children[i].isMesh) {
+                    objMain.playerGroup.children[i].userData.animateDataYrq.simulate(Date.now());
+                    objMain.playerGroup.children[i].userData.animateDataYrq.refresh(Date.now());
+                }
             }
+            for (var i = 0; i < objMain.carGroup.children.length; i++) {
+                /*
+                 * 初始化汽车的大小
+                 */
+                if (objMain.carGroup.children[i].isGroup) {
+                    objMain.carGroup.children[i].scale.set(0.002, 0.002, 0.002);
+
+                }
+            }
+            for (var i = 0; i < objMain.promoteDiamond.children.length; i++) {
+                /*
+                 * 初始化 砖石的大小
+                 */
+                if (objMain.promoteDiamond.children[i].isMesh) {
+                    objMain.promoteDiamond.children[i].scale.set(0.2, 0.22, 0.2);
+
+                }
+            }
+
+
+            var lengthOfPAndC = objMain.mainF.getLength(objMain.camera.position, objMain.controls.target);
+
+
+            {
+                /*放大选中的汽车*/
+                var scale = objMain.mainF.getLength(objMain.camera.position, objMain.controls.target) * 0.001;
+                if (scale < 0.002) {
+                    scale = 0.002;
+                }
+                if (objMain.Task.carSelect != '') {
+                    if (objMain.carGroup.getObjectByName(objMain.Task.carSelect) != undefined) {
+                        objMain.carGroup.getObjectByName(objMain.Task.carSelect).scale.set(scale, scale, scale);
+                    }
+                }
+
+            }
+            {
+                /*放大选中的砖石*/
+                var scale = objMain.mainF.getLength(objMain.camera.position, objMain.controls.target) / 35;
+                if (scale < 0.2) {
+                    scale = 0.2;
+                }
+                if (objMain.Task.state == 'mile') {
+                    objMain.promoteDiamond.children[0].scale.set(scale, scale * 1.1, scale);
+                }
+            }
+            objMain.animation.animateCameraByCarAndTask();
+
             objMain.renderer.render(objMain.scene, objMain.camera);
             // render();
             objMain.labelRenderer.render(objMain.scene, objMain.camera);
@@ -323,11 +654,25 @@ var set3DHtml = function () {
     objMain.playerGroup = new THREE.Group();
     objMain.scene.add(objMain.playerGroup);
 
+    objMain.promoteDiamond = new THREE.Group();
+    objMain.scene.add(objMain.promoteDiamond);
+
+    objMain.carGroup = new THREE.Group();
+    objMain.scene.add(objMain.carGroup);
+
+    objMain.groupOfOperatePanle = new THREE.Group();
+    objMain.scene.add(objMain.groupOfOperatePanle);
+
     {
         objMain.light1 = new THREE.PointLight(0xffffff);
         objMain.light1.position.set(-100, 300, -100);
-        objMain.light1.intensity = 1;
+        objMain.light1.intensity = 2;
         objMain.scene.add(objMain.light1);
+    }
+
+    {
+        objMain.controls.minDistance = 3;
+        objMain.controls.maxPolarAngle = Math.PI / 3;
     }
 
     var drawRoadInfomation = function (obj) {
@@ -864,22 +1209,22 @@ function init3D() {
         scene.add(light1);
     }
     {
-        light2 = new THREE.PointLight(0xffffff);
-        light2.position.set(0, 90000, -180000);
-        light2.intensity = 0.5;
-        scene.add(light2);
+        //light2 = new THREE.PointLight(0xffffff);
+        //light2.position.set(0, 90000, -180000);
+        //light2.intensity = 0.5;
+        //scene.add(light2);
     }
     {
-        light3 = new THREE.PointLight(0xffffff);
-        light3.position.set(180000, 90000, -180000);
-        light3.intensity = 0.5;
-        scene.add(light3);
+        //light3 = new THREE.PointLight(0xffffff);
+        //light3.position.set(180000, 90000, -180000);
+        //light3.intensity = 0.5;
+        //scene.add(light3);
     }
     {
-        light4 = new THREE.PointLight(0xffffff);
-        light4.position.set(180000, 90000, 180000);
-        light4.intensity = 0.5;
-        scene.add(light4);
+        //light4 = new THREE.PointLight(0xffffff);
+        //light4.position.set(180000, 90000, 180000);
+        //light4.intensity = 0.5;
+        //scene.add(light4);
     }
     setIntensity(0.5);
     raycaster = new THREE.Raycaster();
@@ -1055,7 +1400,7 @@ var clothForRender = {
 
     }
 };
-var drawPoint = function (color, fp) {
+var drawPoint = function (color, fp, indexKey) {
     var that = this;
     this.windStrengthDelta = 0;
     const DAMPING = 0.03;
@@ -1392,8 +1737,13 @@ var drawPoint = function (color, fp) {
     object.scale.set(0.0005, 0.0005, 0.0005)
     objMain.playerGroup.add(object);
 
+    var start = new THREE.Vector3(MercatorGetXbyLongitude(fp.Longitude), 0, -MercatorGetYbyLatitude(objMain.basePoint.Latitde))
+    var end = new THREE.Vector3(MercatorGetXbyLongitude(objMain.basePoint.positionLongitudeOnRoad), 0, -MercatorGetYbyLatitude(objMain.basePoint.positionLatitudeOnRoad))
+    var cc = new Complex(end.x - start.x, end.z - start.z);
+    cc.toOne();
+    object.rotateY(-cc.toAngle() + Math.PI / 2);
     //alert('1');
-
+    object.name = 'flag_' + indexKey;
     this.refresh = function () {
         const p = that.cloth.particles;
         for (let i = 0, il = p.length; i < il; i++) {
@@ -1406,26 +1756,63 @@ var drawPoint = function (color, fp) {
         that.clothGeometry.attributes.position.needsUpdate = true;
         that.clothGeometry.computeVertexNormals();
     };
+    return;
+    //{
+    //    var start = new THREE.Vector3(MercatorGetXbyLongitude(fp.Longitude), 0, -MercatorGetYbyLatitude(fp.Latitde));
+    //    var end = new THREE.Vector3(MercatorGetXbyLongitude(fp.positionLongitudeOnRoad), 0, -MercatorGetYbyLatitude(fp.positionLatitudeOnRoad));
+    //    var lineGeometry = new THREE.Geometry();
+    //    lineGeometry.vertices.push(start);
+    //    lineGeometry.vertices.push(end);
+    //    var lineMaterial = new THREE.LineBasicMaterial({ color: color });
+    //    var line = new THREE.Line(lineGeometry, lineMaterial);
+    //    objMain.scene.add(line);
+    //}
 
-    {
-        var start = new THREE.Vector3(MercatorGetXbyLongitude(fp.Longitude), 0, -MercatorGetYbyLatitude(fp.Latitde));
-        var end = new THREE.Vector3(MercatorGetXbyLongitude(fp.positionLongitudeOnRoad), 0, -MercatorGetYbyLatitude(fp.positionLatitudeOnRoad));
-        var lineGeometry = new THREE.Geometry();
-        lineGeometry.vertices.push(start);
-        lineGeometry.vertices.push(end);
-        var lineMaterial = new THREE.LineBasicMaterial({ color: color });
-        var line = new THREE.Line(lineGeometry, lineMaterial);
-        objMain.scene.add(line);
-    }
+
     // var enterroad = end - start;
     //console.log('enterroad', enterroad);
+    var initializeCars = function (fp) {
+        var start = new THREE.Vector3(MercatorGetXbyLongitude(fp.Longitude), 0, -MercatorGetYbyLatitude(objMain.basePoint.Latitde))
+        var end = new THREE.Vector3(MercatorGetXbyLongitude(objMain.basePoint.positionLongitudeOnRoad), 0, -MercatorGetYbyLatitude(objMain.basePoint.positionLatitudeOnRoad))
+        var cc = new Complex(end.x - start.x, end.z - start.z);
+        cc.toOne();
 
-    //var start = new THREE.Vector3(MercatorGetXbyLongitude(fp.Longitude), 0, -MercatorGetYbyLatitude(objMain.basePoint.Latitde))
-    //var end = new THREE.Vector3(MercatorGetXbyLongitude(objMain.basePoint.positionLongitudeOnRoad), 0, -MercatorGetYbyLatitude(objMain.basePoint.positionLatitudeOnRoad))
-    var cc = new Complex(end.x - start.x, end.z - start.z);
-    cc.toOne();
+        var positon1 = cc.multiply(new Complex(-0.309016994, 0.951056516));
+        var positon2 = positon1.multiply(new Complex(0.809016994, 0.587785252));
+        var positon3 = positon2.multiply(new Complex(0.809016994, 0.587785252));
+        var positon4 = positon3.multiply(new Complex(0.809016994, 0.587785252));
+        var positon5 = positon4.multiply(new Complex(0.809016994, 0.587785252));
 
-    object.rotateY(-cc.toAngle() + Math.PI / 2);
+        var positons = [positon1, positon2, positon3, positon4, positon5];
+
+        var names = ['carA', 'carB', 'carC', 'carD', 'carE'];
+        console.log('positons', positons);
+        var percentOfPosition = 0.25;
+        for (var i = 0; i < positons.length; i++) {
+            var start = new THREE.Vector3(MercatorGetXbyLongitude(fp.Longitude), 0, -MercatorGetYbyLatitude(fp.Latitde));
+            var end = new THREE.Vector3(start.x + positons[i].r * percentOfPosition, 0, start.z + positons[i].i * percentOfPosition);
+            var lineGeometry = new THREE.Geometry();
+            lineGeometry.vertices.push(start);
+            lineGeometry.vertices.push(end);
+            var lineMaterial = new THREE.LineBasicMaterial({ color: color });
+            var line = new THREE.Line(lineGeometry, lineMaterial);
+            objMain.scene.add(line);
+
+            var model = objMain.cars[names[i]].clone();
+            model.position.set(end.x, 0, end.z);
+            model.scale.set(0.002, 0.002, 0.002);
+            model.rotateY(-positons[i].toAngle());
+            objMain.roadGroup.add(model);
+        }
+        var minDistance = objMain.controls.minDistance * 1.1;
+        var maxPolarAngle = objMain.controls.maxPolarAngle - Math.PI / 30;
+    }
+
+
+
+
+    //  cc.multiply(6);
+
 
     var positon1 = cc.multiply(new Complex(-0.309016994, 0.951056516));
     var positon2 = positon1.multiply(new Complex(0.809016994, 0.587785252));
@@ -1434,6 +1821,7 @@ var drawPoint = function (color, fp) {
     var positon5 = positon4.multiply(new Complex(0.809016994, 0.587785252));
 
     var positons = [positon1, positon2, positon3, positon4, positon5];
+    var names = ['carA', 'carB', 'carC', 'carD', 'carE'];
     console.log('positons', positons);
     var percentOfPosition = 0.25;
     for (var i = 0; i < positons.length; i++) {
@@ -1446,18 +1834,275 @@ var drawPoint = function (color, fp) {
         var line = new THREE.Line(lineGeometry, lineMaterial);
         objMain.scene.add(line);
 
-        var model = objMain.cars['self'].clone();
+        var model = objMain.cars[names[i]].clone();
         model.position.set(end.x, 0, end.z);
         model.scale.set(0.002, 0.002, 0.002);
         model.rotateY(-positons[i].toAngle());
         objMain.roadGroup.add(model);
     }
+    var minDistance = objMain.controls.minDistance * 1.1;
+    var maxPolarAngle = objMain.controls.maxPolarAngle - Math.PI / 30;
+    //var kValue = planeLength
+    {
+        var planePosition = new THREE.Vector3(start.x + cc.r * minDistance * Math.sin(maxPolarAngle), start.y + minDistance * Math.cos(maxPolarAngle), start.z + cc.i * minDistance * Math.sin(maxPolarAngle));
+        objMain.camera.position.set(planePosition.x, planePosition.y, planePosition.z);
+
+        objMain.controls.target.set(objMain.basePoint.MacatuoX, 0, -objMain.basePoint.MacatuoY);
+        objMain.camera.lookAt(objMain.basePoint.MacatuoX, 0, -objMain.basePoint.MacatuoY);
+
+        // var polarAngle = objMain.controls.getPolarAngle();
+        //   objMain.camera.position.set(objMain.basePoint.MacatuoX, 10, -objMain.basePoint.MacatuoY - Math.tan(Math.PI / 6) * 10);
+
+        objMain.camera.lookAt(objMain.basePoint.MacatuoX, 0, -objMain.basePoint.MacatuoY);
+    }
 }
-var drawSelf = function () {
-    drawPoint('green', objMain.basePoint);
+var drawCarBtns = function () {
+    {
+        var ff = function () {
+            while (document.getElementById('taskOperatingPanel') != null) {
+                document.getElementById('taskOperatingPanel').remove();
+            }
+            var divTaskOperatingPanel = document.createElement('div');
+            divTaskOperatingPanel.id = 'taskOperatingPanel';
+            //position: absolute;
+            //z - index: 7;
+            //right: 20px; border: none; width: 5em; color: green; top: calc(50 % - 4em - 28px)
+            divTaskOperatingPanel.style.position = 'absolute';
+            divTaskOperatingPanel.style.zIndex = '7';
+            divTaskOperatingPanel.style.right = '20px';
+            divTaskOperatingPanel.style.border = 'none';
+            divTaskOperatingPanel.style.width = '5em';
+            divTaskOperatingPanel.style.color = 'green';
+            divTaskOperatingPanel.style.top = 'calc(50% - 5em - 32px)';
+
+            var addItemToTaskOperatingPanle = function (btnName, clickF) {
+                var div = document.createElement('div');
+                div.style.width = 'calc(5em - 4px)';
+                div.style.textAlign = 'center';
+                div.style.border = '2px inset #ffc403';
+                div.style.borderRadius = '0.3em';
+                div.style.marginTop = '4px';
+                div.style.marginBottom = '4px';
+                div.style.background = 'rgba(0, 191, 255, 0.6)';
+                var span = document.createElement('span');
+                span.innerText = btnName;
+                div.appendChild(span);
+                //  <span id="carASpan">提升续航</span>
+
+                div.onclick = function () { clickF(); }
+                divTaskOperatingPanel.appendChild(div);
+            }
+            var showBtnEvent = function (show) {
+                while (document.getElementById('carsSelectionPanel') != null) {
+                    document.getElementById('carsSelectionPanel').remove();
+                }
+                if (!show) {
+                    return;
+                }
+                var carsNames = objMain.carsNames;
+                var divCreate = document.createElement('div');
+                divCreate.id = 'carsSelectionPanel';
+                divCreate.style.position = 'absolute';
+                divCreate.style.width = '8em';
+                divCreate.style.height = 'calc(6em + 48px)';
+                divCreate.style.zIndex = '6';
+                divCreate.style.left = '1em';
+                divCreate.style.top = 'calc(50% - 20px - 2px - 3em)';
+                divCreate.style.fontSize = '20px';
+                divCreate.style.color = 'blue';
+                divCreate.style.textShadow = '1px 1px 1px #000000';
+                divCreate.style.borderColor = 'deepskyblue';
+
+                var addChildren = function (carsNames) {
+                    for (var i = 0; i < carsNames.length; i++) {
+                        //text += "        <div style=\"width: calc(100% - 2px);";
+                        //text += "        text-align: center;";
+                        //text += "        border: 1px solid deepskyblue;";
+                        //text += "        border-radius: 0.3em;";
+                        //text += "        margin-top: 4px;";
+                        //text += "        margin-bottom: 4px;\">";
+                        //text += "            <span id=\"carASpan\">啊啊啊啊啊啊啊</span>";
+                        //text += "        </div>";
+                        var divChildOfItem = document.createElement('div');
+                        divChildOfItem.style.width = 'calc(100% - 2px)';
+                        divChildOfItem.style.textAlign = 'center';
+                        divChildOfItem.style.border = '1px solid deepskyblue';
+                        divChildOfItem.style.borderRadius = '0.3em';
+                        divChildOfItem.style.marginTop = '4px';
+                        divChildOfItem.style.marginBottom = '4px';
+                        divChildOfItem.yrqTagIndex = i + 0;
+                        //divChildOfItem.parentNode
+                        divChildOfItem.onclick = function () {
+                            //   alert(this.yrqTagIndex);
+                            //console.log('parentNode', this);
+                            //console.log('parentNode', this.parentNode);
+
+                            for (var i = 0; i < 5; i++) {
+                                //  console.log(i, this.parentNode.children[i]);
+
+                                if (i == this.yrqTagIndex) {
+                                    this.parentNode.children[i].style.border = '2px inset #ffc403';
+                                    // alert('');
+                                    while (document.getElementById('itemNodes2') != null) {
+                                        document.getElementById('itemNodes2').remove();
+                                    }
+
+                                    var names = ['carA', 'carB', 'carC', 'carD', 'carE'];
+                                    objMain.Task.carSelect = names[i] + '_' + objMain.indexKey;
+
+                                    objMain.mainF.lookTwoPositionCenter(objMain.promoteDiamond.children[0].position, objMain.carGroup.getObjectByName(objMain.Task.carSelect).position);
+                                    /*
+                                     * 以下方法用户绘制二级菜单
+                                     */
+                                    if (false) {
+                                        var divCreate2 = document.createElement('div');
+                                        divCreate2.id = 'itemNodes2';
+                                        divCreate2.style.position = 'absolute';
+                                        divCreate2.style.width = '3em';
+                                        divCreate2.style.height = 'calc(6em + 48px)';
+                                        divCreate2.style.zIndex = '6';
+                                        divCreate2.style.left = '11em';
+                                        //calc(50% - 20px - 2px - 3em);
+                                        var emV = i.toString() + 'em';
+                                        var pxV = (i * 12).toString() + 'px'
+                                        divCreate2.style.top = 'calc(50% - 20px - 2px - 3em + ' + emV + ' + ' + pxV + ')';
+                                        divCreate2.style.fontSize = '20px';
+                                        divCreate2.style.color = 'blue';
+                                        divCreate2.style.textShadow = '1px 1px 1px #000000';
+                                        divCreate2.style.borderColor = 'deepskyblue';
+                                        /*这里要显示条目*/
+                                        var displays = ['属性', '任务'];
+                                        for (var jj = 0; jj < 2; jj++) {
+                                            var divChildOfItem2 = document.createElement('div');
+                                            divChildOfItem2.style.width = 'calc(100% - 2px)';
+                                            divChildOfItem2.style.textAlign = 'center';
+                                            divChildOfItem2.style.border = '1px solid #ffc403';
+                                            divChildOfItem2.style.borderRadius = '0.3em';
+                                            divChildOfItem2.style.marginTop = '4px';
+                                            divChildOfItem2.style.marginBottom = '4px';
+                                            // divChildOfItem2.innerText = '啊啊';
+                                            divCreate2.appendChild(divChildOfItem2);
+                                            divChildOfItem2.yrqTagIndex = jj + 0;
+
+                                            var spanOfItem2 = document.createElement('span');
+                                            spanOfItem2.innerText = displays[jj];
+                                            divChildOfItem2.appendChild(spanOfItem2);
+                                            switch (jj) {
+                                                case 0:
+                                                    {
+                                                        divChildOfItem2.onclick = function () {
+                                                            alert('获取属性');
+                                                        }
+                                                    }; break;
+                                                case 1:
+                                                    {
+                                                        divChildOfItem2.onclick = function () {
+                                                            alert('获取任务');
+
+                                                        }
+                                                    }; break;
+                                            }
+                                        }
+                                        document.body.appendChild(divCreate2);
+                                    }
+                                }
+                                else {
+                                    this.parentNode.children[i].style.border = '1px solid deepskyblue';
+                                }
+                            }
+                            //                this.parentNode
+                        }
+
+                        var spanOfItem = document.createElement('span');
+                        spanOfItem.innerText = carsNames[i];
+                        divChildOfItem.appendChild(spanOfItem);
+                        divCreate.appendChild(divChildOfItem);
+                    }
+                    if (false) {
+                        var divChildOfItem = document.createElement('div');
+                        divChildOfItem.style.width = '3em';
+                        divChildOfItem.style.textAlign = 'center';
+                        divChildOfItem.style.border = '1px solid gray';
+                        divChildOfItem.style.borderRadius = '0.3em';
+                        divChildOfItem.style.marginTop = '4px';
+                        divChildOfItem.style.marginBottom = '4px';
+                        divChildOfItem.style.color = 'yellowgreen';
+
+                        var spanOfItem = document.createElement('span');
+                        spanOfItem.innerText = '隐藏';
+                        divChildOfItem.appendChild(spanOfItem);
+
+                        divChildOfItem.onclick = function () {
+                            this.onclick = function () {
+                                divCreate.innerHTML = '';
+                                addChildren(carsNames);
+                                this.style.width = '3em';
+                                this.children[0].innerText = '隐藏';
+                            }
+                            while (divCreate.children.length > 1) {
+                                divCreate.removeChild(divCreate.children[0]);
+                            }
+                            this.style.width = '5em';
+                            this.children[0].innerText = '显示车辆';
+                            while (document.getElementById('itemNodes2') != null) {
+                                document.getElementById('itemNodes2').remove();
+                            }
+                        }
+                        divCreate.appendChild(divChildOfItem);
+                    }
+                }
+                addChildren(carsNames);
+
+                document.body.appendChild(divCreate);
+            }
+            addItemToTaskOperatingPanle('收集金钱', function () { showBtnEvent(); alert('收集金钱'); });
+            addItemToTaskOperatingPanle('使用物品', function () {
+                showBtnEvent(false);
+                objMain.mainF.lookAtPosition(objMain.basePoint);
+            });
+            addItemToTaskOperatingPanle('提升续航', function () {
+                showBtnEvent(true);
+                objMain.Task.state = 'mile'
+                alert('提升续航');
+                console.log('点击', '提升续航');
+                var startIndex = objMain.promoteDiamond.children.length - 1;
+                for (var i = startIndex; i >= 0; i--) {
+                    objMain.promoteDiamond.remove(objMain.promoteDiamond.children[i]);
+                }
+                //var mirrorCubeCamera = new THREE.CubeCamera(0.1, 5000, 512);
+                //objMain.scene.add(mirrorCubeCamera);
+                var geometry = objMain.diamondGeometry;
+                var material = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.5, depthWrite: true });
+
+                var diamond = new THREE.Mesh(geometry, material);
+                diamond.scale.set(0.2, 0.22, 0.2);
+                diamond.position.set(MercatorGetXbyLongitude(objMain.PromotePositions.mile.Fp.Longitude), 0, -MercatorGetYbyLatitude(objMain.PromotePositions.mile.Fp.Latitde));
+                objMain.promoteDiamond.add(diamond);
+
+
+                objMain.mainF.drawLineOfFpToRoad(objMain.PromotePositions.mile.Fp, objMain.promoteDiamond, 0xff0000);
+                objMain.mainF.lookAtPosition(objMain.PromotePositions.mile.Fp);
+
+                objMain.mainF.drawPanelOfPromotion(objMain.Task.state);
+            });
+            addItemToTaskOperatingPanle('提升业务', function () { showBtnEvent(); alert('使用物品'); });
+            addItemToTaskOperatingPanle('提升续航', function () { showBtnEvent(); alert('使用物品'); });
+            addItemToTaskOperatingPanle('提升续航', function () { showBtnEvent(); alert('使用物品'); });
+            addItemToTaskOperatingPanle('收取税金', function () { showBtnEvent(); alert('使用物品'); });
+            addItemToTaskOperatingPanle('打压对手', function () { showBtnEvent(); alert('使用物品'); });
+            document.body.appendChild(divTaskOperatingPanel);
+        };
+        ff();
+    }
 
 }
- 
+
+
+var drawCarControlTable = function () {
+    var divContainer = document.createElement('div');
+    divContainer.style.position = '';
+    divContainer.style.position = '';
+}
 
 /////////////
 /*

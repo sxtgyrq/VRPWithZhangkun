@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using System;
+using System.Threading;
 
 namespace HouseManager
 {
@@ -12,6 +13,7 @@ namespace HouseManager
         static void Main(string[] args)
         {
             namal();
+            startTaskForAwait();
             Console.WriteLine("你好！此服务为网页端的webSocket服务！");
             var ip = "http://127.0.0.1:11100";
             Console.WriteLine($"输入ip和端口如“{ip}”");
@@ -28,6 +30,10 @@ namespace HouseManager
             //  Console.WriteLine("Hello World!");
         }
 
+        static void startTaskForAwait() 
+        {
+            //Thread t=new Thread()
+        }
         static void namal()
         {
             Program.dt = new Data();

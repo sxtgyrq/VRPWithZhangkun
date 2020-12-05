@@ -41,5 +41,7 @@ namespace WsOfWebClient
             private set;
         }
         public static string[] RobotBase64 = new string[] { };
+
+        public static string DiamondObj = "";
     }
 }
