@@ -34,5 +34,34 @@ namespace CommonClass
                 return s;
             }
         }
+
+        public class calculatBaideMercatorIndex
+        {
+            static double LongitudeK = 18.25621546434640;
+
+            static double MercatorGetXbyLongitude(double Longitude)
+            {
+                var Zoom = 19;
+                return Math.Pow(2, LongitudeK + (Zoom - 19)) * Longitude / 360;
+            }
+
+            static double LatitudeE = 0.0822699;
+
+            static double LatitudeKContent = 114737.187;
+
+            static double MercatorGetYbyLatitude(double Lagitude)
+            {
+                var Zoom = 19;
+
+                var r_lagitudu = (Lagitude) / 180.0 * Math.PI;
+                return (Math.Log10(1.0 / Math.Cos(r_lagitudu) + Math.Tan(r_lagitudu))
+                    + Math.Log10((1 - LatitudeE * Math.Sin(r_lagitudu)) / (1 + LatitudeE * Math.Sin(r_lagitudu))) * LatitudeE / 2) * Math.Pow(2, (Zoom - 19)) * LatitudeKContent;
+            }
+            public static void getBaiduPicIndex(double longitude, double latitude, out double x, out double y)
+            {
+                x = MercatorGetXbyLongitude(longitude);
+                y = MercatorGetYbyLatitude(latitude);
+            }
+        }
     }
 }

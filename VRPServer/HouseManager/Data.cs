@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using OssModel = Model;
 namespace HouseManager
@@ -194,6 +195,81 @@ namespace HouseManager
             // var dt2 = DateTime.Now;
             //Console.WriteLine($"计算时间{(dt2 - dt1).TotalSeconds}");
             return json;
+        }
+        public class PathResult
+        {
+            public double x0 { get; set; }
+            public double y0 { get; set; }
+            public int t0 { get; set; }
+
+            public double x1 { get; set; }
+            public double y1 { get; set; }
+            public int t1 { get; set; }
+        }
+        internal void GetAFromBPoint(string fpID1, string fpID2, int speed, ref List<PathResult> result, ref int startT)
+        {
+            //throw new Exception("");
+            // var dt1 = DateTime.Now;
+            FindF.DataToNavigateWithTimeFunction2 data = new FindF.DataToNavigateWithTimeFunction2();
+            data.ReadRoadInfo(this._road, this._allFp);
+            bool findObjSuccess;
+            OssModel.FastonPosition fpLast = this._allFp.FindLast(item => item.FastenPositionID == fpID1);
+            var dataResult = data.FindPlace(fpLast, fpID2, out findObjSuccess);
+
+            //   List<PathResult> animateResult = new List<PathResult>();
+            //    double sumCostTime = 0;
+            for (var i = 0; i < dataResult.Count; i++)
+            {
+                if (i == 0)
+                {
+                    //var startX = result.Last().x1;
+                    //var startY = result.Last().y1;
+                    double startX, startY;
+                    CommonClass.Geography.calculatBaideMercatorIndex.getBaiduPicIndex(fpLast.positionLongitudeOnRoad, fpLast.positionLatitudeOnRoad, out startX, out startY);
+
+                    //var length=
+
+                    double endX, endY;
+                    CommonClass.Geography.calculatBaideMercatorIndex.getBaiduPicIndex(dataResult[i].BDlongitude, dataResult[i].BDlatitude, out endX, out endY);
+                    //  var interview =
+                    var interview = Convert.ToInt32(CommonClass.Geography.getLengthOfTwoPoint.GetDistance(fpLast.positionLatitudeOnRoad, fpLast.positionLongitudeOnRoad, dataResult[i].BDlatitude, dataResult[i].BDlongitude) / dataResult[i].maxSpeed * 3.6 / 20 * 1000 * 50 / speed);
+                    var animate1 = new Data.PathResult()
+                    {
+                        t0 = startT + 0,
+                        x0 = startX,
+                        y0 = startY,
+                        t1 = startT + interview,
+                        x1 = endX,
+                        y1 = endY
+                    };
+                    startT += interview;
+                    result.Add(animate1);
+                }
+                else if (dataResult[i].roadCode == dataResult[i - 1].roadCode)
+                {
+
+                    double startX, startY;
+                    CommonClass.Geography.calculatBaideMercatorIndex.getBaiduPicIndex(dataResult[i - 1].BDlongitude, dataResult[i - 1].BDlatitude, out startX, out startY);
+
+                    double endX, endY;
+                    CommonClass.Geography.calculatBaideMercatorIndex.getBaiduPicIndex(dataResult[i].BDlongitude, dataResult[i].BDlatitude, out endX, out endY);
+
+                    // var length = CommonClass.Geography.getLengthOfTwoPoint.
+                    //  var interview =
+                    var interview = Convert.ToInt32(CommonClass.Geography.getLengthOfTwoPoint.GetDistance(dataResult[i - 1].BDlatitude, dataResult[i - 1].BDlongitude, dataResult[i].BDlatitude, dataResult[i].BDlongitude) / dataResult[i].maxSpeed * 3.6 / 20 * 1000 * 50 / speed);
+                    var animate1 = new Data.PathResult()
+                    {
+                        t0 = startT + 0,
+                        x0 = startX,
+                        y0 = startY,
+                        t1 = startT + interview,
+                        x1 = endX,
+                        y1 = endY
+                    };
+                    startT += interview;
+                    result.Add(animate1);
+                }
+            }
         }
 
         public void getAll(out List<double[]> meshPoints, out List<object> listOfCrosses)

@@ -26,9 +26,11 @@ namespace CommonClass
         public string key { get; set; }
     }
 
-    public class BradCastPromoteInfoNotify : CommandNotify
+    public class BradCastAnimateOfCar : CommandNotify
     {
-        public long PromoteState { get; set; }
+        public string carID;
+
+        public object Animate { get; set; }
     }
     public class BradCastPromoteInfoDetail : CommandNotify
     {

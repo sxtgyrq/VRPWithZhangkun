@@ -1,6 +1,7 @@
 ﻿using CommonClass;
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -183,9 +184,10 @@ namespace HouseManager
             else
             {
                 var carIndex = getCarIndex(sp.car);
-                int from = -1, to = -1;
-                string Command = "";
+                //int from = -1, to = -1;
+                //string Command = "";
                 //List<string> keys = new List<string>();
+                List<string> notifyMsg = new List<string>();
                 lock (this.PlayerLock)
                 {
                     if (this._Players.ContainsKey(sp.Key))
@@ -200,36 +202,146 @@ namespace HouseManager
                                     {
                                         case CarState.waitAtBaseStation:
                                             {
-                                                from = this._Players[sp.Key].StartFPIndex;
-                                                to = this._Players[sp.Key].PromoteState[sp.pType];
-                                                Command = "goToBuy";
-                                                goto doCommand;
-                                            }; ;
+                                                var from = this._Players[sp.Key].StartFPIndex;
+                                                var to = this.promoteMilePosition;
+                                                var speed = car.ability.Speed;
+                                                //Command = "goToBuy";
+                                                //goto doCommand;
+                                                var fp1 = Program.dt.GetFpByIndex(from);
+                                                var fp2 = Program.dt.GetFpByIndex(to);
+                                                int startT = 0;
+                                                var result = getStartPositon(fp1, sp.car, ref startT);
+
+                                                Program.dt.GetAFromBPoint(fp1.FastenPositionID, fp2.FastenPositionID, speed, ref result, ref startT);
+                                                // var json = Newtonsoft.Json.JsonConvert.SerializeObject(result);
+                                                result.RemoveAll(item => item.t0 == item.t1);
+                                                //   var json = Newtonsoft.Json.JsonConvert.SerializeObject(result);
+                                                //Console.WriteLine(json);
+                                                // goto doCommand;
+                                                //BradCastAnimateOfCar
+                                                //this._Players[sp.Key].
+
+                                                car.changeState++;
+
+                                                var obj = new BradCastAnimateOfCar
+                                                {
+                                                    c = "BradCastAnimateOfCar",
+                                                    Animate = result,
+                                                    WebSocketID = this._Players[sp.Key].WebSocketID,
+                                                    carID = sp.car + "_" + sp.Key
+                                                };
+                                                var json = Newtonsoft.Json.JsonConvert.SerializeObject(obj);
+                                                notifyMsg.Add(this._Players[sp.Key].FromUrl);
+                                                notifyMsg.Add(json);
+#warning 这里还没有遍历状态，获取转发状态！
+                                            }; break;
                                     }
                                     //this._Players[sp.Key].PromoteState[sp.pType]
                                 }; break;
                         }
                     }
                 }
-                doCommand:
+
+                for (var i = 0; i < notifyMsg.Count; i += 2)
                 {
-                    switch (Command)
-                    {
-                        case "goToBuy":
-                            {
-                                var fp1 = Program.dt.GetFpByIndex(from);
-                                var fp2 = Program.dt.GetFpByIndex(to);
-                                var json = Program.dt.GetAFromB(fp1.FastenPositionID, fp2.FastenPositionID);
-                                Console.WriteLine(json);
-                            }; break;
-                    }
+                    var url = notifyMsg[i];
+                    var sendMsg = notifyMsg[i + 1];
+                    await Startup.sendMsg(url, sendMsg);
                 }
-                //for (var i = 0; i < keys.Count; i++)
-                //{
-                //    await this.CheckPromoteState(keys[i], sp.pType);
-                //}
-                return "ok";
+                return "";
             }
+        }
+
+        private List<Data.PathResult> getStartPositon(Model.FastonPosition fp, string car, ref int startTInput)
+        {
+            double startX, startY;
+            CommonClass.Geography.calculatBaideMercatorIndex.getBaiduPicIndex(fp.Longitude, fp.Latitde, out startX, out startY);
+            int startT0, startT1;
+
+            double endX, endY;
+            CommonClass.Geography.calculatBaideMercatorIndex.getBaiduPicIndex(fp.positionLongitudeOnRoad, fp.positionLatitudeOnRoad, out endX, out endY);
+            int endT0, endT1;
+
+            //这里要考虑前台坐标系（左手坐标系）。
+            var cc = new Complex(endX - startX, (-endY) - (-startY));
+
+            cc = ToOne(cc);
+
+            var positon1 = cc * (new Complex(-0.309016994, 0.951056516));
+            var positon2 = positon1 * (new Complex(0.809016994, 0.587785252));
+            var positon3 = positon2 * (new Complex(0.809016994, 0.587785252));
+            var positon4 = positon3 * (new Complex(0.809016994, 0.587785252));
+            var positon5 = positon4 * (new Complex(0.809016994, 0.587785252));
+            Complex position;
+            switch (car)
+            {
+                case "carA":
+                    {
+                        position = positon1;
+                    }; break;
+                case "carB":
+                    {
+                        position = positon2;
+                    }; break;
+                case "carC":
+                    {
+                        position = positon3;
+                    }; break;
+                case "carD":
+                    {
+                        position = positon4;
+                    }; break;
+                case "carE":
+                    {
+                        position = positon5;
+                    }; break;
+                default:
+                    {
+                        position = positon1;
+                    }; break;
+            }
+            var percentOfPosition = 0.25;
+            double carPositionX = startX + position.Real * percentOfPosition;
+            double carPositionY = startY - position.Imaginary * percentOfPosition;
+
+            List<Data.PathResult> animateResult = new List<Data.PathResult>();
+            startT0 = startTInput;
+            endT0 = startT0 + 500;
+            startTInput += 500;
+            var animate1 = new Data.PathResult()
+            {
+                t0 = startT0,
+                x0 = carPositionX,
+                y0 = carPositionY,
+                t1 = endT0,
+                x1 = startX,
+                y1 = startY
+            };
+            animateResult.Add(animate1);
+            /*
+             * 上道路的速度为10m/s 即36km/h
+             */
+            var interview = Convert.ToInt32(CommonClass.Geography.getLengthOfTwoPoint.GetDistance(fp.Latitde, fp.Longitude, fp.positionLatitudeOnRoad, fp.positionLongitudeOnRoad) / 10 * 1000);
+            startT1 = startTInput;
+            endT1 = startT1 + interview;
+            startTInput += interview;
+            var animate2 = new Data.PathResult()
+            {
+                t0 = startT1,
+                x0 = startX,
+                y0 = startY,
+                t1 = endT1,
+                x1 = endX,
+                y1 = endY
+            };
+            animateResult.Add(animate2);
+            return animateResult;
+        }
+
+        private Complex ToOne(Complex cc)
+        {
+            var m = Math.Sqrt(cc.Real * cc.Real + cc.Imaginary * cc.Imaginary);
+            return new Complex(cc.Real / m, cc.Imaginary / m);
         }
 
         private int getCarIndex(string car)

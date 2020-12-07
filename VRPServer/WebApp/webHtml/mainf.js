@@ -17,6 +17,7 @@ var objMain =
     light1: null,
     controls: null,
     carsNames: null,
+    carsAnimateData: {},
     PromoteState: -1,
     PromotePositions:
     {
@@ -380,6 +381,7 @@ var startA = function () {
                     //小车用 基地用 https://threejs.org/examples/#webgl_animation_cloth
                     // drawFlag(); 
                     drawPoint('green', objMain.basePoint, objMain.indexKey);
+                    /*画引线*/
                     objMain.mainF.drawLineOfFpToRoad(objMain.basePoint, objMain.playerGroup, 'green');
                     objMain.mainF.lookAtPosition(objMain.basePoint);
                     objMain.mainF.initilizeCars(objMain.basePoint, 'green', objMain.indexKey);
@@ -464,15 +466,17 @@ var startA = function () {
                     f(received_obj, 5, 'carD');
                     f(received_obj, 6, 'carE');
                 }; break;
-            case 'BradCastPromoteInfoNotify':
+            case 'BradCastAnimateOfCar':
                 {
-                    throw (received_obj.c + '已作废');
-                    // console.log(evt.data);
-                    //if (received_obj.PromoteState == objMain.PromoteState) { }
-                    //else {
-                    //    objMain.PromoteState = received_obj.PromoteState;
-                    //    objMain.ws.send(JSON.stringify({ c: 'PromoteMiles' }));
-                    //}
+                    //throw (received_obj.c + '已作废');
+                    console.log(evt.data);
+                    var passObj = JSON.parse(evt.data);
+                    var animateData = passObj.Animate;
+                    var carId = passObj.carID;
+
+                    var recordTime = Date.now() + 5000;
+                    //   animateData.recordTime = recordTime;
+                    objMain.carsAnimateData[carId] = { 'recordTime': recordTime, 'animateData': animateData };
                     /*
                      * 之前这里需要广播，前台验证。这里采用服务器session机制，在服务器进行判断。
                      * 
@@ -575,6 +579,64 @@ function animate() {
                 }
                 if (objMain.Task.state == 'mile') {
                     objMain.promoteDiamond.children[0].scale.set(scale, scale * 1.1, scale);
+                }
+            }
+            {
+                /*汽车的移动动画*/
+                for (let key of Object.keys(objMain.carsAnimateData)) {
+                    let animateData = objMain.carsAnimateData[key].animateData;
+                    let recordTime = objMain.carsAnimateData[key].recordTime;
+                    var now = Date.now();
+                    for (var i = 0; i < animateData.length; i++) {
+                        var percent = (now - recordTime - animateData[i].t0) / (animateData[i].t1 - animateData[i].t0);
+                        if (percent < 0) {
+                            continue;
+                        }
+                        else if (percent < 1) {
+                            var x = animateData[i].x0 + percent * (animateData[i].x1 - animateData[i].x0);
+                            var y = animateData[i].y0 + percent * (animateData[i].y1 - animateData[i].y0);
+                            objMain.carGroup.getObjectByName(key).position.set(x, 0, -y);
+
+                            var scale = objMain.mainF.getLength(objMain.camera.position, objMain.controls.target) * 0.001;
+                            if (scale < 0.002) {
+                                scale = 0.002;
+                            }
+                            objMain.carGroup.getObjectByName(key).scale.set(scale, scale, scale);
+
+                            var complexV = new Complex(animateData[i].x1 - animateData[i].x0, -(animateData[i].y1 - animateData[i].y0));
+                            ;
+                            objMain.carGroup.getObjectByName(key).rotation.set(0, -complexV.toAngle() + Math.PI, 0);
+                            break;
+                        }
+                        else {
+                            var x = animateData[i].x0 + 1 * (animateData[i].x1 - animateData[i].x0);
+                            var y = animateData[i].y0 + 1 * (animateData[i].y1 - animateData[i].y0);
+                            objMain.carGroup.getObjectByName(key).position.set(x, 0, -y);
+
+                            var complexV = new Complex(animateData[i].x1 - animateData[i].x0, -(animateData[i].y1 - animateData[i].y0));
+                            ;
+                            objMain.carGroup.getObjectByName(key).rotation.set(0, -complexV.toAngle() + Math.PI, 0);
+                        }
+                    }
+                    //var percent = (now - animate.recordTime - animate.t0) / (animate.t1 - animate.t0);
+                    //if (percent < 0) {
+
+                    //}
+                    //else if (percent < 1) {
+                    //    console.log(key);
+                    //    var x = animate.x0 + percent * (animate.x1 - animate.x0);
+                    //    var y = animate.y0 + percent * (animate.y1 - animate.y0);
+                    //    objMain.carGroup.getObjectByName(key).position.set(x, 0, -y);
+
+                    //    var scale = objMain.mainF.getLength(objMain.camera.position, objMain.controls.target) * 0.001;
+                    //    if (scale < 0.002) {
+                    //        scale = 0.002;
+                    //    }
+                    //    objMain.carGroup.getObjectByName(key).scale.set(scale, scale, scale);
+                    //}
+                    //else { }
+                    // ... do something with mealName
+                    // console.log(mealName);
                 }
             }
             objMain.animation.animateCameraByCarAndTask();

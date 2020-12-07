@@ -1,9 +1,0 @@
-F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Geometry\bin\Debug\netcoreapp3.1\Geometry.deps.json
-F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Geometry\bin\Debug\netcoreapp3.1\Geometry.dll
-F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Geometry\bin\Debug\netcoreapp3.1\Geometry.pdb
-F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Geometry\obj\Debug\netcoreapp3.1\Geometry.AssemblyInfoInputs.cache
-F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Geometry\obj\Debug\netcoreapp3.1\Geometry.AssemblyInfo.cs
-F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Geometry\obj\Debug\netcoreapp3.1\Geometry.csproj.CoreCompileInputs.cache
-F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Geometry\obj\Debug\netcoreapp3.1\Geometry.dll
-F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Geometry\obj\Debug\netcoreapp3.1\Geometry.pdb
-F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Geometry\obj\Debug\netcoreapp3.1\Geometry.csprojAssemblyReference.cache

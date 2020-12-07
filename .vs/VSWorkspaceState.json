@@ -5,6 +5,6 @@
     "\\VRPServer\\HouseManager",
     "\\VRPServer\\Server"
   ],
-  "SelectedNode": "\\VRPServer\\Server\\Server.sln",
+  "SelectedNode": "\\VRPServer\\HouseManager\\Startup.cs",
   "PreviewInSolutionExplorer": false
 }

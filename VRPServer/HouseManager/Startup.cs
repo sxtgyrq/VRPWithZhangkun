@@ -111,12 +111,17 @@ namespace HouseManager
                             }; break;
                         case "SetPromote":
                             {
-                                CommonClass.SetPromote sp= Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.SetPromote>(notifyJson);
+                                CommonClass.SetPromote sp = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.SetPromote>(notifyJson);
                                 var result = await BaseInfomation.rm.updatePromote(sp);
-                                await context.Response.WriteAsync(result); 
-                                //CommonClass.GetPromoteMiles getPosition = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.GetPromoteMiles>(notifyJson);
-                                //var infomation = BaseInfomation.rm.GetPromoteInfomation(getPosition.WebSocketID, "licheng");
-                                //await sendMsg(getPosition.FromUrl, Newtonsoft.Json.JsonConvert.SerializeObject(infomation));
+                                await context.Response.WriteAsync("ok");
+                                if (string.IsNullOrEmpty(result))
+                                {
+
+                                }
+                                else
+                                {
+
+                                }
                             }; break;
                     }
                     //if (c.c == "PlayerAdd")

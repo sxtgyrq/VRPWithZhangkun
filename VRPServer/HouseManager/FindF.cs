@@ -76,6 +76,13 @@ namespace HouseManager
                 return result;
             }
 
+            /// <summary>
+            /// 获取路径
+            /// </summary>
+            /// <param name="fpLast">指出发点</param>
+            /// <param name="placePresentCode">指要寻找的fp的Id</param>
+            /// <param name="success">是否成功</param>
+            /// <returns>返回路径</returns>
             public List<nyrqPosition> FindPlace(FastonPosition fpLast, string placePresentCode, out bool success)
             {
 
@@ -1138,7 +1145,7 @@ namespace HouseManager
                             var lat2 = this.roads[operateRoadCode][operateRoadOrder].endLatitude;
                             var lon2 = this.roads[operateRoadCode][operateRoadOrder].endLongitude;
 
-                            var l =getDistance(lat1, lon1, lat2, lon2);
+                            var l = getDistance(lat1, lon1, lat2, lon2);
                             int TimeSpend = Convert.ToInt32((l / 1000.0 / this.roads[operateRoadCode][operateRoadOrder].MaxSpeed) * 3600.0 * 1000.0);
                             sumT += TimeSpend;
                         }
