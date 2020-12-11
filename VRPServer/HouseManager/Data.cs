@@ -182,19 +182,20 @@ namespace HouseManager
 
 
 
-        internal string GetAFromB(string fpID1, string fpID2)
+        internal List<OssModel.MapGo.nyrqPosition> GetAFromB(OssModel.FastonPosition fpStart, string fpID2)
         {
             //  throw new Exception("");
             // var dt1 = DateTime.Now;
             FindF.DataToNavigateWithTimeFunction2 data = new FindF.DataToNavigateWithTimeFunction2();
             data.ReadRoadInfo(this._road, this._allFp);
-            bool findObjSuccess;
-            var dataResult = data.FindPlace(this._allFp.FindLast(item => item.FastenPositionID == fpID1), fpID2, out findObjSuccess);
-            var json = Newtonsoft.Json.JsonConvert.SerializeObject(dataResult);
-            // Console.WriteLine(json);
-            // var dt2 = DateTime.Now;
-            //Console.WriteLine($"计算时间{(dt2 - dt1).TotalSeconds}");
-            return json;
+            // bool findObjSuccess;
+            var dataResult = data.FindPlace(fpStart, fpID2);
+            return dataResult;
+            //var json = Newtonsoft.Json.JsonConvert.SerializeObject(dataResult);
+            //// Console.WriteLine(json);
+            //// var dt2 = DateTime.Now;
+            ////Console.WriteLine($"计算时间{(dt2 - dt1).TotalSeconds}");
+            //return json;
         }
         public class PathResult
         {
@@ -205,6 +206,70 @@ namespace HouseManager
             public double x1 { get; set; }
             public double y1 { get; set; }
             public int t1 { get; set; }
+        }
+
+        /// <summary>
+        /// 获取路径
+        /// </summary>
+        /// <param name="dataResult">路径</param>
+        /// <param name="fpLast">起始点</param>
+        /// <param name="speed">速度</param>
+        /// <param name="result">ref path的结果。</param>
+        /// <param name="startT">ref 时间结果</param>
+        internal void GetAFromBPoint(List<OssModel.MapGo.nyrqPosition> dataResult, OssModel.FastonPosition fpLast, int speed, ref List<PathResult> result, ref int startT)
+        {
+            for (var i = 0; i < dataResult.Count; i++)
+            {
+                if (i == 0)
+                {
+                    //var startX = result.Last().x1;
+                    //var startY = result.Last().y1;
+                    double startX, startY;
+                    CommonClass.Geography.calculatBaideMercatorIndex.getBaiduPicIndex(fpLast.positionLongitudeOnRoad, fpLast.positionLatitudeOnRoad, out startX, out startY);
+
+                    //var length=
+
+                    double endX, endY;
+                    CommonClass.Geography.calculatBaideMercatorIndex.getBaiduPicIndex(dataResult[i].BDlongitude, dataResult[i].BDlatitude, out endX, out endY);
+                    //  var interview =
+                    var interview = Convert.ToInt32(CommonClass.Geography.getLengthOfTwoPoint.GetDistance(fpLast.positionLatitudeOnRoad, fpLast.positionLongitudeOnRoad, dataResult[i].BDlatitude, dataResult[i].BDlongitude) / dataResult[i].maxSpeed * 3.6 / 20 * 1000 * 50 / speed);
+                    var animate1 = new Data.PathResult()
+                    {
+                        t0 = startT + 0,
+                        x0 = startX,
+                        y0 = startY,
+                        t1 = startT + interview,
+                        x1 = endX,
+                        y1 = endY
+                    };
+                    startT += interview;
+                    result.Add(animate1);
+                }
+                else if (dataResult[i].roadCode == dataResult[i - 1].roadCode)
+                {
+
+                    double startX, startY;
+                    CommonClass.Geography.calculatBaideMercatorIndex.getBaiduPicIndex(dataResult[i - 1].BDlongitude, dataResult[i - 1].BDlatitude, out startX, out startY);
+
+                    double endX, endY;
+                    CommonClass.Geography.calculatBaideMercatorIndex.getBaiduPicIndex(dataResult[i].BDlongitude, dataResult[i].BDlatitude, out endX, out endY);
+
+                    // var length = CommonClass.Geography.getLengthOfTwoPoint.
+                    //  var interview =
+                    var interview = Convert.ToInt32(CommonClass.Geography.getLengthOfTwoPoint.GetDistance(dataResult[i - 1].BDlatitude, dataResult[i - 1].BDlongitude, dataResult[i].BDlatitude, dataResult[i].BDlongitude) / dataResult[i].maxSpeed * 3.6 / 20 * 1000 * 50 / speed);
+                    var animate1 = new Data.PathResult()
+                    {
+                        t0 = startT + 0,
+                        x0 = startX,
+                        y0 = startY,
+                        t1 = startT + interview,
+                        x1 = endX,
+                        y1 = endY
+                    };
+                    startT += interview;
+                    result.Add(animate1);
+                }
+            }
         }
         internal void GetAFromBPoint(string fpID1, string fpID2, int speed, ref List<PathResult> result, ref int startT)
         {
@@ -271,6 +336,8 @@ namespace HouseManager
                 }
             }
         }
+
+
 
         public void getAll(out List<double[]> meshPoints, out List<object> listOfCrosses)
         {

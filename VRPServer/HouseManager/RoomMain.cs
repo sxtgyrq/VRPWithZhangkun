@@ -1,6 +1,7 @@
 ﻿using CommonClass;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading;
@@ -16,15 +17,14 @@ namespace HouseManager
         {
             this.rm = new System.Random(DateTime.Now.GetHashCode());
             //  breakMiniSecods
-            this.th = new Thread(() => LookFor());
-            this.th.Name = "eventThread";
-            th.Start();
+
             lock (PlayerLock)
             {
                 this._Players = new Dictionary<string, Player>();
                 this._FpOwner = new Dictionary<int, string>();
                 //this._PlayerFp = new Dictionary<string, int>();
             }
+            LookFor();
         }
         object PlayerLock = new object();
         Dictionary<int, string> _FpOwner { get; set; }
@@ -33,6 +33,8 @@ namespace HouseManager
         internal async Task<string> AddPlayer(PlayerAdd addItem)
         {
             bool success;
+
+            List<string> carsState = new List<string>();
             lock (this.PlayerLock)
             {
                 addItem.Key = addItem.Key.Trim();
@@ -59,7 +61,7 @@ namespace HouseManager
                         PromoteState = new Dictionary<string, int>()
                         {
                             {"mile",-1},
-                            {"yewu",-1 },
+                            {"bussiness",-1 },
                             {"volume",-1 },
                             {"speed",-1 }
                         }
@@ -71,17 +73,12 @@ namespace HouseManager
 
                     this._FpOwner.Add(fpIndex, addItem.Key);
                     this._Players[addItem.Key].StartFPIndex = fpIndex;
-
-                    //  await CheckPromoteState(addItem.Key, "mile");
-                    //this._Players[addItem.Key].lichengState==
-                    //this.sendPrometeState(addItem.FromUrl, addItem.WebSocketID);
-
                 }
             }
 
             if (success)
             {
-                await CheckPromoteState(addItem.Key, "mile");
+                await CheckAllPromoteState(addItem.Key);
                 return "ok";
             }
             else
@@ -91,38 +88,126 @@ namespace HouseManager
             //  throw new NotImplementedException();
         }
 
+        private void AddOtherPlayer(string key, ref List<string> msgsWithUrl)
+        {
+            var players = getGetAllPlayer();
+            for (var i = 0; i < players.Count; i++)
+            {
+                if (players[i].Key == key)
+                {
+                    /*
+                     * 保证自己不会算作其他人
+                     */
+                }
+                else
+                {
+                    {
+                        /*
+                         * 告诉自己，场景中有哪些人！
+                         * 告诉场景中的其他人，场景中有我！
+                         */
+                        {
+                            var self = this._Players[key];
+                            var other = players[i];
+                            addPlayerRecord(self, other, ref msgsWithUrl);
+
+                        }
+                        {
+                            var self = players[i];
+                            var other = this._Players[key];
+                            addPlayerRecord(self, other, ref msgsWithUrl);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void addPlayerRecord(Player self, Player other, ref List<string> msgsWithUrl)
+        {
+            if (self.Key == other.Key)
+            {
+                return;
+            }
+            if (self.others.ContainsKey(other.Key))
+            {
+
+            }
+            else
+            {
+                self.others.Add(other.Key, new OtherPlayers());
+                var fp = Program.dt.GetFpByIndex(other.StartFPIndex);
+                // fromUrl = this._Players[getPosition.Key].FromUrl;
+                var webSocketID = self.WebSocketID;
+                var carsNames = other.CarsNames;
+
+                //  var fp=  players[i].StartFPIndex
+                CommonClass.GetOthersPositionNotify notify = new CommonClass.GetOthersPositionNotify()
+                {
+                    c = "GetOthersPositionNotify",
+                    fp = fp,
+                    WebSocketID = webSocketID,
+                    carsNames = carsNames,
+                    key = other.Key
+                    // var xx=  getPosition.Key
+                };
+                msgsWithUrl.Add(self.FromUrl);
+                msgsWithUrl.Add(Newtonsoft.Json.JsonConvert.SerializeObject(notify));
+            }
+
+
+        }
+
+
+
+
+        private List<Player> getGetAllPlayer()
+        {
+            List<Player> players = new List<Player>();
+            foreach (var item in this._Players)
+            {
+                players.Add(item.Value);
+            }
+            return players;
+        }
+
+
         private async Task CheckPromoteState(string key, string promoteType)
         {
             string url = "";
             string sendMsg = "";
             lock (this.PlayerLock)
                 if (this._Players.ContainsKey(key))
-                    if (this._Players[key].PromoteState[promoteType] == this.PromoteState[promoteType])
+                    if (this._Players[key].PromoteState[promoteType] == this.getPromoteState(promoteType))
                     {
-
                     }
                     else
                     {
-                        var infomation = BaseInfomation.rm.GetPromoteInfomation(this._Players[key].WebSocketID, "mile");
+                        var infomation = BaseInfomation.rm.GetPromoteInfomation(this._Players[key].WebSocketID, promoteType);
                         url = this._Players[key].FromUrl;
                         sendMsg = Newtonsoft.Json.JsonConvert.SerializeObject(infomation);
-                        //await Startup.sendMsg(this._Players[key].FromUrl, );
-                        this._Players[key].PromoteState[promoteType] = this.PromoteState[promoteType];
+                        this._Players[key].PromoteState[promoteType] = this.getPromoteState(promoteType);
                     }
             if (!string.IsNullOrEmpty(url))
             {
                 await Startup.sendMsg(url, sendMsg);
             }
-
         }
 
         private bool FpIsUsing(int fpIndex)
         {
-            return this._FpOwner.ContainsKey(fpIndex)
+
+            var A = this._FpOwner.ContainsKey(fpIndex)
                   || fpIndex == this._promoteMilePosition
-                  || fpIndex == this._promoteYewuPosition
+                  || fpIndex == this._promoteBussinessPosition
                   || fpIndex == this._promoteVolumePosition
                   || fpIndex == this._promoteSpeedPosition;
+
+            foreach (var item in this._Players)
+            {
+                for (var i = 0; i < 5; i++)
+                    A = item.Value.getCar(i).targetFpIndex == fpIndex || A;
+            }
+            return A;
         }
 
         internal async Task<string> UpdatePlayer(PlayerCheck checkItem)
@@ -134,12 +219,14 @@ namespace HouseManager
                 {
                     BaseInfomation.rm._Players[checkItem.Key].FromUrl = checkItem.FromUrl;
                     BaseInfomation.rm._Players[checkItem.Key].WebSocketID = checkItem.WebSocketID;
+
+                    BaseInfomation.rm._Players[checkItem.Key].others = new Dictionary<string, OtherPlayers>();
                     //this.sendPrometeState(checkItem.FromUrl, checkItem.WebSocketID);
                     success = true;
                     BaseInfomation.rm._Players[checkItem.Key].PromoteState = new Dictionary<string, int>()
                         {
                             {"mile",-1},
-                            {"yewu",-1 },
+                            {"bussiness",-1 },
                             {"volume",-1 },
                             {"speed",-1 }
                         };
@@ -151,13 +238,22 @@ namespace HouseManager
             }
             if (success)
             {
-                await CheckPromoteState(checkItem.Key, "mile");
+                await CheckAllPromoteState(checkItem.Key);
+
                 return "ok";
             }
             else
             {
                 return "ng";
             }
+        }
+
+        private async Task CheckAllPromoteState(string key)
+        {
+            await CheckPromoteState(key, "mile");
+            await CheckPromoteState(key, "bussiness");
+            await CheckPromoteState(key, "volume");
+            await CheckPromoteState(key, "speed");
         }
 
         internal async Task<string> updatePromote(SetPromote sp)
@@ -177,7 +273,7 @@ namespace HouseManager
             {
                 return "";
             }
-            else if (!(sp.pType == "mile"))
+            else if (!(sp.pType == "mile" || sp.pType == "bussiness" || sp.pType == "volume" || sp.pType == "speed"))
             {
                 return "";
             }
@@ -196,6 +292,9 @@ namespace HouseManager
                         switch (sp.pType)
                         {
                             case "mile":
+                            case "bussiness":
+                            case "volume":
+                            case "speed":
                                 {
                                     var car = this._Players[sp.Key].getCar(carIndex);
                                     switch (car.state)
@@ -203,37 +302,69 @@ namespace HouseManager
                                         case CarState.waitAtBaseStation:
                                             {
                                                 var from = this._Players[sp.Key].StartFPIndex;
-                                                var to = this.promoteMilePosition;
-                                                var speed = car.ability.Speed;
-                                                //Command = "goToBuy";
-                                                //goto doCommand;
+                                                var to = getPromotePositionTo(sp.pType);//  this.promoteMilePosition;
                                                 var fp1 = Program.dt.GetFpByIndex(from);
                                                 var fp2 = Program.dt.GetFpByIndex(to);
-                                                int startT = 0;
-                                                var result = getStartPositon(fp1, sp.car, ref startT);
+                                                var goPath = Program.dt.GetAFromB(fp1, fp2.FastenPositionID);
+                                                var returnPath = Program.dt.GetAFromB(fp2, fp1.FastenPositionID);
 
-                                                Program.dt.GetAFromBPoint(fp1.FastenPositionID, fp2.FastenPositionID, speed, ref result, ref startT);
-                                                // var json = Newtonsoft.Json.JsonConvert.SerializeObject(result);
-                                                result.RemoveAll(item => item.t0 == item.t1);
-                                                //   var json = Newtonsoft.Json.JsonConvert.SerializeObject(result);
-                                                //Console.WriteLine(json);
-                                                // goto doCommand;
-                                                //BradCastAnimateOfCar
-                                                //this._Players[sp.Key].
+                                                var goMile = getMile(goPath);
+                                                var returnMile = getMile(goPath);
 
-                                                car.changeState++;
 
-                                                var obj = new BradCastAnimateOfCar
+                                                //第一步，计算去程和回程。
+                                                if (car.ability.leftMile >= goMile + returnMile)
                                                 {
-                                                    c = "BradCastAnimateOfCar",
-                                                    Animate = result,
-                                                    WebSocketID = this._Players[sp.Key].WebSocketID,
-                                                    carID = sp.car + "_" + sp.Key
-                                                };
-                                                var json = Newtonsoft.Json.JsonConvert.SerializeObject(obj);
-                                                notifyMsg.Add(this._Players[sp.Key].FromUrl);
-                                                notifyMsg.Add(json);
-#warning 这里还没有遍历状态，获取转发状态！
+                                                    car.ability.costMiles += (goMile + returnMile);
+                                                    var speed = car.ability.Speed;
+                                                    int startT = 0;
+                                                    var result = getStartPositon(fp1, sp.car, ref startT);
+                                                    Program.dt.GetAFromBPoint(goPath, fp1, speed, ref result, ref startT);
+                                                    result.RemoveAll(item => item.t0 == item.t1);
+                                                    car.animateData = new AnimateData()
+                                                    {
+                                                        animateData = result,
+                                                        recordTime = DateTime.Now
+                                                    };
+                                                    //  int carState = car.changeState + 1;
+                                                    Thread th = new Thread(() => setReturn(startT, new commandWithTime.returnning()
+                                                    {
+                                                        c = "returnning",
+                                                        key = sp.Key,
+                                                        car = sp.car,
+                                                        returnPath = returnPath,
+                                                        target = this.getPromoteState(sp.pType),
+                                                        changeType = sp.pType
+                                                    }));
+                                                    th.Start();
+                                                    //this.loopCommands.Add();
+
+                                                    this.breakMiniSecods = 0;
+                                                    //第二步，更改状态
+                                                    car.changeState++;//更改状态
+
+
+                                                    car.state = CarState.buying;
+
+
+                                                    getAllCarInfomations(sp.Key, ref notifyMsg);
+
+
+
+                                                }
+
+                                                else if (car.ability.leftMile >= goMile)
+                                                {
+                                                    Console.Write($"去程{goMile}，回程{returnMile}");
+                                                    Console.Write($"你去了回不来");
+                                                }
+                                                else
+                                                {
+                                                    Console.Write($"去程{goMile}，回程{returnMile}");
+                                                    Console.Write($"你去不了");
+                                                }
+
+
                                             }; break;
                                     }
                                     //this._Players[sp.Key].PromoteState[sp.pType]
@@ -246,10 +377,154 @@ namespace HouseManager
                 {
                     var url = notifyMsg[i];
                     var sendMsg = notifyMsg[i + 1];
+                    Console.WriteLine($"url:{url}");
+
                     await Startup.sendMsg(url, sendMsg);
                 }
                 return "";
             }
+        }
+
+        private int getPromotePositionTo(string pType)
+        {
+            switch (pType)
+            {
+                case "mile": { return this.promoteMilePosition; }; ;
+                case "bussiness": { return this.promoteBussinessPosition; };
+                case "volume": { return this.promoteVolumePosition; };
+                case "speed": { return this.promoteSpeedPosition; };
+                default:
+                    {
+                        throw new Exception($"{pType}没有定义");
+                    }
+            }
+        }
+
+        private async void setReturn(int startT, commandWithTime.returnning cmp)
+        {
+            Console.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}开始执行setReturn");
+            Thread.Sleep(startT + 1);
+            Console.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}开始执行setReturn正文");
+            List<string> notifyMsg = new List<string>();
+            bool needUpdatePromoteState = false;
+            lock (this.PlayerLock)
+            {
+                var car = this._Players[cmp.key].getCar(cmp.car);
+                if ((cmp.changeType == "mile" || cmp.changeType == "bussiness" || cmp.changeType == "volume" || cmp.changeType == "speed")
+                    && car.state == CarState.buying)
+                {
+                    // cons
+                    // if(this.pla cmp.key)
+                    if (cmp.target == this.getPromoteState(cmp.changeType))
+                    {
+                        setPromtePosition(cmp.changeType);
+                        //this.promoteMilePosition = GetRandomPosition();
+                        needUpdatePromoteState = true;
+                        Console.WriteLine("执行购买过程！");
+                    }
+                    else
+                    {
+                        Console.WriteLine("没有执行购买过程！");
+                    }
+#warning 这里的金钱未定，如果没有买成，留在原地
+                    //    var car = this._Players[cmp.key].getCar(cmp.car);
+                    car.ability.costBusiness += 1;
+
+                    var speed = car.ability.Speed;
+                    startT = 0;
+                    var result = new List<Data.PathResult>();
+                    Program.dt.GetAFromBPoint(cmp.returnPath, Program.dt.GetFpByIndex(cmp.target), speed, ref result, ref startT);
+                    getEndPositon(Program.dt.GetFpByIndex(this._Players[cmp.key].StartFPIndex), cmp.car, ref result, ref startT);
+                    result.RemoveAll(item => item.t0 == item.t1);
+
+                    Thread th = new Thread(() => setBack(startT, new commandWithTime.comeBack()
+                    {
+                        c = "comeBack",
+                        car = cmp.car,
+                        key = cmp.key
+                    }));
+                    th.Start();
+
+                    car.state = CarState.returning;
+                    car.animateData = new AnimateData()
+                    {
+                        animateData = result,
+                        recordTime = DateTime.Now
+                    };
+                    this.breakMiniSecods = 0;
+                    //第二步，更改状态
+                    car.changeState++;
+                    getAllCarInfomations(cmp.key, ref notifyMsg);
+                }
+            }
+            for (var i = 0; i < notifyMsg.Count; i += 2)
+            {
+                var url = notifyMsg[i];
+                var sendMsg = notifyMsg[i + 1];
+                Console.WriteLine($"url:{url}");
+
+                await Startup.sendMsg(url, sendMsg);
+            }
+            Console.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}执行setReturn结束");
+            if (needUpdatePromoteState)
+            {
+                await CheckAllPlayersPromoteState(cmp.changeType);
+            }
+        }
+
+        private void setPromtePosition(string changeType)
+        {
+            if (changeType == "mile")
+                this.promoteMilePosition = GetRandomPosition();
+            else if (changeType == "bussiness")
+                this.promoteBussinessPosition = GetRandomPosition();
+            else if (changeType == "volume")
+                this.promoteVolumePosition = GetRandomPosition();
+            else if (changeType == "speed")
+                this.promoteSpeedPosition = GetRandomPosition();
+            else
+            {
+                throw new Exception($"{changeType}是什么类型？");
+            }
+        }
+
+        private async Task CheckAllPlayersPromoteState(string pType)
+        {
+            var all = getGetAllPlayer();
+            for (var i = 0; i < all.Count; i++)
+            {
+                await CheckPromoteState(all[i].Key, pType);
+            }
+        }
+
+        private void setBack(int startT, commandWithTime.comeBack comeBack)
+        {
+            Thread.Sleep(startT);
+            lock (this.PlayerLock)
+            {
+                if (this._Players[comeBack.key].getCar(comeBack.car).state == CarState.returning)
+                {
+                    this._Players[comeBack.key].getCar(comeBack.car).state = CarState.waitAtBaseStation;
+                    Console.WriteLine("执行了归位");
+
+                    this._Players[comeBack.key].getCar(comeBack.car).ability.Refresh();
+                }
+            }
+        }
+
+        /// <summary>
+        /// 单位是km
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        private int getMile(List<Model.MapGo.nyrqPosition> path)
+        {
+            double sumMiles = 0;
+            for (var i = 1; i < path.Count; i++)
+            {
+                sumMiles += CommonClass.Geography.getLengthOfTwoPoint.GetDistance(path[i].BDlatitude, path[i].BDlongitude, path[i - 1].BDlatitude, path[i - 1].BDlongitude);
+            }
+            return Convert.ToInt32(sumMiles) / 1000;
         }
 
         private List<Data.PathResult> getStartPositon(Model.FastonPosition fp, string car, ref int startTInput)
@@ -338,6 +613,98 @@ namespace HouseManager
             return animateResult;
         }
 
+        private void getEndPositon(Model.FastonPosition fp, string car, ref List<Data.PathResult> animateResult, ref int startTInput)
+        {
+            double endX, endY;
+            CommonClass.Geography.calculatBaideMercatorIndex.getBaiduPicIndex(fp.Longitude, fp.Latitde, out endX, out endY);
+            int startT0, startT1;
+
+            double startX, startY;
+            CommonClass.Geography.calculatBaideMercatorIndex.getBaiduPicIndex(fp.positionLongitudeOnRoad, fp.positionLatitudeOnRoad, out startX, out startY);
+            int endT0, endT1;
+
+            //这里要考虑前台坐标系（左手坐标系）。
+            var cc = new Complex(startX - endX, (-startY) - (-endY));
+
+            cc = ToOne(cc);
+
+            var positon1 = cc * (new Complex(-0.309016994, 0.951056516));
+            var positon2 = positon1 * (new Complex(0.809016994, 0.587785252));
+            var positon3 = positon2 * (new Complex(0.809016994, 0.587785252));
+            var positon4 = positon3 * (new Complex(0.809016994, 0.587785252));
+            var positon5 = positon4 * (new Complex(0.809016994, 0.587785252));
+            Complex position;
+            switch (car)
+            {
+                case "carA":
+                    {
+                        position = positon1;
+                    }; break;
+                case "carB":
+                    {
+                        position = positon2;
+                    }; break;
+                case "carC":
+                    {
+                        position = positon3;
+                    }; break;
+                case "carD":
+                    {
+                        position = positon4;
+                    }; break;
+                case "carE":
+                    {
+                        position = positon5;
+                    }; break;
+                default:
+                    {
+                        position = positon1;
+                    }; break;
+            }
+            var percentOfPosition = 0.25;
+            double carPositionX = endX + position.Real * percentOfPosition;
+            double carPositionY = endY - position.Imaginary * percentOfPosition;
+
+
+            /*
+             * 这里由于是返程，为了与getStartPositon 中的命名保持一致性，（位置上）end实际为start,时间上还保持一致
+             */
+            //  List<Data.PathResult> animateResult = new List<Data.PathResult>();
+
+            /*
+             * 上道路的速度为10m/s 即36km/h
+             */
+            var interview = Convert.ToInt32(CommonClass.Geography.getLengthOfTwoPoint.GetDistance(fp.Latitde, fp.Longitude, fp.positionLatitudeOnRoad, fp.positionLongitudeOnRoad) / 10 * 1000);
+            startT1 = startTInput;
+            endT1 = startT1 + interview;
+            startTInput += interview;
+            var animate2 = new Data.PathResult()
+            {
+                t0 = startT1,
+                x0 = startX,
+                y0 = startY,
+                t1 = endT1,
+                x1 = endX,
+                y1 = endY
+            };
+            animateResult.Add(animate2);
+
+
+            startT0 = startTInput;
+            endT0 = startT0 + 500;
+            startTInput += 500;
+            var animate1 = new Data.PathResult()
+            {
+                t0 = startT0,
+                x0 = endX,
+                y0 = endY,
+                t1 = endT0,
+                x1 = carPositionX,
+                y1 = carPositionY
+            };
+            animateResult.Add(animate1);
+
+        }
         private Complex ToOne(Complex cc)
         {
             var m = Math.Sqrt(cc.Real * cc.Real + cc.Imaginary * cc.Imaginary);
@@ -373,8 +740,18 @@ namespace HouseManager
             return result;
         }
 
-        internal bool GetPosition(GetPosition getPosition, out string fromUrl, out int webSocketID, out Model.FastonPosition fp, out string[] carsNames)
+        /// <summary>
+        /// 用于自己位置的初始化，实际上这个才是真正的初始化！在AddNewPlayer或者update以前，需要将self的others初始化
+        /// </summary>
+        /// <param name="getPosition">传入参数</param>
+        /// <param name="fromUrl">返回的url</param>
+        /// <param name="webSocketID">websocketID</param>
+        /// <param name="fp">地点</param>
+        /// <param name="carsNames"></param>
+        /// <returns></returns>
+        internal bool GetPosition(GetPosition getPosition, out string fromUrl, out int webSocketID, out Model.FastonPosition fp, out string[] carsNames, out List<string> notifyMsgs)
         {
+            notifyMsgs = new List<string>();
             lock (this.PlayerLock)
             {
                 if (this._Players.ContainsKey(getPosition.Key))
@@ -383,6 +760,12 @@ namespace HouseManager
                     fromUrl = this._Players[getPosition.Key].FromUrl;
                     webSocketID = this._Players[getPosition.Key].WebSocketID;
                     carsNames = this._Players[getPosition.Key].CarsNames;
+
+                    /*
+                     * 这已经走查过，在AddNewPlayer、UpdatePlayer时，others都进行了初始化
+                     */
+                    AddOtherPlayer(getPosition.Key, ref notifyMsgs);
+                    getAllCarInfomations(getPosition.Key, ref notifyMsgs);
                     return true;
                 }
                 else
@@ -397,13 +780,138 @@ namespace HouseManager
 
         }
 
+        private void getAllCarInfomations(string key, ref List<string> msgsWithUrl)
+        {
+            var players = getGetAllPlayer();
+            for (var i = 0; i < players.Count; i++)
+            {
+                if (players[i].Key == key)
+                {
+
+                }
+                else
+                {
+                    {
+                        /*
+                         * 告诉自己，场景中有哪些别人的车！
+                         * 告诉别人，场景中有哪些车是我的的！
+                         */
+                        {
+                            var self = this._Players[key];
+                            var other = players[i];
+                            addPlayerCarRecord(self, other, ref msgsWithUrl);
+
+                        }
+                        {
+                            var self = players[i];
+                            var other = this._Players[key];
+                            addPlayerCarRecord(self, other, ref msgsWithUrl);
+                        }
+
+                    }
+                }
+            }
+            {
+                var self = this._Players[key];
+                addSelfCarRecord(self, ref msgsWithUrl);
+            }
+        }
+
+        private void addSelfCarRecord(Player self, ref List<string> msgsWithUrl)
+        {
+            for (var indexOfCar = 0; indexOfCar < 5; indexOfCar++)
+                if (self.getCar(indexOfCar).animateData == null)
+                {
+
+                }
+                else
+                {
+                    var result = new
+                    {
+                        deltaT = Convert.ToInt32((DateTime.Now - self.getCar(indexOfCar).animateData.recordTime).TotalMilliseconds),
+                        animateData = self.getCar(indexOfCar).animateData.animateData
+                    };
+                    var obj = new BradCastAnimateOfSelfCar
+                    {
+                        c = "BradCastAnimateOfSelfCar",
+                        Animate = result,
+                        WebSocketID = self.WebSocketID,
+                        carID = getCarName(indexOfCar) + "_" + self.Key,
+                        parentID = self.Key,
+                    };
+                    var json = Newtonsoft.Json.JsonConvert.SerializeObject(obj);
+                    msgsWithUrl.Add(self.FromUrl);
+                    msgsWithUrl.Add(json);
+                }
+        }
+
+        private void addPlayerCarRecord(Player self, Player other, ref List<string> msgsWithUrl)
+        {
+            //这是发送给self的消息
+            //throw new NotImplementedException();
+            if (self.others.ContainsKey(other.Key))
+            {
+                for (var indexOfCar = 0; indexOfCar < 5; indexOfCar++)
+                {
+                    if (self.others[other.Key].getCarState(indexOfCar) == other.getCar(indexOfCar).changeState)
+                    {
+
+                    }
+                    else
+                    {
+                        if (other.getCar(indexOfCar).animateData == null)
+                        {
+
+                        }
+                        else
+                        {
+                            var result = new
+                            {
+                                deltaT = Convert.ToInt32((DateTime.Now - other.getCar(indexOfCar).animateData.recordTime).TotalMilliseconds),
+                                animateData = other.getCar(indexOfCar).animateData.animateData
+                            };
+                            var obj = new BradCastAnimateOfOthersCar
+                            {
+                                c = "BradCastAnimateOfOthersCar",
+                                Animate = result,
+                                WebSocketID = self.WebSocketID,
+                                carID = getCarName(indexOfCar) + "_" + other.Key,
+                                parentID = other.Key,
+                            };
+                            var json = Newtonsoft.Json.JsonConvert.SerializeObject(obj);
+                            msgsWithUrl.Add(self.FromUrl);
+                            msgsWithUrl.Add(json);
+                        }
+                        self.others[other.Key].setCarState(indexOfCar, other.getCar(indexOfCar).changeState);
+                    }
+                }
+            }
+        }
+
+        private string getCarName(int index)
+        {
+            switch (index)
+            {
+                case 0:
+                    {
+                        return "carA";
+                    };
+                case 1: { return "carB"; };
+                case 2: { return "carC"; };
+                case 3: { return "carD"; };
+                case 4: { return "carE"; };
+            }
+            throw new Exception("错误的序数");
+        }
+
         int _breakMiniSecods;
         int breakMiniSecods
         {
             get { return this._breakMiniSecods; }
             set
             {
-                lock (this.PlayerLock) this._breakMiniSecods = value;
+                lock (this.PlayerLock)
+                    this._breakMiniSecods = value;
             }
         }
         int GetRandomPosition()
@@ -417,63 +925,72 @@ namespace HouseManager
             return index;
         }
 
-        Dictionary<string, int> PromoteState { get; set; }
-        async void LookFor()
+        int getPromoteState(string pType)
+        {
+            switch (pType)
+            {
+                case "mile":
+                    {
+                        return this.promoteMilePosition;
+                    }
+                case "bussiness":
+                    {
+                        return this.promoteBussinessPosition;
+                    }; ;
+                case "volume":
+                    {
+                        return this.promoteVolumePosition;
+                    };
+                case "speed":
+                    {
+                        return this.promoteSpeedPosition;
+                    };
+                default:
+                    {
+                        throw new Exception($"{pType}是什么类型");
+                    };
+            }
+        }
+        void LookFor()
         {
             lock (this.PlayerLock)
             {
                 this.promoteMilePosition = GetRandomPosition();
-                this.promoteYewuPosition = GetRandomPosition();
+                this.promoteBussinessPosition = GetRandomPosition();
                 this.promoteVolumePosition = GetRandomPosition();
                 this.promoteSpeedPosition = GetRandomPosition();
-
-
-                this.PromoteState = new Dictionary<string, int>()
-                {
-                    {"mile",0 },{"yewu",0 },{"volume",0 },{"speed",0 }
-                };
-
                 //BaseInfomation.rm._Players[checkItem.Key]
             }
+            return;
+        }
 
-            while (true)
+
+
+        class commandWithTime
+        {
+            abstract public class baseC
             {
-                breakMiniSecods = int.MaxValue;
-                //try 
-                //Thread.Sleep(2);
-                lock (this.PlayerLock)
-                {
-                    Console.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}-thread doFun");
-                    //Thread.Sleep(2 * 1000);
+                public string c { get; set; }
+                public string key { get; set; }
+                public string car { get; set; }
+            }
+            public class returnning : baseC
+            {
 
-                }
-                while (breakMiniSecods-- > 0)
-                {
-                    Thread.Sleep(10);
-                }
+                internal List<Model.MapGo.nyrqPosition> returnPath { get; set; }
+                internal int target { get; set; }
 
+                /// <summary>
+                /// 取值如mile
+                /// </summary>
+                public string changeType { get; internal set; }
+            }
+
+            public class comeBack : baseC
+            {
 
             }
         }
-
-        //[Obsolete]
-        //private async void sendPrometeState(string fromUrl, int webSocketID)
-        //{
-        //    throw new Exception("");
-        //    //CommonClass.BradCastPromoteInfoNotify notify = new CommonClass.BradCastPromoteInfoNotify()
-        //    //{
-        //    //    c = "BradCastPromoteInfoNotify",
-        //    //    WebSocketID = webSocketID,
-        //    //    PromoteState = this.PromoteState[]
-        //    //    // var xx=  getPosition.Key
-        //    //};
-        //    //var msg = Newtonsoft.Json.JsonConvert.SerializeObject(notify);
-        //    //await Startup.sendMsg(fromUrl, msg);
-        //}
-        //public enum PromoteType
-        //{
-        //    mile, yewu, volume, speed
-        //}
         decimal PriceOfPromotePosition(string resultType)
         {
             switch (resultType)
@@ -482,7 +999,7 @@ namespace HouseManager
                     {
                         return 1;
                     }; break;
-                case "yewu":
+                case "bussiness":
                     {
                         return 1;
                     }; break;
@@ -496,7 +1013,7 @@ namespace HouseManager
                     }; break;
                 default:
                     {
-                        return 1;
+                        throw new Exception("");
                     }; break;
             }
         }
@@ -516,23 +1033,45 @@ namespace HouseManager
                         };
                         return obj;
                     }; break;
-                case "yewu": { }; break;
-                case "volume": { }; break;
-                case "speed": { }; break;
+                case "bussiness":
+                    {
+                        var obj = new BradCastPromoteInfoDetail
+                        {
+                            c = "BradCastPromoteInfoDetail",
+                            WebSocketID = webSocketID,
+                            resultType = resultType,
+                            Fp = Program.dt.GetFpByIndex(this.promoteBussinessPosition),
+                            Price = this.PriceOfPromotePosition(resultType)
+                        };
+                        return obj;
+                    }; break;
+                case "volume":
+                    {
+                        var obj = new BradCastPromoteInfoDetail
+                        {
+                            c = "BradCastPromoteInfoDetail",
+                            WebSocketID = webSocketID,
+                            resultType = resultType,
+                            Fp = Program.dt.GetFpByIndex(this.promoteVolumePosition),
+                            Price = this.PriceOfPromotePosition(resultType)
+                        };
+                        return obj;
+                    }; break;
+                case "speed":
+                    {
+                        var obj = new BradCastPromoteInfoDetail
+                        {
+                            c = "BradCastPromoteInfoDetail",
+                            WebSocketID = webSocketID,
+                            resultType = resultType,
+                            Fp = Program.dt.GetFpByIndex(this.promoteSpeedPosition),
+                            Price = this.PriceOfPromotePosition(resultType)
+                        };
+                        return obj;
+                    }; break;
                 default: { }; break;
             }
             throw new Exception("");
-            //var obj = new BradCastPromoteInfoDetail
-            //{
-            //    c = "BradCastPromoteInfoDetail",
-            //    WebSocketID = webSocketID,
-            //    lichengFp = Program.dt.GetFpByIndex(this.promoteLichengPosition),
-            //    yewuFp = Program.dt.GetFpByIndex(this.promoteYewuPosition),
-            //    volumeFp = Program.dt.GetFpByIndex(this.promoteVolumePosition),
-            //    speedFp = Program.dt.GetFpByIndex(this.promoteSpeedPosition),
-            //    PromoteState = this.PromoteState
-            //};
-            //return obj;
         }
 
         List<TaskForPromote> taskForPromotes = new List<TaskForPromote>();
@@ -540,39 +1079,37 @@ namespace HouseManager
         {
             //this.th.In
         }
-        Thread th { get; set; }
 
         //Dictionary<string, int> TaskOcupyIndex = new Dictionary<string, int>();
 
         int _promoteMilePosition = -1;
-        DateTime _TimeRecordMilePosition { get; set; }
-        int _promoteYewuPosition = -1;
-        DateTime _TimeRecordYewuPosition { get; set; }
+        //   DateTime _TimeRecordMilePosition { get; set; }
+        int _promoteBussinessPosition = -1;
         int _promoteVolumePosition = -1;
-        DateTime _TimeRecordVolumePosition { get; set; }
         int _promoteSpeedPosition = -1;
-        DateTime _TimeRecordSpeedPosition { get; set; }
+
         int promoteMilePosition
         {
-            get { return this._promoteMilePosition; }
+            get
+            {
+                return this._promoteMilePosition;
+            }
             set
             {
                 lock (this.PlayerLock)
                 {
-                    this._TimeRecordMilePosition = DateTime.Now;
                     this._promoteMilePosition = value;
                 }
             }
         }
-        int promoteYewuPosition
+        int promoteBussinessPosition
         {
-            get { return this._promoteYewuPosition; }
+            get { return this._promoteBussinessPosition; }
             set
             {
                 lock (this.PlayerLock)
                 {
-                    this._TimeRecordYewuPosition = DateTime.Now;
-                    this._promoteYewuPosition = value;
+                    this._promoteBussinessPosition = value;
                 }
             }
         }
@@ -583,7 +1120,6 @@ namespace HouseManager
             {
                 lock (this.PlayerLock)
                 {
-                    this._TimeRecordVolumePosition = DateTime.Now;
                     this._promoteVolumePosition = value;
                 }
             }
@@ -595,7 +1131,6 @@ namespace HouseManager
             {
                 lock (this.PlayerLock)
                 {
-                    this._TimeRecordSpeedPosition = DateTime.Now;
                     this._promoteSpeedPosition = value;
                 }
             }

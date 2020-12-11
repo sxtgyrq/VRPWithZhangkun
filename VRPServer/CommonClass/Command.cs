@@ -25,6 +25,12 @@ namespace CommonClass
         public string[] carsNames { get; set; }
         public string key { get; set; }
     }
+    public class GetOthersPositionNotify : CommandNotify
+    {
+        public Model.FastonPosition fp { get; set; }
+        public string[] carsNames { get; set; }
+        public string key { get; set; }
+    }
 
     public class BradCastAnimateOfCar : CommandNotify
     {
@@ -32,10 +38,24 @@ namespace CommonClass
 
         public object Animate { get; set; }
     }
+    public class BradCastAnimateOfOthersCar : CommandNotify
+    {
+        public string carID;
+
+        public object Animate { get; set; }
+        public string parentID { get; set; }
+    }
+    public class BradCastAnimateOfSelfCar : CommandNotify
+    {
+        public string carID;
+
+        public object Animate { get; set; }
+        public string parentID { get; set; }
+    }
     public class BradCastPromoteInfoDetail : CommandNotify
     {
         /// <summary>
-        /// "licheng","yewu","volume","speed"四种状态
+        /// "mile","bussiness","volume","speed"四种状态
         /// </summary>
         public string resultType { get; set; }
         public Model.FastonPosition Fp { get; set; }
@@ -64,6 +84,9 @@ namespace CommonClass
     public class SetPromote : Command
     {
         public string Key { get; set; }
+        /// <summary>
+        /// 取值如mile
+        /// </summary>
         public string pType { get; set; }
         public string car { get; set; }
     }

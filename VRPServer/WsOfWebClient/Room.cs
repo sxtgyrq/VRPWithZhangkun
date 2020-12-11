@@ -83,6 +83,12 @@ namespace WsOfWebClient
             return s;
         }
 
+        /// <summary>
+        /// 起到一个承前启后的作用，好些功能需要在这个参数里加载。包括后台，包括前台！
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="webSocket"></param>
+        /// <returns></returns>
         public static async Task<State> setOnLine(State s, WebSocket webSocket)
         {
             //var result = await setState(s, webSocket, LoginState.OnLine);
@@ -190,13 +196,8 @@ namespace WsOfWebClient
                 var sendData = Encoding.ASCII.GetBytes(msg);
                 await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
             }
-
             var result = await setState(s, webSocket, LoginState.OnLine);
-
             await initializeOperation(s);
-
-            //    passRobotInfomation(s);
-
             return result;
         }
 
@@ -333,9 +334,9 @@ namespace WsOfWebClient
             }
         }
 
-        internal static async Task<string> setPromete(State s, Promote promote)
+        internal static async Task<string> setPromote(State s, Promote promote)
         {
-            if (promote.pType == "mile")
+            if (promote.pType == "mile" || promote.pType == "bussiness" || promote.pType == "volume" || promote.pType == "speed")
             {
                 // string A = "carA_bb6a1ef1cb8c5193bec80b7752c6d54c";
                 // A = Console.ReadLine();

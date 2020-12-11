@@ -7,8 +7,8 @@ namespace HouseManager
 {
     public static class BaseInfomation
     {
-        public static RoomMain rm = new RoomMain();
+        public static RoomMain rm = null;
 
-        public static HttpClient Client = new HttpClient();
+        //  public static HttpClient Client = new HttpClient();
     }
 }

@@ -486,7 +486,8 @@ THREE.OBJLoader = (function () {
                             state.uvs.push(
                                 //parseFloat((data[1] + 10) % 1),
                                 //parseFloat((data[2] + 10) % 1)
-
+                                //parseFloat(data[1]),
+                                //parseFloat(data[2])
                                 parseFloat(Math.abs(data[1])),
                                 parseFloat(Math.abs(data[2]))
                             );

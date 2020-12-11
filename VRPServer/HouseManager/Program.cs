@@ -14,6 +14,7 @@ namespace HouseManager
         {
             namal();
             startTaskForAwait();
+            BaseInfomation.rm = new RoomMain();
             Console.WriteLine("你好！此服务为网页端的webSocket服务！");
             var ip = "http://127.0.0.1:11100";
             Console.WriteLine($"输入ip和端口如“{ip}”");

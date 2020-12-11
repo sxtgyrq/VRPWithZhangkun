@@ -273,7 +273,7 @@ namespace WsOfWebClient
                                     {
                                         Promote promote = Newtonsoft.Json.JsonConvert.DeserializeObject<Promote>(returnResult.result);
 
-                                        await Room.setPromete(s, promote);
+                                        await Room.setPromote(s, promote);
 
                                         //throw new Exception($"{c.c}已作废");
                                         // await Room.GetPromoteMilesInfo(s);
@@ -431,7 +431,7 @@ namespace WsOfWebClient
                     CommonClass.CommandNotify c = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.CommandNotify>(notifyJson);
 
                     // CommonClass.TeamCreateFinish teamCreateFinish = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.TeamCreateFinish>(notifyJson);
-                    bool hasSocket = false;
+
                     WebSocket ws = null;
                     lock (ConnectInfo.connectedWs_LockObj)
                     {
@@ -439,9 +439,7 @@ namespace WsOfWebClient
                         {
                             if (!ConnectInfo.connectedWs[c.WebSocketID].CloseStatus.HasValue)
                             {
-                                hasSocket = true;
                                 ws = ConnectInfo.connectedWs[c.WebSocketID];
-                                //  ConnectInfo.connectedWs[teamCreateFinish.WebSocketID].SendAsync();
                             }
                             else
                             {
@@ -449,12 +447,12 @@ namespace WsOfWebClient
                             }
                         }
                     }
-                    if (hasSocket)
+                    await context.Response.WriteAsync("ok");
+                    if (ws != null)
                     {
                         var sendData = Encoding.UTF8.GetBytes(notifyJson);
                         await ws.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
                     }
-                    await context.Response.WriteAsync("ok");
                 }
             });
         }

@@ -46,7 +46,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileUpload", "..\FileUpload
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommonClass", "..\CommonClass\CommonClass.csproj", "{63A61B0D-E434-4B88-867F-9F49CCCA090E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShowDemo", "..\ShowDemo\ShowDemo.csproj", "{B1C0E10A-6F0E-47DB-BF08-C6776847A338}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShowDemo", "..\ShowDemo\ShowDemo.csproj", "{B1C0E10A-6F0E-47DB-BF08-C6776847A338}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_HttpClientTest", "..\Test_HttpClientTest\Test_HttpClientTest.csproj", "{DC25001C-597B-435E-8BAB-CC5E0D9EC6FF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -102,6 +104,10 @@ Global
 		{B1C0E10A-6F0E-47DB-BF08-C6776847A338}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B1C0E10A-6F0E-47DB-BF08-C6776847A338}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B1C0E10A-6F0E-47DB-BF08-C6776847A338}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC25001C-597B-435E-8BAB-CC5E0D9EC6FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC25001C-597B-435E-8BAB-CC5E0D9EC6FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC25001C-597B-435E-8BAB-CC5E0D9EC6FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC25001C-597B-435E-8BAB-CC5E0D9EC6FF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

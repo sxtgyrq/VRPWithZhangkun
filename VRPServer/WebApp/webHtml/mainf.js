@@ -10,6 +10,7 @@ var objMain =
     centerPosition: { lon: 112.573463, lat: 37.891474 },
     roadGroup: null,
     basePoint: null,
+    othersBasePoint: {},
     playerGroup: null,
     carGroup: null,
     robotModel: null,
@@ -22,7 +23,7 @@ var objMain =
     PromotePositions:
     {
         mile: null,
-        yewu: null,
+        bussiness: null,
         volume: null,
         speed: null
     },
@@ -31,7 +32,7 @@ var objMain =
     promoteDiamond: null,
     mainF:
     {
-        drawLineOfFpToRoad: function (fp, group, color) {
+        drawLineOfFpToRoad: function (fp, group, color, lineName) {
             {
                 var start = new THREE.Vector3(MercatorGetXbyLongitude(fp.Longitude), 0, -MercatorGetYbyLatitude(fp.Latitde));
                 var end = new THREE.Vector3(MercatorGetXbyLongitude(fp.positionLongitudeOnRoad), 0, -MercatorGetYbyLatitude(fp.positionLatitudeOnRoad));
@@ -40,6 +41,7 @@ var objMain =
                 lineGeometry.vertices.push(end);
                 var lineMaterial = new THREE.LineBasicMaterial({ color: color });
                 var line = new THREE.Line(lineGeometry, lineMaterial);
+                line.name = 'approach_' + lineName;
                 group.add(line);
             }
         },
@@ -165,7 +167,31 @@ var objMain =
             element.style.width = '10em';
             //element.style.marginLeft = 'calc(5em + 20px)';
             element.style.marginTop = '3em';
-            element.style.border = '2px solid #ff0000';
+            var color = '#ff0000';
+            var colorName = '红';
+            switch (type) {
+                case 'mile':
+                    {
+                        color = '#ff0000';
+                        colorName = '红';
+                    }; break;
+                case 'bussiness': {
+                    color = '#00ff00';
+                    colorName = '绿';
+                }; break;
+                case 'volume': {
+
+                    color = '#0000ff';
+                    colorName = '蓝';
+                }; break;
+                case 'speed': {
+
+                    color = '#000000';
+                    colorName = '黑';
+                }; break;
+
+            }
+            element.style.border = '2px solid ' + color;
             element.style.borderTopLeftRadius = '0.5em';
             element.style.backgroundColor = 'rgba(255, 255, 255, 0.5)';
             element.style.color = '#1504f6';
@@ -173,7 +199,7 @@ var objMain =
             var div2 = document.createElement('div');
 
             var b = document.createElement('b');
-            b.innerHTML = '到[<span style="color:#05ffba">' + objMain.PromotePositions[type].Fp.FastenPositionName + '</span>]花费<span style="color:#05ffba">' + objMain.PromotePositions[type].Price.toFixed(2) + '</span>现金或汇兑购买红宝石。';
+            b.innerHTML = '到[<span style="color:#05ffba">' + objMain.PromotePositions[type].Fp.FastenPositionName + '</span>]花费<span style="color:#05ffba">' + objMain.PromotePositions[type].Price.toFixed(2) + '</span>现金或汇兑购买' + colorName + '宝石。';
             div2.appendChild(b);
 
             var div3 = document.createElement('div');
@@ -254,7 +280,30 @@ var objMain =
             }
         }
     },
-    groupOfOperatePanle: null
+    groupOfOperatePanle: null,
+    GetPositionNotify: {
+        data: null, F: function (data) {
+            //console.log(evt.data);
+            var objInput = JSON.parse(data);
+            objMain.basePoint = objInput.fp;
+            objMain.carsNames = objInput.carsNames;
+            objMain.indexKey = objInput.key;
+
+            //if (objMain.receivedState == 'WaitingToGetTeam') {
+            //    objMain.ws.send(received_msg);
+            //}
+            //小车用 https://threejs.org/examples/#webgl_animation_skinning_morph
+            //小车用 基地用 https://threejs.org/examples/#webgl_animation_cloth
+            // drawFlag(); 
+            drawPoint('green', objMain.basePoint, objMain.indexKey);
+            /*画引线*/
+            objMain.mainF.drawLineOfFpToRoad(objMain.basePoint, objMain.playerGroup, 'green', objMain.indexKey);
+            objMain.mainF.lookAtPosition(objMain.basePoint);
+            objMain.mainF.initilizeCars(objMain.basePoint, 'green', objMain.indexKey);
+            drawCarBtns(objMain.carsNames);
+            objMain.GetPositionNotify.data = null;
+        }
+    }
 };
 var startA = function () {
     var connected = false;
@@ -304,7 +353,9 @@ var startA = function () {
                         case 'OnLine':
                             {
                                 set3DHtml();
-
+                                if (objMain.GetPositionNotify.data != null) {
+                                    objMain.GetPositionNotify.F(objMain.GetPositionNotify.data);
+                                }
                             }; break;
                         case 'WaitingToStart':
                             {
@@ -355,11 +406,8 @@ var startA = function () {
                         objMain.ws.send(received_msg);
                     }
                 }; break;
-            case 'GetPositionNotify':
+            case 'GetOthersPositionNotify':
                 {
-                    /*
-                     * 此命令的获取比在objMain.state="OnLine" 之下发生
-                     */
                     if (objMain.state == "OnLine") {
 
                     }
@@ -370,22 +418,43 @@ var startA = function () {
                     }
                     console.log(evt.data);
                     var objInput = JSON.parse(evt.data);
-                    objMain.basePoint = objInput.fp;
-                    objMain.carsNames = objInput.carsNames;
-                    objMain.indexKey = objInput.key;
-
+                    var basePoint = objInput.fp;
+                    var carsNames = objInput.carsNames;
+                    var indexKey = objInput.key;
+                    objMain.othersBasePoint[indexKey] = { 'basePoint': basePoint, 'carsNames': carsNames };
                     //if (objMain.receivedState == 'WaitingToGetTeam') {
                     //    objMain.ws.send(received_msg);
                     //}
                     //小车用 https://threejs.org/examples/#webgl_animation_skinning_morph
                     //小车用 基地用 https://threejs.org/examples/#webgl_animation_cloth
                     // drawFlag(); 
-                    drawPoint('green', objMain.basePoint, objMain.indexKey);
+                    drawPoint('green', basePoint, indexKey);
                     /*画引线*/
-                    objMain.mainF.drawLineOfFpToRoad(objMain.basePoint, objMain.playerGroup, 'green');
-                    objMain.mainF.lookAtPosition(objMain.basePoint);
-                    objMain.mainF.initilizeCars(objMain.basePoint, 'green', objMain.indexKey);
-                    drawCarBtns(objMain.carsNames);
+                    objMain.mainF.drawLineOfFpToRoad(basePoint, objMain.playerGroup, 'green', indexKey);
+                    //  objMain.mainF.lookAtPosition(objMain.basePoint);
+                    objMain.mainF.initilizeCars(basePoint, 'green', indexKey);
+                    // drawCarBtns(objMain.carsNames);
+                }; break;
+            case 'GetPositionNotify':
+                {
+                    /*
+                     * 命令GetPositionNotify 与setState objMain.state="OnLine"发生顺序不定。但是画数据，需要在3D初始化之后。
+                     */
+                    if (objMain.state == "OnLine") {
+                        var msg = '先执行了 OnLine命令';
+                        console.log('提示', msg);
+                        objMain.GetPositionNotify.F(evt.data);
+                    }
+                    else {
+                        /*
+                         * 
+                         */
+                        var msg = 'GetPositionNotify出入时，状态为' + objMain.state;
+                        console.log('提示', msg);
+                        objMain.GetPositionNotify.data = evt.data;
+                        return;
+                    }
+
                     //var model = objMain.robotModel.clone();
                     //model.position.set(objMain.basePoint.MacatuoX, 0, -objMain.basePoint.MacatuoY);
                     //objMain.roadGroup.add(model);
@@ -411,7 +480,7 @@ var startA = function () {
                 }; break;
             case 'SetRobot':
                 {
-                    console.log(evt.data);
+                    //  console.log(evt.data);
                     var f = function (received_obj, mIndex, field) {
                         var manager = new THREE.LoadingManager();
                         new THREE.MTLLoader(manager)
@@ -468,7 +537,9 @@ var startA = function () {
                 }; break;
             case 'BradCastAnimateOfCar':
                 {
-                    //throw (received_obj.c + '已作废');
+                    //已作废,用BradCastAnimateOfSelfCar与BradCastAnimateOfOthersCar代替
+                    throw (received_obj.c + '已作废');
+                    return;
                     console.log(evt.data);
                     var passObj = JSON.parse(evt.data);
                     var animateData = passObj.Animate;
@@ -482,10 +553,47 @@ var startA = function () {
                      * 
                      */
                 }; break;
+            case 'BradCastAnimateOfSelfCar':
+            case 'BradCastAnimateOfOthersCar':
+                {
+                    var passObj = JSON.parse(evt.data);
+                    var animateData = passObj.Animate.animateData;
+                    var deltaT = passObj.Animate.deltaT;
+                    var carId = passObj.carID;
+
+                    var recordTime = Date.now() - deltaT;
+                    //   animateData.recordTime = recordTime;
+                    objMain.carsAnimateData[carId] = { 'recordTime': recordTime, 'animateData': animateData };
+                }; break;
             case 'BradCastPromoteInfoDetail':
                 {
+                    //alert('1');
+                    console.log('显示', received_obj);
                     //  switch (received_obj.
                     objMain.PromotePositions[received_obj.resultType] = received_obj;
+                    if (received_obj.resultType == objMain.Task.state) {
+                        if (objMain.state == "OnLine") {
+                            var startIndex = objMain.promoteDiamond.children.length - 1;
+                            for (var i = startIndex; i >= 0; i--) {
+                                objMain.promoteDiamond.remove(objMain.promoteDiamond.children[i]);
+                            }
+                            //var mirrorCubeCamera = new THREE.CubeCamera(0.1, 5000, 512);
+                            //objMain.scene.add(mirrorCubeCamera);
+                            var geometry = objMain.diamondGeometry;
+                            var material = new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.5, depthWrite: true });
+
+                            var diamond = new THREE.Mesh(geometry, material);
+                            diamond.scale.set(0.2, 0.22, 0.2);
+                            diamond.position.set(MercatorGetXbyLongitude(objMain.PromotePositions[received_obj.resultType].Fp.Longitude), 0, -MercatorGetYbyLatitude(objMain.PromotePositions[received_obj.resultType].Fp.Latitde));
+                            objMain.promoteDiamond.add(diamond);
+
+
+                            objMain.mainF.drawLineOfFpToRoad(objMain.PromotePositions[received_obj.resultType].Fp, objMain.promoteDiamond, 0x0000ff);
+                            
+
+                            objMain.mainF.drawPanelOfPromotion(objMain.Task.state);
+                        }
+                    }
                 }; break;
             case 'SetDiamond':
                 {
@@ -577,7 +685,7 @@ function animate() {
                 if (scale < 0.2) {
                     scale = 0.2;
                 }
-                if (objMain.Task.state == 'mile') {
+                if (['mile', 'bussiness', 'volume', 'speed'].indexOf(objMain.Task.state) >= 0) {
                     objMain.promoteDiamond.children[0].scale.set(scale, scale * 1.1, scale);
                 }
             }
@@ -1463,340 +1571,326 @@ var clothForRender = {
     }
 };
 var drawPoint = function (color, fp, indexKey) {
-    var that = this;
-    this.windStrengthDelta = 0;
-    const DAMPING = 0.03;
-    const DRAG = 1 - DAMPING;
-    const MASS = 0.1;
-    const restDistance = 25;
-    const xSegs = 10;
-    const ySegs = 10;
+    var createFlag = function (color) {
+        var that = this;
+        this.windStrengthDelta = 0;
+        this.DAMPING = 0.03;
+        this.DRAG = 1 - this.DAMPING;
+        this.MASS = 0.1;
+        this.restDistance = 25;
+        this.xSegs = 10;
+        this.ySegs = 10;
+        function plane(width, height) {
 
-    const clothFunction = plane(restDistance * xSegs, restDistance * ySegs);
-    const cloth = new Cloth(xSegs, ySegs);
-    this.cloth = cloth;
+            return function (u, v, target) {
 
-    const GRAVITY = 981 * 1.4;
-    const gravity = new THREE.Vector3(0, - GRAVITY, 0).multiplyScalar(MASS);
+                var x = (u - 0.5) * width;
+                var y = (v + 0.5) * height;
+                var z = 0;
 
+                target.set(x, y, z);
 
-    const TIMESTEP = 18 / 1000;
-    const TIMESTEP_SQ = TIMESTEP * TIMESTEP;
-
-    let pins = [];
-
-    const windForce = new THREE.Vector3(0, 0, 0);
-
-    const ballPosition = new THREE.Vector3(0, - 45, 0);
-    const ballSize = 60; //40
-
-    const tmpForce = new THREE.Vector3();
-
-    function plane(width, height) {
-
-        return function (u, v, target) {
-
-            const x = (u - 0.5) * width;
-            const y = (v + 0.5) * height;
-            const z = 0;
-
-            target.set(x, y, z);
-
-        };
-
-    }
-
-    function Particle(x, y, z, mass) {
-
-        this.position = new THREE.Vector3();
-        this.previous = new THREE.Vector3();
-        this.original = new THREE.Vector3();
-        this.a = new THREE.Vector3(0, 0, 0); // acceleration
-        this.mass = mass;
-        this.invMass = 1 / mass;
-        this.tmp = new THREE.Vector3();
-        this.tmp2 = new THREE.Vector3();
-
-        // init
-
-        clothFunction(x, y, this.position); // position
-        clothFunction(x, y, this.previous); // previous
-        clothFunction(x, y, this.original);
-
-    }
-
-    // Force -> Acceleration
-
-    Particle.prototype.addForce = function (force) {
-
-        this.a.add(
-            this.tmp2.copy(force).multiplyScalar(this.invMass)
-        );
-
-    };
-
-
-    // Performs Verlet integration
-
-    Particle.prototype.integrate = function (timesq) {
-
-        const newPos = this.tmp.subVectors(this.position, this.previous);
-        newPos.multiplyScalar(DRAG).add(this.position);
-        newPos.add(this.a.multiplyScalar(timesq));
-
-        this.tmp = this.previous;
-        this.previous = this.position;
-        this.position = newPos;
-
-        this.a.set(0, 0, 0);
-
-    };
-
-
-    const diff = new THREE.Vector3();
-
-    function satisfyConstraints(p1, p2, distance) {
-
-        diff.subVectors(p2.position, p1.position);
-        const currentDist = diff.length();
-        if (currentDist === 0) return; // prevents division by 0
-        const correction = diff.multiplyScalar(1 - distance / currentDist);
-        const correctionHalf = correction.multiplyScalar(0.5);
-        p1.position.add(correctionHalf);
-        p2.position.sub(correctionHalf);
-
-    }
-
-    function Cloth(w, h) {
-
-        w = w || 10;
-        h = h || 10;
-        this.w = w;
-        this.h = h;
-
-        const particles = [];
-        const constraints = [];
-
-        // Create particles
-        for (let v = 0; v <= h; v++) {
-
-            for (let u = 0; u <= w; u++) {
-
-                particles.push(
-                    new Particle(u / w, v / h, 0, MASS)
-                );
-
-            }
+            };
 
         }
+        var clothFunction = plane(this.restDistance * this.xSegs, this.restDistance * this.ySegs);
+        function Cloth(w, h) {
 
-        // Structural
+            w = w || 10;
+            h = h || 10;
+            this.w = w;
+            this.h = h;
 
-        for (let v = 0; v < h; v++) {
+            var particles = [];
+            var constraints = [];
 
-            for (let u = 0; u < w; u++) {
+            // Create particles
+            for (let v = 0; v <= h; v++) {
 
-                constraints.push([
-                    particles[index(u, v)],
-                    particles[index(u, v + 1)],
-                    restDistance
-                ]);
+                for (let u = 0; u <= w; u++) {
 
-                constraints.push([
-                    particles[index(u, v)],
-                    particles[index(u + 1, v)],
-                    restDistance
-                ]);
-
-            }
-
-        }
-
-        for (let u = w, v = 0; v < h; v++) {
-
-            constraints.push([
-                particles[index(u, v)],
-                particles[index(u, v + 1)],
-                restDistance
-
-            ]);
-
-        }
-
-        for (let v = h, u = 0; u < w; u++) {
-
-            constraints.push([
-                particles[index(u, v)],
-                particles[index(u + 1, v)],
-                restDistance
-            ]);
-
-        }
-
-
-        // While many systems use shear and bend springs,
-        // the relaxed constraints model seems to be just fine
-        // using structural springs.
-        // Shear
-        // const diagonalDist = Math.sqrt(restDistance * restDistance * 2);
-
-
-        // for (v=0;v<h;v++) {
-        // 	for (u=0;u<w;u++) {
-
-        // 		constraints.push([
-        // 			particles[index(u, v)],
-        // 			particles[index(u+1, v+1)],
-        // 			diagonalDist
-        // 		]);
-
-        // 		constraints.push([
-        // 			particles[index(u+1, v)],
-        // 			particles[index(u, v+1)],
-        // 			diagonalDist
-        // 		]);
-
-        // 	}
-        // }
-
-
-        this.particles = particles;
-        this.constraints = constraints;
-
-        function index(u, v) {
-
-            return u + v * (w + 1);
-
-        }
-
-        this.index = index;
-
-    }
-    this.simulate = function (now) {
-        //这里进行动画
-        const windStrength = Math.cos(now / 7000) * 20 + 40 + that.windStrengthDelta;
-
-        windForce.set(Math.sin(now / 2000), Math.cos(now / 3000), Math.sin(now / 1000));
-        windForce.normalize();
-        windForce.multiplyScalar(windStrength);
-
-        // Aerodynamics forces
-
-        const particles = cloth.particles;
-
-        {
-
-            let indx;
-            const normal = new THREE.Vector3();
-            const indices = clothGeometry.index;
-            const normals = clothGeometry.attributes.normal;
-
-            for (let i = 0, il = indices.count; i < il; i += 3) {
-
-                for (let j = 0; j < 3; j++) {
-
-                    indx = indices.getX(i + j);
-                    normal.fromBufferAttribute(normals, indx);
-                    tmpForce.copy(normal).normalize().multiplyScalar(normal.dot(windForce));
-                    particles[indx].addForce(tmpForce);
+                    particles.push(
+                        new Particle(u / w, v / h, 0, that.MASS)
+                    );
 
                 }
 
             }
 
-        }
+            // Structural
 
-        for (let i = 0, il = particles.length; i < il; i++) {
+            for (let v = 0; v < h; v++) {
 
-            const particle = particles[i];
-            particle.addForce(gravity);
+                for (let u = 0; u < w; u++) {
 
-            particle.integrate(TIMESTEP_SQ);
+                    constraints.push([
+                        particles[index(u, v)],
+                        particles[index(u, v + 1)],
+                        that.restDistance
+                    ]);
 
-        }
+                    constraints.push([
+                        particles[index(u, v)],
+                        particles[index(u + 1, v)],
+                        that.restDistance
+                    ]);
 
-        // Start Constraints
-
-        const constraints = cloth.constraints;
-        const il = constraints.length;
-
-        for (let i = 0; i < il; i++) {
-
-            const constraint = constraints[i];
-            satisfyConstraints(constraint[0], constraint[1], constraint[2]);
-
-        }
-
-        // Ball Constraints
-
-
-
-
-        // Floor Constraints
-
-        for (let i = 0, il = particles.length; i < il; i++) {
-
-            const particle = particles[i];
-            const pos = particle.position;
-            if (pos.y < - 250) {
-
-                pos.y = - 250;
+                }
 
             }
 
+            for (let u = w, v = 0; v < h; v++) {
+
+                constraints.push([
+                    particles[index(u, v)],
+                    particles[index(u, v + 1)],
+                    that.restDistance
+
+                ]);
+
+            }
+
+            for (let v = h, u = 0; u < w; u++) {
+
+                constraints.push([
+                    particles[index(u, v)],
+                    particles[index(u + 1, v)],
+                    that.restDistance
+                ]);
+
+            }
+            this.particles = particles;
+            this.constraints = constraints;
+
+            function index(u, v) {
+
+                return u + v * (w + 1);
+
+            }
+
+            this.index = index;
+
+        }
+        var cloth = new Cloth(this.xSegs, this.ySegs);
+        this.cloth = cloth;
+
+        this.GRAVITY = 981 * 1.4;
+        this.gravity = new THREE.Vector3(0, -  this.GRAVITY, 0).multiplyScalar(this.MASS);
+
+        this.TIMESTEP = 18 / 1000;
+        this.TIMESTEP_SQ = this.TIMESTEP * this.TIMESTEP;
+
+        this.pins = [];
+
+        this.windForce = new THREE.Vector3(0, 0, 0);
+
+        //this. ballPosition = new THREE.Vector3(0, - 45, 0);
+        //this. ballSize = 60; //40
+
+        this.tmpForce = new THREE.Vector3();
+
+        function Particle(x, y, z, mass) {
+
+            this.position = new THREE.Vector3();
+            this.previous = new THREE.Vector3();
+            this.original = new THREE.Vector3();
+            this.a = new THREE.Vector3(0, 0, 0); // acceleration
+            this.mass = mass;
+            this.invMass = 1 / mass;
+            this.tmp = new THREE.Vector3();
+            this.tmp2 = new THREE.Vector3();
+
+            // init
+
+            clothFunction(x, y, this.position); // position
+            clothFunction(x, y, this.previous); // previous
+            clothFunction(x, y, this.original);
+
         }
 
-        // Pin Constraints
+        // Force -> Acceleration
 
-        for (let i = 0, il = pins.length; i < il; i++) {
+        Particle.prototype.addForce = function (force) {
 
-            const xy = pins[i];
-            const p = particles[xy];
-            p.position.copy(p.original);
-            p.previous.copy(p.original);
+            this.a.add(
+                this.tmp2.copy(force).multiplyScalar(this.invMass)
+            );
+
+        };
+
+
+        // Performs Verlet integration
+
+        Particle.prototype.integrate = function (timesq) {
+
+            var newPos = this.tmp.subVectors(this.position, this.previous);
+            newPos.multiplyScalar(that.DRAG).add(this.position);
+            newPos.add(this.a.multiplyScalar(timesq));
+
+            this.tmp = this.previous;
+            this.previous = this.position;
+            this.position = newPos;
+
+            this.a.set(0, 0, 0);
+
+        };
+
+        this.diff = new THREE.Vector3();
+        function satisfyConstraints(p1, p2, distance) {
+
+            that.diff.subVectors(p2.position, p1.position);
+            var currentDist = that.diff.length();
+            if (currentDist === 0) return; // prevents division by 0
+            var correction = that.diff.multiplyScalar(1 - distance / currentDist);
+            var correctionHalf = correction.multiplyScalar(0.5);
+            p1.position.add(correctionHalf);
+            p2.position.sub(correctionHalf);
+
+        }
+        this.simulate = function (now) {
+            //这里进行动画
+            var windStrength = Math.cos(now / 7000) * 20 + 40 + that.windStrengthDelta;
+
+            that.windForce.set(Math.sin(now / 2000), Math.cos(now / 3000), Math.sin(now / 1000));
+            that.windForce.normalize();
+            that.windForce.multiplyScalar(windStrength);
+
+            // Aerodynamics forces
+
+            var particles = cloth.particles;
+
+            {
+
+                let indx;
+                var normal = new THREE.Vector3();
+                var indices = clothGeometry.index;
+                var normals = clothGeometry.attributes.normal;
+
+                for (let i = 0, il = indices.count; i < il; i += 3) {
+
+                    for (let j = 0; j < 3; j++) {
+
+                        indx = indices.getX(i + j);
+                        normal.fromBufferAttribute(normals, indx);
+                        that.tmpForce.copy(normal).normalize().multiplyScalar(normal.dot(that.windForce));
+                        particles[indx].addForce(that.tmpForce);
+
+                    }
+
+                }
+
+            }
+
+            for (let i = 0, il = particles.length; i < il; i++) {
+
+                var particle = particles[i];
+                particle.addForce(that.gravity);
+
+                particle.integrate(that.TIMESTEP_SQ);
+
+            }
+
+            // Start Constraints
+
+            var constraints = cloth.constraints;
+            var il = constraints.length;
+
+            for (let i = 0; i < il; i++) {
+
+                var constraint = constraints[i];
+                satisfyConstraints(constraint[0], constraint[1], constraint[2]);
+
+            }
+
+            // Ball Constraints
+
+
+
+
+            // Floor Constraints
+
+            for (let i = 0, il = particles.length; i < il; i++) {
+
+                var particle = particles[i];
+                var pos = particle.position;
+                if (pos.y < - 250) {
+
+                    pos.y = - 250;
+
+                }
+
+            }
+
+            // Pin Constraints
+
+            for (let i = 0, il = that.pins.length; i < il; i++) {
+
+                var xy = that.pins[i];
+                var p = particles[xy];
+                p.position.copy(p.original);
+                p.previous.copy(p.original);
+
+            }
+
 
         }
 
+        this.pinsFormation = [];
+        this.pins = [6];
 
+        this.pinsFormation.push(this.pins);
+
+        this.pins = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        this.pinsFormation.push(this.pins);
+
+        this.pins = [0];
+        this.pinsFormation.push(this.pins);
+
+        this.pins = []; // cut the rope ;)
+        this.pinsFormation.push(this.pins);
+
+        this.pins = [0, cloth.w]; // classic 2 pins
+        this.pinsFormation.push(this.pins);
+
+        this.pins = this.pinsFormation[1];
+
+        function togglePins() {
+
+            pins = pinsFormation[~ ~(Math.random() * pinsFormation.length)];
+
+        }
+        this.clothMaterial = new THREE.MeshLambertMaterial({
+            side: THREE.DoubleSide,
+            alphaTest: 0.5,
+            color: color,
+            emissive: color
+        });
+        var clothGeometry = new THREE.ParametricBufferGeometry(clothFunction, cloth.w, cloth.h);
+        this.clothGeometry = clothGeometry;
+
+
+        this.refresh = function () {
+            var p = that.cloth.particles;
+            for (let i = 0, il = p.length; i < il; i++) {
+
+                var v = p[i].position;
+
+                that.clothGeometry.attributes.position.setXYZ(i, v.x, v.y, v.z);
+
+            }
+            that.clothGeometry.attributes.position.needsUpdate = true;
+            that.clothGeometry.computeVertexNormals();
+        };
+
+        return this;
     }
 
-    const pinsFormation = [];
-    pins = [6];
-
-    pinsFormation.push(pins);
-
-    pins = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    pinsFormation.push(pins);
-
-    pins = [0];
-    pinsFormation.push(pins);
-
-    pins = []; // cut the rope ;)
-    pinsFormation.push(pins);
-
-    pins = [0, cloth.w]; // classic 2 pins
-    pinsFormation.push(pins);
-
-    pins = pinsFormation[1];
-
-    function togglePins() {
-
-        pins = pinsFormation[~ ~(Math.random() * pinsFormation.length)];
-
-    }
-    this.clothMaterial = new THREE.MeshLambertMaterial({
-        side: THREE.DoubleSide,
-        alphaTest: 0.5,
-        color: color,
-        emissive: color
-    });
-    var clothGeometry = new THREE.ParametricBufferGeometry(clothFunction, cloth.w, cloth.h);
-    this.clothGeometry = clothGeometry;
-
-    object = new THREE.Mesh(clothGeometry, clothMaterial);
-    object.userData['animateDataYrq'] = this;
+    var objToShow = new createFlag(color);
+    // return [clothGeometry,]
+    object = new THREE.Mesh(objToShow.clothGeometry, objToShow.clothMaterial);
+    object.userData['animateDataYrq'] = objToShow;
     object.position.set(MercatorGetXbyLongitude(fp.Longitude), 0.1, -MercatorGetYbyLatitude(fp.Latitde));
-    object.scale.set(0.0005, 0.0005, 0.0005)
+    object.scale.set(0.0005, 0.0005, 0.0005);
     objMain.playerGroup.add(object);
 
     var start = new THREE.Vector3(MercatorGetXbyLongitude(fp.Longitude), 0, -MercatorGetYbyLatitude(objMain.basePoint.Latitde))
@@ -1806,18 +1900,145 @@ var drawPoint = function (color, fp, indexKey) {
     object.rotateY(-cc.toAngle() + Math.PI / 2);
     //alert('1');
     object.name = 'flag_' + indexKey;
-    this.refresh = function () {
-        const p = that.cloth.particles;
-        for (let i = 0, il = p.length; i < il; i++) {
 
-            const v = p[i].position;
+    //object.userData['animateDataYrq']['refresh'] = this.refresh;
+    //object.userData['animateDataYrq']['simulate'] = this.simulate;
+    //var MASS = 0.1;
+    //var restDistance = 25;
+    //var xSegs = 10;
+    //var ySegs = 10;
 
-            that.clothGeometry.attributes.position.setXYZ(i, v.x, v.y, v.z);
+    //var clothFunction = plane(restDistance * xSegs, restDistance * ySegs);
+    //var cloth = new Cloth(xSegs, ySegs);
+    //this.cloth = cloth;
 
-        }
-        that.clothGeometry.attributes.position.needsUpdate = true;
-        that.clothGeometry.computeVertexNormals();
-    };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //function Cloth(w, h) {
+
+    //    w = w || 10;
+    //    h = h || 10;
+    //    this.w = w;
+    //    this.h = h;
+
+    //    var particles = [];
+    //    var constraints = [];
+
+    //    // Create particles
+    //    for (let v = 0; v <= h; v++) {
+
+    //        for (let u = 0; u <= w; u++) {
+
+    //            particles.push(
+    //                new Particle(u / w, v / h, 0, MASS)
+    //            );
+
+    //        }
+
+    //    }
+
+    //    // Structural
+
+    //    for (let v = 0; v < h; v++) {
+
+    //        for (let u = 0; u < w; u++) {
+
+    //            constraints.push([
+    //                particles[index(u, v)],
+    //                particles[index(u, v + 1)],
+    //                restDistance
+    //            ]);
+
+    //            constraints.push([
+    //                particles[index(u, v)],
+    //                particles[index(u + 1, v)],
+    //                restDistance
+    //            ]);
+
+    //        }
+
+    //    }
+
+    //    for (let u = w, v = 0; v < h; v++) {
+
+    //        constraints.push([
+    //            particles[index(u, v)],
+    //            particles[index(u, v + 1)],
+    //            restDistance
+
+    //        ]);
+
+    //    }
+
+    //    for (let v = h, u = 0; u < w; u++) {
+
+    //        constraints.push([
+    //            particles[index(u, v)],
+    //            particles[index(u + 1, v)],
+    //            restDistance
+    //        ]);
+
+    //    }
+
+
+    //    // While many systems use shear and bend springs,
+    //    // the relaxed constraints model seems to be just fine
+    //    // using structural springs.
+    //    // Shear
+    //    // const diagonalDist = Math.sqrt(restDistance * restDistance * 2);
+
+
+    //    // for (v=0;v<h;v++) {
+    //    // 	for (u=0;u<w;u++) {
+
+    //    // 		constraints.push([
+    //    // 			particles[index(u, v)],
+    //    // 			particles[index(u+1, v+1)],
+    //    // 			diagonalDist
+    //    // 		]);
+
+    //    // 		constraints.push([
+    //    // 			particles[index(u+1, v)],
+    //    // 			particles[index(u, v+1)],
+    //    // 			diagonalDist
+    //    // 		]);
+
+    //    // 	}
+    //    // }
+
+
+    //    this.particles = particles;
+    //    this.constraints = constraints;
+
+    //    function index(u, v) {
+
+    //        return u + v * (w + 1);
+
+    //    }
+
+    //    this.index = index;
+
+    //}
+
+
+
+
+
+    // this.simulate
     return;
     //{
     //    var start = new THREE.Vector3(MercatorGetXbyLongitude(fp.Longitude), 0, -MercatorGetYbyLatitude(fp.Latitde));
@@ -2060,7 +2281,6 @@ var drawCarBtns = function () {
                                                     {
                                                         divChildOfItem2.onclick = function () {
                                                             alert('获取任务');
-
                                                         }
                                                     }; break;
                                             }
@@ -2125,7 +2345,8 @@ var drawCarBtns = function () {
             addItemToTaskOperatingPanle('提升续航', function () {
                 showBtnEvent(true);
                 objMain.Task.state = 'mile'
-                alert('提升续航');
+                objMain.Task.carSelect = '';
+                // alert('提升续航');
                 console.log('点击', '提升续航');
                 var startIndex = objMain.promoteDiamond.children.length - 1;
                 for (var i = startIndex; i >= 0; i--) {
@@ -2147,9 +2368,84 @@ var drawCarBtns = function () {
 
                 objMain.mainF.drawPanelOfPromotion(objMain.Task.state);
             });
-            addItemToTaskOperatingPanle('提升业务', function () { showBtnEvent(); alert('使用物品'); });
-            addItemToTaskOperatingPanle('提升续航', function () { showBtnEvent(); alert('使用物品'); });
-            addItemToTaskOperatingPanle('提升续航', function () { showBtnEvent(); alert('使用物品'); });
+            addItemToTaskOperatingPanle('提升业务', function () {
+                showBtnEvent(true);
+                objMain.Task.state = 'bussiness'
+                // alert('提升续航');
+                console.log('点击', '提升业务');
+                objMain.Task.carSelect = '';
+                var startIndex = objMain.promoteDiamond.children.length - 1;
+                for (var i = startIndex; i >= 0; i--) {
+                    objMain.promoteDiamond.remove(objMain.promoteDiamond.children[i]);
+                }
+                //var mirrorCubeCamera = new THREE.CubeCamera(0.1, 5000, 512);
+                //objMain.scene.add(mirrorCubeCamera);
+                var geometry = objMain.diamondGeometry;
+                var material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5, depthWrite: true });
+
+                var diamond = new THREE.Mesh(geometry, material);
+                diamond.scale.set(0.2, 0.22, 0.2);
+                diamond.position.set(MercatorGetXbyLongitude(objMain.PromotePositions.bussiness.Fp.Longitude), 0, -MercatorGetYbyLatitude(objMain.PromotePositions.bussiness.Fp.Latitde));
+                objMain.promoteDiamond.add(diamond);
+
+
+                objMain.mainF.drawLineOfFpToRoad(objMain.PromotePositions.bussiness.Fp, objMain.promoteDiamond, 0x00ff00);
+                objMain.mainF.lookAtPosition(objMain.PromotePositions.bussiness.Fp);
+
+                objMain.mainF.drawPanelOfPromotion(objMain.Task.state);
+            });
+            addItemToTaskOperatingPanle('提升容量', function () {
+                showBtnEvent(true);
+                objMain.Task.state = 'volume'
+                // alert('提升续航');
+                console.log('点击', '提升容量');
+                objMain.Task.carSelect = '';
+                var startIndex = objMain.promoteDiamond.children.length - 1;
+                for (var i = startIndex; i >= 0; i--) {
+                    objMain.promoteDiamond.remove(objMain.promoteDiamond.children[i]);
+                }
+                //var mirrorCubeCamera = new THREE.CubeCamera(0.1, 5000, 512);
+                //objMain.scene.add(mirrorCubeCamera);
+                var geometry = objMain.diamondGeometry;
+                var material = new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.5, depthWrite: true });
+
+                var diamond = new THREE.Mesh(geometry, material);
+                diamond.scale.set(0.2, 0.22, 0.2);
+                diamond.position.set(MercatorGetXbyLongitude(objMain.PromotePositions.volume.Fp.Longitude), 0, -MercatorGetYbyLatitude(objMain.PromotePositions.volume.Fp.Latitde));
+                objMain.promoteDiamond.add(diamond);
+
+
+                objMain.mainF.drawLineOfFpToRoad(objMain.PromotePositions.volume.Fp, objMain.promoteDiamond, 0x0000ff);
+                objMain.mainF.lookAtPosition(objMain.PromotePositions.volume.Fp);
+
+                objMain.mainF.drawPanelOfPromotion(objMain.Task.state);
+            });
+            addItemToTaskOperatingPanle('提升速度', function () {
+                showBtnEvent(true);
+                objMain.Task.state = 'speed'
+                // alert('提升续航');
+                console.log('点击', '提升速度');
+                objMain.Task.carSelect = '';
+                var startIndex = objMain.promoteDiamond.children.length - 1;
+                for (var i = startIndex; i >= 0; i--) {
+                    objMain.promoteDiamond.remove(objMain.promoteDiamond.children[i]);
+                }
+                //var mirrorCubeCamera = new THREE.CubeCamera(0.1, 5000, 512);
+                //objMain.scene.add(mirrorCubeCamera);
+                var geometry = objMain.diamondGeometry;
+                var material = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.5, depthWrite: true });
+
+                var diamond = new THREE.Mesh(geometry, material);
+                diamond.scale.set(0.2, 0.22, 0.2);
+                diamond.position.set(MercatorGetXbyLongitude(objMain.PromotePositions.speed.Fp.Longitude), 0, -MercatorGetYbyLatitude(objMain.PromotePositions.speed.Fp.Latitde));
+                objMain.promoteDiamond.add(diamond);
+
+
+                objMain.mainF.drawLineOfFpToRoad(objMain.PromotePositions.speed.Fp, objMain.promoteDiamond, 0x000000);
+                objMain.mainF.lookAtPosition(objMain.PromotePositions.speed.Fp);
+
+                objMain.mainF.drawPanelOfPromotion(objMain.Task.state);
+            });
             addItemToTaskOperatingPanle('收取税金', function () { showBtnEvent(); alert('使用物品'); });
             addItemToTaskOperatingPanle('打压对手', function () { showBtnEvent(); alert('使用物品'); });
             document.body.appendChild(divTaskOperatingPanel);

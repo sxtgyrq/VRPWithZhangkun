@@ -89,7 +89,8 @@ namespace HouseManager
                                 int webSocketID;
                                 Model.FastonPosition fp;
                                 string[] carsNames;
-                                if (BaseInfomation.rm.GetPosition(getPosition, out fromUrl, out webSocketID, out fp, out carsNames))
+                                List<string> notifyMsgs;
+                                if (BaseInfomation.rm.GetPosition(getPosition, out fromUrl, out webSocketID, out fp, out carsNames, out notifyMsgs))
                                 {
                                     CommonClass.GetPositionNotify notify = new CommonClass.GetPositionNotify()
                                     {
@@ -103,6 +104,10 @@ namespace HouseManager
 
                                     await sendMsg(fromUrl, Newtonsoft.Json.JsonConvert.SerializeObject(notify));
                                 }
+                                for (var i = 0; i < notifyMsgs.Count; i += 2)
+                                {
+                                    await sendMsg(notifyMsgs[i], notifyMsgs[i + 1]);
+                                }
                                 await context.Response.WriteAsync("ok");
                             }; break;
                         case "FinishTask":
@@ -114,14 +119,6 @@ namespace HouseManager
                                 CommonClass.SetPromote sp = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.SetPromote>(notifyJson);
                                 var result = await BaseInfomation.rm.updatePromote(sp);
                                 await context.Response.WriteAsync("ok");
-                                if (string.IsNullOrEmpty(result))
-                                {
-
-                                }
-                                else
-                                {
-
-                                }
                             }; break;
                     }
                     //if (c.c == "PlayerAdd")
@@ -163,7 +160,7 @@ namespace HouseManager
 
         public static async Task sendMsg(Microsoft.Extensions.Primitives.StringValues fromUrl, string json)
         {
-            // using (HttpClient client = new HttpClient())
+            using (HttpClient client = new HttpClient())
             {
                 Uri u = new Uri(fromUrl);
                 HttpContent c = new StringContent(json, Encoding.UTF8, "application/json");
@@ -173,7 +170,8 @@ namespace HouseManager
                     RequestUri = u,
                     Content = c
                 };
-                HttpResponseMessage result = await BaseInfomation.Client.SendAsync(request);
+                HttpResponseMessage result = await client.SendAsync(request);
+                //   BaseInfomation.Client.
                 if (result.IsSuccessStatusCode)
                 {
                     //    response = result.StatusCode.ToString();
@@ -182,6 +180,7 @@ namespace HouseManager
                 {
                     Console.WriteLine($"{fromUrl}推送失败！");
                 }
+                client.Dispose(); 
             }
         }
 
