@@ -61,6 +61,11 @@ namespace CommonClass
         public Model.FastonPosition Fp { get; set; }
         public decimal Price { get; set; }
     }
+    public class BradCastCollectInfoDetail : CommandNotify 
+    {
+        public Model.FastonPosition Fp { get; set; }
+    }
+
 
     public class PlayerAdd : Command
     {
@@ -90,7 +95,15 @@ namespace CommonClass
         public string pType { get; set; }
         public string car { get; set; }
     }
-
+    public class SetCollect : Command
+    {
+        public string Key { get; set; }
+        /// <summary>
+        /// 取值如mile
+        /// </summary>
+        public string cType { get; set; }
+        public string car { get; set; }
+    }
     public class GetBtns : Command
     {
         public string FromUrl { get; set; }

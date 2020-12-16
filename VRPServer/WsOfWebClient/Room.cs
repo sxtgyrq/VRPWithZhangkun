@@ -91,113 +91,146 @@ namespace WsOfWebClient
         /// <returns></returns>
         public static async Task<State> setOnLine(State s, WebSocket webSocket)
         {
+            State result;
             //var result = await setState(s, webSocket, LoginState.OnLine);
             // string json;
-            if (string.IsNullOrEmpty(ConnectInfo.mapRoadAndCrossJson))
             {
-                ConnectInfo.mapRoadAndCrossJson = await getRoadInfomation(s);
-                Console.WriteLine($"获取ConnectInfo.mapRoadAndCrossJson json的长度为{ConnectInfo.mapRoadAndCrossJson.Length}");
-            }
-            else
-            {
-                // json = ConnectInfo.mapRoadAndCrossJson;
-            }
-
-
-
-
-            {
-
-
-                //Console.WriteLine($"获取json的长度为{ConnectInfo.mapRoadAndCrossJson.Length}");
-
-                var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { c = "MapRoadAndCrossJson", action = "start" });
-                var sendData = Encoding.ASCII.GetBytes(msg);
-                await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
-
-                for (var i = 0; i < ConnectInfo.mapRoadAndCrossJson.Length; i += 1000)
+                if (string.IsNullOrEmpty(ConnectInfo.mapRoadAndCrossJson))
                 {
-                    var passStr = ConnectInfo.mapRoadAndCrossJson.Substring(i, (i + 1000) <= ConnectInfo.mapRoadAndCrossJson.Length ? 1000 : (ConnectInfo.mapRoadAndCrossJson.Length % 1000));
-                    msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { c = "MapRoadAndCrossJson", action = "mid", passStr = passStr });
+                    ConnectInfo.mapRoadAndCrossJson = await getRoadInfomation(s);
+                    Console.WriteLine($"获取ConnectInfo.mapRoadAndCrossJson json的长度为{ConnectInfo.mapRoadAndCrossJson.Length}");
+                }
+                else
+                {
+                    // json = ConnectInfo.mapRoadAndCrossJson;
+                }
+
+
+
+
+                {
+
+
+                    //Console.WriteLine($"获取json的长度为{ConnectInfo.mapRoadAndCrossJson.Length}");
+
+                    var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { c = "MapRoadAndCrossJson", action = "start" });
+                    var sendData = Encoding.ASCII.GetBytes(msg);
+                    await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+
+                    for (var i = 0; i < ConnectInfo.mapRoadAndCrossJson.Length; i += 1000)
+                    {
+                        var passStr = ConnectInfo.mapRoadAndCrossJson.Substring(i, (i + 1000) <= ConnectInfo.mapRoadAndCrossJson.Length ? 1000 : (ConnectInfo.mapRoadAndCrossJson.Length % 1000));
+                        msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { c = "MapRoadAndCrossJson", action = "mid", passStr = passStr });
+                        sendData = Encoding.ASCII.GetBytes(msg);
+                        await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+                    }
+
+                    msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { c = "MapRoadAndCrossJson", action = "end" });
                     sendData = Encoding.ASCII.GetBytes(msg);
                     await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
                 }
 
-                msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { c = "MapRoadAndCrossJson", action = "end" });
-                sendData = Encoding.ASCII.GetBytes(msg);
-                await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
-            }
+                if (ConnectInfo.RobotBase64.Length == 0)
+                {
+                    string obj, mtl, carA, carB, carC, carD, carE;
+                    {
+                        var bytes = File.ReadAllBytes("Car_A.png");
+                        var Base64 = Convert.ToBase64String(bytes);
+                        carA = Base64;
+                    }
+                    {
+                        var bytes = File.ReadAllBytes("Car_B.png");
+                        var Base64 = Convert.ToBase64String(bytes);
+                        carB = Base64;
+                    }
+                    {
+                        var bytes = File.ReadAllBytes("Car_C.png");
+                        var Base64 = Convert.ToBase64String(bytes);
+                        carC = Base64;
+                    }
+                    {
+                        var bytes = File.ReadAllBytes("Car_D.png");
+                        var Base64 = Convert.ToBase64String(bytes);
+                        carD = Base64;
+                    }
+                    {
+                        var bytes = File.ReadAllBytes("Car_E.png");
+                        var Base64 = Convert.ToBase64String(bytes);
+                        carE = Base64;
+                    }
+                    //{
+                    //    var bytes = File.ReadAllBytes("Car_02.png");
+                    //    var Base64 = Convert.ToBase64String(bytes);
+                    //    carA = Base64;
+                    //} 
+                    {
+                        mtl = File.ReadAllText("Car1.mtl"); ;
+                    }
+                    {
+                        obj = File.ReadAllText("Car1.obj"); ;
+                    }
+                    ConnectInfo.RobotBase64 = new string[] { obj, mtl, carA, carB, carC, carD, carE };
+                }
+                else
+                {
+                    // json = ConnectInfo.mapRoadAndCrossJson;
+                }
+                {
+                    var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new
+                    {
+                        c = "SetRobot",
+                        modelBase64 = ConnectInfo.RobotBase64
+                    });
+                    var sendData = Encoding.ASCII.GetBytes(msg);
+                    await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+                }
+                if (ConnectInfo.RMB100.Length == 0)
+                {
+                    string obj, mtl, rmbJpg;
+                    {
+                        var bytes = File.ReadAllBytes("rmb100.jpg");
+                        var Base64 = Convert.ToBase64String(bytes);
+                        rmbJpg = Base64;
+                    }
+                    {
+                        mtl = File.ReadAllText("rmb100.mtl");
+                    }
+                    {
+                        obj = File.ReadAllText("rmb100.obj");
+                    }
+                    ConnectInfo.RMB100 = new string[] { obj, mtl, rmbJpg };
+                }
+                else
+                {
 
-            if (ConnectInfo.RobotBase64.Length == 0)
-            {
-                string obj, mtl, carA, carB, carC, carD, carE;
-                {
-                    var bytes = File.ReadAllBytes("Car_A.png");
-                    var Base64 = Convert.ToBase64String(bytes);
-                    carA = Base64;
                 }
                 {
-                    var bytes = File.ReadAllBytes("Car_B.png");
-                    var Base64 = Convert.ToBase64String(bytes);
-                    carB = Base64;
+                    var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new
+                    {
+                        c = "SetRMB",
+                        modelBase64 = ConnectInfo.RMB100,
+                        faceValue = "rmb100"
+                    });
+                    var sendData = Encoding.ASCII.GetBytes(msg);
+                    await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
                 }
-                {
-                    var bytes = File.ReadAllBytes("Car_C.png");
-                    var Base64 = Convert.ToBase64String(bytes);
-                    carC = Base64;
-                }
-                {
-                    var bytes = File.ReadAllBytes("Car_D.png");
-                    var Base64 = Convert.ToBase64String(bytes);
-                    carD = Base64;
-                }
-                {
-                    var bytes = File.ReadAllBytes("Car_E.png");
-                    var Base64 = Convert.ToBase64String(bytes);
-                    carE = Base64;
-                }
-                //{
-                //    var bytes = File.ReadAllBytes("Car_02.png");
-                //    var Base64 = Convert.ToBase64String(bytes);
-                //    carA = Base64;
-                //} 
-                {
-                    mtl = File.ReadAllText("Car1.mtl"); ;
-                }
-                {
-                    obj = File.ReadAllText("Car1.obj"); ;
-                }
-                ConnectInfo.RobotBase64 = new string[] { obj, mtl, carA, carB, carC, carD, carE };
-            }
-            else
-            {
-                // json = ConnectInfo.mapRoadAndCrossJson;
-            }
-            {
-                var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new
-                {
-                    c = "SetRobot",
-                    modelBase64 = ConnectInfo.RobotBase64
-                });
-                var sendData = Encoding.ASCII.GetBytes(msg);
-                await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
-            }
 
-            if (string.IsNullOrEmpty(ConnectInfo.DiamondObj))
-            {
-                ConnectInfo.DiamondObj = await File.ReadAllTextAsync("diamond.obj");
-            }
-            {
-                var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new
+                if (string.IsNullOrEmpty(ConnectInfo.DiamondObj))
                 {
-                    c = "SetDiamond",
-                    DiamondObj = ConnectInfo.DiamondObj
-                });
-                var sendData = Encoding.ASCII.GetBytes(msg);
-                await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+                    ConnectInfo.DiamondObj = await File.ReadAllTextAsync("diamond.obj");
+                }
+                {
+                    var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new
+                    {
+                        c = "SetDiamond",
+                        DiamondObj = ConnectInfo.DiamondObj
+                    });
+                    var sendData = Encoding.ASCII.GetBytes(msg);
+                    await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+                }
+                result = await setState(s, webSocket, LoginState.OnLine);
+                await initializeOperation(s);
             }
-            var result = await setState(s, webSocket, LoginState.OnLine);
-            await initializeOperation(s);
             return result;
         }
 
@@ -366,19 +399,35 @@ namespace WsOfWebClient
             return "";
         }
 
-        //[Obsolete]
-        //internal static async Task GetPromoteMilesInfo(State s)
-        //{
-        //    throw new Exception("此处已作废");
-        //    var m = new GetPromoteMiles()
-        //    {
-        //        c = "GetPromoteMiles",
-        //        FromUrl = ConnectInfo.ConnectedInfo + "/notify",
-        //        WebSocketID = s.WebsocketID
-        //    };
-        //    var msg = Newtonsoft.Json.JsonConvert.SerializeObject(m);
-        //    await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[s.roomIndex], msg);
-        //}
+
+        internal static async Task<string> setCollect(State s, Collect collect)
+        {
+            if (collect.cType == "findWork")
+            {
+                // string A = "carA_bb6a1ef1cb8c5193bec80b7752c6d54c";
+                // A = Console.ReadLine();
+                Regex r = new Regex("^car(?<car>[A-E]{1})_(?<key>[a-f0-9]{32})$");
+
+                var m = r.Match(collect.car);
+                if (m.Success)
+                {
+                    Console.WriteLine($"正则匹配成功：{m.Groups["car"] }+{m.Groups["key"] }");
+                    if (m.Groups["key"].Value == s.Key)
+                    {
+                        var getPosition = new SetCollect()
+                        {
+                            c = "SetCollect",
+                            Key = s.Key,
+                            car = "car" + m.Groups["car"].Value,
+                            cType = collect.cType
+                        };
+                        var msg = Newtonsoft.Json.JsonConvert.SerializeObject(getPosition);
+                        await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[s.roomIndex], msg);
+                    }
+                }
+            }
+            return "";
+        }
     }
 
 

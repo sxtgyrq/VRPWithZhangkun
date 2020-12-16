@@ -120,6 +120,12 @@ namespace HouseManager
                                 var result = await BaseInfomation.rm.updatePromote(sp);
                                 await context.Response.WriteAsync("ok");
                             }; break;
+                        case "SetCollect":
+                            {
+                                CommonClass.SetCollect sc = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.SetCollect>(notifyJson);
+                                var result = await BaseInfomation.rm.updateCollect(sc);
+                                await context.Response.WriteAsync("ok");
+                            }; break;
                     }
                     //if (c.c == "PlayerAdd")
                     //{
@@ -180,7 +186,7 @@ namespace HouseManager
                 {
                     Console.WriteLine($"{fromUrl}推送失败！");
                 }
-                client.Dispose(); 
+                client.Dispose();
             }
         }
 

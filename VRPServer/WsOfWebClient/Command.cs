@@ -20,7 +20,7 @@ namespace WsOfWebClient
     }
 
     public class CreateTeam : CommonClass.Command
-    { 
+    {
     }
 
     public class JoinTeam : CommonClass.Command
@@ -40,6 +40,12 @@ namespace WsOfWebClient
     public class Promote : CommonClass.Command
     {
         public string pType { get; set; }
+        public string car { get; set; }
+    }
+
+    public class Collect : CommonClass.Command
+    {
+        public string cType { get; set; }
         public string car { get; set; }
     }
 

@@ -273,10 +273,16 @@ namespace WsOfWebClient
                                     {
                                         Promote promote = Newtonsoft.Json.JsonConvert.DeserializeObject<Promote>(returnResult.result);
 
-                                        await Room.setPromote(s, promote);
+                                        await Room.setPromote(s, promote); 
+                                    }
+                                }; break;
+                            case "Collect":
+                                {
+                                    if (s.Ls == LoginState.OnLine)
+                                    {
+                                        Collect collect = Newtonsoft.Json.JsonConvert.DeserializeObject<Collect>(returnResult.result);
 
-                                        //throw new Exception($"{c.c}已作废");
-                                        // await Room.GetPromoteMilesInfo(s);
+                                        await Room.setCollect(s, collect);
                                     }
                                 }; break;
 
@@ -437,7 +443,7 @@ namespace WsOfWebClient
                     {
                         if (ConnectInfo.connectedWs.ContainsKey(c.WebSocketID))
                         {
-                            if (!ConnectInfo.connectedWs[c.WebSocketID].CloseStatus.HasValue)
+                            if (ConnectInfo.connectedWs[c.WebSocketID].State == WebSocketState.Open)
                             {
                                 ws = ConnectInfo.connectedWs[c.WebSocketID];
                             }
@@ -450,8 +456,18 @@ namespace WsOfWebClient
                     await context.Response.WriteAsync("ok");
                     if (ws != null)
                     {
-                        var sendData = Encoding.UTF8.GetBytes(notifyJson);
-                        await ws.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+                        if (ws.State == WebSocketState.Open)
+                        {
+                            try
+                            {
+                                var sendData = Encoding.UTF8.GetBytes(notifyJson);
+                                await ws.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+                            }
+                            catch
+                            {
+
+                            }
+                        }
                     }
                 }
             });

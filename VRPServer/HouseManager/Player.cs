@@ -78,13 +78,15 @@ namespace HouseManager
                     state = CarState.waitAtBaseStation,
                     changeState = 0,
                     targetFpIndex = -1,
-                    animateData = null
+                    animateData = null,
+                    purpose = Purpose.@null
                 });
         }
 
         public Dictionary<string, OtherPlayers> others { get; set; }
 
         public Dictionary<string, int> PromoteState { get; set; }
+        public int Collect { get; internal set; }
     }
     public class OtherPlayers
     {
@@ -202,12 +204,21 @@ namespace HouseManager
         returning,
         buying
     }
+
+    public enum Purpose
+    {
+        @null,
+        collect,
+        tax,
+        attack
+    }
     public class Car
     {
         public string name { get; set; }
         public AbilityAndState ability { get; set; }
 
         public CarState state { get; set; }
+        public Purpose purpose { get; set; }
         public int targetFpIndex { get; set; }
         public int changeState { get; set; }
         public AnimateData animateData { get; internal set; }

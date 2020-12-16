@@ -13,8 +13,10 @@ var objMain =
     othersBasePoint: {},
     playerGroup: null,
     carGroup: null,
+    collectGroup: null,
     robotModel: null,
     cars: {},
+    rmbModel: {},
     light1: null,
     controls: null,
     carsNames: null,
@@ -27,6 +29,8 @@ var objMain =
         volume: null,
         speed: null
     },
+    PromoteList: ['mile', 'bussiness', 'volume', 'speed'],
+    CollectPosition: null,
     diamondGeometry: null,
     mirrorCubeCamera: null,
     promoteDiamond: null,
@@ -261,7 +265,218 @@ var objMain =
                     group.remove(group.children[i]);
                 }
             }
-        }
+        },
+        refreshPromotionDiamondAndPanle: function (received_obj) {
+            if (received_obj.resultType == objMain.Task.state) {
+                /*
+                 * 这里进行了Task的状态验证，确保3D资源没有加载前，不会调用此方法
+                 */
+                if (objMain.state == "OnLine") {
+                    var startIndex = objMain.promoteDiamond.children.length - 1;
+                    for (var i = startIndex; i >= 0; i--) {
+                        objMain.promoteDiamond.remove(objMain.promoteDiamond.children[i]);
+                    }
+                    var color = 0x000000;
+                    switch (received_obj.resultType) {
+                        case 'mile':
+                            {
+                                color = 0xff0000;
+                            }; break;
+                        case 'bussiness':
+                            {
+                                color = 0x00ff00;
+                            }; break;
+                        case 'volume':
+                            {
+                                color = 0x0000ff;
+                            }; break;
+                        case 'speed':
+                            {
+                                color = 0x000000;
+                            }; break;
+                    }
+                    //var mirrorCubeCamera = new THREE.CubeCamera(0.1, 5000, 512);
+                    //objMain.scene.add(mirrorCubeCamera);
+                    var geometry = objMain.diamondGeometry;
+                    var material = new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: 0.5, depthWrite: true });
+
+                    var diamond = new THREE.Mesh(geometry, material);
+                    diamond.scale.set(0.2, 0.22, 0.2);
+                    diamond.position.set(MercatorGetXbyLongitude(objMain.PromotePositions[received_obj.resultType].Fp.Longitude), 0, -MercatorGetYbyLatitude(objMain.PromotePositions[received_obj.resultType].Fp.Latitde));
+                    objMain.promoteDiamond.add(diamond);
+
+
+                    objMain.mainF.drawLineOfFpToRoad(objMain.PromotePositions[received_obj.resultType].Fp, objMain.promoteDiamond, color);
+                    if (objMain.Task.carSelect == '') {
+                        objMain.mainF.lookAtPosition(objMain.PromotePositions[received_obj.resultType].Fp);
+                    }
+                    else {
+                        objMain.mainF.lookTwoPositionCenter(objMain.promoteDiamond.children[0].position, objMain.carGroup.getObjectByName(objMain.Task.carSelect).position);
+                    }
+                    objMain.mainF.drawPanelOfPromotion(objMain.Task.state);
+                }
+            }
+        },
+        refreshCollectAndPanle: function () {
+            if (objMain.state == "OnLine") {
+                var startIndex = objMain.collectGroup.children.length - 1;
+                for (var i = startIndex; i >= 0; i--) {
+                    objMain.collectGroup.remove(objMain.collectGroup.children[i]);
+                }
+                var model = objMain.rmbModel['rmb100'].clone();
+                // model.name = names[i] + '_' + key;
+                //model.position.set(end.x, 0, end.z);
+                // model.scale.set(0.002, 0.002, 0.002);
+                //model.rotateY(-positons[i].toAngle());
+                //model.userData = { objectType: 'car', parent: key, index: names[i] };
+                model.position.set(MercatorGetXbyLongitude(objMain.CollectPosition.Fp.Longitude), 0, -MercatorGetYbyLatitude(objMain.CollectPosition.Fp.Latitde));
+                objMain.collectGroup.add(model);
+
+                var color = 0xFFD700;
+
+                objMain.mainF.drawLineOfFpToRoad(objMain.CollectPosition.Fp, objMain.collectGroup, color);
+                if (objMain.Task.carSelect == '') {
+                    objMain.mainF.lookAtPosition(objMain.CollectPosition.Fp);
+                }
+                else {
+                    objMain.mainF.lookTwoPositionCenter(objMain.collectGroup.children[0].position, objMain.carGroup.getObjectByName(objMain.Task.carSelect).position);
+                }
+                objMain.mainF.drawPanelOfCollect();
+
+                //var startIndex = objMain.promoteDiamond.children.length - 1;
+                //for (var i = startIndex; i >= 0; i--) {
+                //    objMain.promoteDiamond.remove(objMain.promoteDiamond.children[i]);
+                //}
+                //var color = 0x000000;
+                //switch (received_obj.resultType) {
+                //    case 'mile':
+                //        {
+                //            color = 0xff0000;
+                //        }; break;
+                //    case 'bussiness':
+                //        {
+                //            color = 0x00ff00;
+                //        }; break;
+                //    case 'volume':
+                //        {
+                //            color = 0x0000ff;
+                //        }; break;
+                //    case 'speed':
+                //        {
+                //            color = 0x000000;
+                //        }; break;
+                //}
+                ////var mirrorCubeCamera = new THREE.CubeCamera(0.1, 5000, 512);
+                ////objMain.scene.add(mirrorCubeCamera);
+                //var geometry = objMain.diamondGeometry;
+                //var material = new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: 0.5, depthWrite: true });
+
+                //var diamond = new THREE.Mesh(geometry, material);
+                //diamond.scale.set(0.2, 0.22, 0.2);
+                //diamond.position.set(MercatorGetXbyLongitude(objMain.PromotePositions[received_obj.resultType].Fp.Longitude), 0, -MercatorGetYbyLatitude(objMain.PromotePositions[received_obj.resultType].Fp.Latitde));
+                //objMain.promoteDiamond.add(diamond);
+
+
+                //objMain.mainF.drawLineOfFpToRoad(objMain.PromotePositions[received_obj.resultType].Fp, objMain.promoteDiamond, color);
+                //if (objMain.Task.carSelect == '') {
+                //    objMain.mainF.lookAtPosition(objMain.PromotePositions[received_obj.resultType].Fp);
+                //}
+                //else {
+                //    objMain.mainF.lookTwoPositionCenter(objMain.promoteDiamond.children[0].position, objMain.carGroup.getObjectByName(objMain.Task.carSelect).position);
+                //}
+                //objMain.mainF.drawPanelOfPromotion(objMain.Task.state);
+            }
+        },
+        drawPanelOfCollect: function () {
+
+            var lengthOfObjs = objMain.groupOfOperatePanle.children.length;
+            for (var i = lengthOfObjs - 1; i >= 0; i--) {
+                objMain.groupOfOperatePanle.remove(objMain.groupOfOperatePanle.children[i]);
+            }
+            var element = document.createElement('div');
+            element.style.width = '10em';
+            //element.style.marginLeft = 'calc(5em + 20px)';
+            element.style.marginTop = '3em';
+            var color = '#ff0000';
+            //var colorName = '红';
+            //switch (type) {
+            //    case 'mile':
+            //        {
+            //            color = '#ff0000';
+            //            colorName = '红';
+            //        }; break;
+            //    case 'bussiness': {
+            //        color = '#00ff00';
+            //        colorName = '绿';
+            //    }; break;
+            //    case 'volume': {
+
+            //        color = '#0000ff';
+            //        colorName = '蓝';
+            //    }; break;
+            //    case 'speed': {
+
+            //        color = '#000000';
+            //        colorName = '黑';
+            //    }; break;
+
+            //}
+            element.style.border = '2px solid ' + color;
+            element.style.borderTopLeftRadius = '0.5em';
+            element.style.backgroundColor = 'rgba(255, 255, 255, 0.5)';
+            element.style.color = '#1504f6';
+
+            var div2 = document.createElement('div');
+
+            var b = document.createElement('b');
+            b.innerHTML = '到[<span style="color:#05ffba">' + objMain.CollectPosition.Fp.FastenPositionName + '</span>]回收<span style="color:#05ffba">100元' + '</span>现金。';
+            div2.appendChild(b);
+
+            var div3 = document.createElement('div');
+            div3.style.textAlign = 'center';
+            div3.style.width = '3em';
+            div3.style.border = '2px inset #ffc403';
+            div3.style.borderRadius = '0.3em';
+            div3.style.marginTop = '4px';
+            div3.style.marginBottom = '4px';
+            div3.style.position = 'relative';
+            div3.style.left = 'calc(100% - 3em - 4px)';
+
+            var span = document.createElement('span');
+            span.innerText = '执行';
+
+            div3.onclick = function () {
+                if (objMain.Task.state == '') {
+                    throw 'task not select';
+                }
+                else if (objMain.Task.carSelect == '') {
+                    alert('请选择要执行此任务的车辆');
+                }
+                else {
+                    objMain.ws.send(JSON.stringify({ 'c': 'Collect', 'cType': 'findWork', 'car': objMain.Task.carSelect }));
+                    objMain.Task.state = '';
+                    objMain.Task.carSelect = '';
+                    objMain.mainF.removeF.removePanle('carsSelectionPanel');
+
+                    objMain.mainF.removeF.clearGroup(objMain.collectGroup);
+                    objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
+
+                }
+            }
+
+            div3.appendChild(span);
+
+            element.appendChild(div2);
+            element.appendChild(div3);
+
+            var object = new THREE.CSS2DObject(element);
+            var fp = objMain.CollectPosition.Fp;
+            object.position.set(MercatorGetXbyLongitude(fp.Longitude), 0, -MercatorGetYbyLatitude(fp.Latitde));
+
+            objMain.groupOfOperatePanle.add(object);
+
+
+        },
     },
     Task:
     {
@@ -535,6 +750,38 @@ var startA = function () {
                     f(received_obj, 5, 'carD');
                     f(received_obj, 6, 'carE');
                 }; break;
+            case 'SetRMB':
+                {
+                    var f = function (received_obj, field) {
+                        var manager = new THREE.LoadingManager();
+                        new THREE.MTLLoader(manager)
+                            .loadTextOnly(received_obj.modelBase64[1], 'data:image/jpeg;base64,' + received_obj.modelBase64[2], function (materials) {
+                                materials.preload();
+                                // materials.depthTest = false;
+                                new THREE.OBJLoader(manager)
+                                    .setMaterials(materials)
+                                    //.setPath('/Pic/')
+                                    .loadTextOnly(received_obj.modelBase64[0], function (object) {
+                                        console.log('o', object);
+                                        for (var iOfO = 0; iOfO < object.children.length; iOfO++) {
+                                            if (object.children[iOfO].isMesh) {
+                                                for (var mi = 0; mi < object.children[iOfO].material.length; mi++) {
+                                                    object.children[iOfO].material[mi].transparent = true;
+                                                    object.children[iOfO].material[mi].opacity = 1;
+                                                    object.children[iOfO].material[mi].side = THREE.FrontSide;
+                                                }
+                                            }
+                                        }
+                                        console.log('o', object);
+                                        object.scale.set(0.002, 0.002, 0.002);
+                                        object.rotateX(-Math.PI / 2);
+                                        objMain.rmbModel[field] = object;
+
+                                    }, function () { }, function () { });
+                            });
+                    };
+                    f(received_obj, received_obj.faceValue);
+                }; break;
             case 'BradCastAnimateOfCar':
                 {
                     //已作废,用BradCastAnimateOfSelfCar与BradCastAnimateOfOthersCar代替
@@ -571,29 +818,16 @@ var startA = function () {
                     console.log('显示', received_obj);
                     //  switch (received_obj.
                     objMain.PromotePositions[received_obj.resultType] = received_obj;
-                    if (received_obj.resultType == objMain.Task.state) {
-                        if (objMain.state == "OnLine") {
-                            var startIndex = objMain.promoteDiamond.children.length - 1;
-                            for (var i = startIndex; i >= 0; i--) {
-                                objMain.promoteDiamond.remove(objMain.promoteDiamond.children[i]);
-                            }
-                            //var mirrorCubeCamera = new THREE.CubeCamera(0.1, 5000, 512);
-                            //objMain.scene.add(mirrorCubeCamera);
-                            var geometry = objMain.diamondGeometry;
-                            var material = new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.5, depthWrite: true });
+                    objMain.mainF.refreshPromotionDiamondAndPanle(received_obj);
 
-                            var diamond = new THREE.Mesh(geometry, material);
-                            diamond.scale.set(0.2, 0.22, 0.2);
-                            diamond.position.set(MercatorGetXbyLongitude(objMain.PromotePositions[received_obj.resultType].Fp.Longitude), 0, -MercatorGetYbyLatitude(objMain.PromotePositions[received_obj.resultType].Fp.Latitde));
-                            objMain.promoteDiamond.add(diamond);
-
-
-                            objMain.mainF.drawLineOfFpToRoad(objMain.PromotePositions[received_obj.resultType].Fp, objMain.promoteDiamond, 0x0000ff);
-                            
-
-                            objMain.mainF.drawPanelOfPromotion(objMain.Task.state);
-                        }
-                    }
+                }; break;
+            case 'BradCastCollectInfoDetail':
+                {
+                    console.log('显示', received_obj);
+                    //  switch (received_obj.
+                    objMain.CollectPosition = received_obj;
+                    //  objMain.mainF.refreshCollectPositionAndPanle(received_obj);
+                    // objMain.mainF.refreshPromotionDiamondAndPanle(received_obj);
                 }; break;
             case 'SetDiamond':
                 {
@@ -652,10 +886,27 @@ function animate() {
 
                 }
             }
+            for (var i = 0; i < objMain.collectGroup.children.length; i++) {
+                /*
+                 * 初始化人民币的大小
+                 */
+
+                if (objMain.collectGroup.children[i].isGroup) {
+                    if (objMain.Task.state == 'collect') {
+                        var scale = objMain.mainF.getLength(objMain.camera.position, objMain.controls.target) / 1840;
+                        objMain.collectGroup.children[i].scale.set(scale, scale, scale);
+                    }
+                    else {
+                        objMain.collectGroup.children[i].scale.set(0.002, 0.002, 0.002);
+                    }
+                    objMain.collectGroup.children[i].rotation.set(-Math.PI / 2, 0, Date.now() % 2000 / 2000 * Math.PI * 2);
+                }
+            }
             for (var i = 0; i < objMain.promoteDiamond.children.length; i++) {
                 /*
-                 * 初始化 砖石的大小
+                 * 初始化 砖石/人民币的大小
                  */
+
                 if (objMain.promoteDiamond.children[i].isMesh) {
                     objMain.promoteDiamond.children[i].scale.set(0.2, 0.22, 0.2);
 
@@ -685,9 +936,13 @@ function animate() {
                 if (scale < 0.2) {
                     scale = 0.2;
                 }
-                if (['mile', 'bussiness', 'volume', 'speed'].indexOf(objMain.Task.state) >= 0) {
+                if (objMain.PromoteList.indexOf(objMain.Task.state) >= 0) {
                     objMain.promoteDiamond.children[0].scale.set(scale, scale * 1.1, scale);
                 }
+            }
+            {
+                /*放大选中的RMB*/
+
             }
             {
                 /*汽车的移动动画*/
@@ -713,7 +968,9 @@ function animate() {
 
                             var complexV = new Complex(animateData[i].x1 - animateData[i].x0, -(animateData[i].y1 - animateData[i].y0));
                             ;
-                            objMain.carGroup.getObjectByName(key).rotation.set(0, -complexV.toAngle() + Math.PI, 0);
+                            if (!complexV.isZero()) {
+                                objMain.carGroup.getObjectByName(key).rotation.set(0, -complexV.toAngle() + Math.PI, 0);
+                            }
                             break;
                         }
                         else {
@@ -721,9 +978,17 @@ function animate() {
                             var y = animateData[i].y0 + 1 * (animateData[i].y1 - animateData[i].y0);
                             objMain.carGroup.getObjectByName(key).position.set(x, 0, -y);
 
+                            var scale = objMain.mainF.getLength(objMain.camera.position, objMain.controls.target) * 0.001;
+                            if (scale < 0.002) {
+                                scale = 0.002;
+                            }
+                            objMain.carGroup.getObjectByName(key).scale.set(scale, scale, scale);
+
                             var complexV = new Complex(animateData[i].x1 - animateData[i].x0, -(animateData[i].y1 - animateData[i].y0));
                             ;
-                            objMain.carGroup.getObjectByName(key).rotation.set(0, -complexV.toAngle() + Math.PI, 0);
+                            if (!complexV.isZero()) {
+                                objMain.carGroup.getObjectByName(key).rotation.set(0, -complexV.toAngle() + Math.PI, 0);
+                            }
                         }
                     }
                     //var percent = (now - animate.recordTime - animate.t0) / (animate.t1 - animate.t0);
@@ -832,6 +1097,9 @@ var set3DHtml = function () {
 
     objMain.groupOfOperatePanle = new THREE.Group();
     objMain.scene.add(objMain.groupOfOperatePanle);
+
+    objMain.collectGroup = new THREE.Group();
+    objMain.scene.add(objMain.collectGroup);
 
     {
         objMain.light1 = new THREE.PointLight(0xffffff);
@@ -1086,363 +1354,6 @@ var Map =
     roadAndCross: null
 };
 
-function init3D() {
-
-    //document.onmousemove = function (event) {
-    //    if (clickState == 'addPolyLine') {
-    //        if (editedLine.state == 'addPointToEnd') {
-    //            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    //            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    //            raycaster.setFromCamera(mouse, camera);
-
-    //            //console.log('raycaster', raycaster);
-    //            if (Math.abs(raycaster.ray.direction.y) > 1e-7) {
-
-    //                var delata = -raycaster.ray.origin.y / raycaster.ray.direction.y;
-    //                var mousePosition = { x: raycaster.ray.origin.x + delata * raycaster.ray.direction.x, z: raycaster.ray.origin.z + delata * raycaster.ray.direction.z };
-
-    //                editedLine.currentPoint = mousePosition;
-
-    //            }
-    //        }
-    //        else if (editedLine.state == 'addPointToMid') {
-    //            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    //            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    //            raycaster.setFromCamera(mouse, camera);
-
-    //            //console.log('raycaster', raycaster);
-    //            if (Math.abs(raycaster.ray.direction.y) > 1e-7) {
-
-    //                var delata = -raycaster.ray.origin.y / raycaster.ray.direction.y;
-    //                var mousePosition = { x: raycaster.ray.origin.x + delata * raycaster.ray.direction.x, z: raycaster.ray.origin.z + delata * raycaster.ray.direction.z };
-
-    //                editedLine.currentPoint = mousePosition;
-
-    //            }
-    //        }
-    //    }
-    //    else if (clickState == 'addShape') {
-    //        addShape.onmousemove(event);
-    //    }
-    //    else if (clickState == 'editingPanorama') {
-    //        panorama.onmousemove(event);
-    //    }
-    //    else if (clickState == 'addLineControlPoint') {
-    //        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    //        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    //        raycaster.setFromCamera(mouse, camera);
-
-    //        //console.log('raycaster', raycaster);
-    //        if (Math.abs(raycaster.ray.direction.y) > 1e-7) {
-
-    //            var delata = -raycaster.ray.origin.y / raycaster.ray.direction.y;
-    //            var mousePosition = { x: raycaster.ray.origin.x + delata * raycaster.ray.direction.x, z: raycaster.ray.origin.z + delata * raycaster.ray.direction.z };
-    //            drawTowerOfPowerLines.currentPoint = mousePosition;
-
-    //        }
-    //    }
-
-    //}
-
-    //document.onkeydown = function (e) {
-    //    //keyCommand(e);
-    //    keyCommand(e.keyCode);
-
-    //}
-
-
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x7c9dd4);
-    scene.fog = new THREE.FogExp2(0x7c9dd4, 0.2);
-
-    var cubeTextureLoader = new THREE.CubeTextureLoader();
-    cubeTextureLoader.setPath('Pic/');
-    var cubeTexture = cubeTextureLoader.load([
-        "px.jpg", "nx.jpg",
-        "py.jpg", "ny.jpg",
-        "pz.jpg", "nz.jpg"
-    ]);
-    scene.background = cubeTexture;
-
-    renderer = new THREE.WebGLRenderer({ alpha: true });
-    renderer.setClearColor(0x000000, 0); // the default
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.domElement.className = 'renderDom';
-    document.getElementById('mainC').appendChild(renderer.domElement);
-    //  document.body
-
-    labelRenderer = new THREE.CSS2DRenderer();
-    labelRenderer.setSize(window.innerWidth, window.innerHeight);
-    labelRenderer.domElement.className = 'labelRenderer';
-    document.getElementById('mainC').appendChild(labelRenderer.domElement);
-
-    //  camera = new THREE.OrthographicCamera(window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, 0.001, 300);
-    camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 1, 30000);
-    camera.position.set(4000, 2000, 0);
-    camera.position.set(MercatorGetXbyLongitude(centerPosition.lon), 0, -MercatorGetYbyLatitude(centerPosition.lat));
-
-    // controls
-
-    controls = new THREE.OrbitControls(camera, labelRenderer.domElement);
-    controls.center.set(MercatorGetXbyLongitude(centerPosition.lon), 0, -MercatorGetYbyLatitude(centerPosition.lat));
-
-    axesHelper = new THREE.AxesHelper(265);
-    axesHelper.position.set(MercatorGetXbyLongitude(centerPosition.lon), 0, -MercatorGetYbyLatitude(centerPosition.lat));
-    //scene.add(axesHelper);
-
-    controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
-    controls.dampingFactor = 0.25;
-
-    controls.screenSpacePanning = false;
-
-    controls.minDistance = 0.6;
-    controls.maxDistance = 9600;
-
-
-    controls.maxPolarAngle = Math.PI / 2 - Math.PI / 10;
-    //controls.maxPolarAngle = Math.PI / 2 + Math.PI / 6;
-    controls.minPolarAngle = 0;
-    var distance = 50;
-    camera.position.set(MercatorGetXbyLongitude(centerPosition.lon), Math.sin(0.4) * distance, Math.cos(0.4) * distance - MercatorGetYbyLatitude(centerPosition.lat));
-
-    mapGroup = new THREE.Group();
-    scene.add(mapGroup);
-    // world
-
-    boundryGroup = new THREE.Group();
-    scene.add(boundryGroup);
-
-    peibianGroup = new THREE.Group();
-    scene.add(peibianGroup);
-
-    tongxin5GMapGroup = new THREE.Group();
-    scene.add(tongxin5GMapGroup);
-
-    regionBlockGroup = new THREE.Group();
-    scene.add(regionBlockGroup);
-
-    biandiansuo.group = new THREE.Group();
-    scene.add(biandiansuo.group);
-
-    biandiansuo.groupStl = new THREE.Group();
-    scene.add(biandiansuo.groupStl);
-
-    biandiansuo.groupObj = new THREE.Group();
-    scene.add(biandiansuo.groupObj);
-    //biandiansuoGroup = new THREE.Group();
-    //scene.add(biandiansuoGroup);
-
-    buildingsGroups = new THREE.Group();
-    scene.add(buildingsGroups);
-
-    courtGroup = new THREE.Group();
-    scene.add(courtGroup);
-    //buildingsGroups.onBeforeRender = function () {renderer.clearDepth();}
-
-    measureLengthGroup = new THREE.Group();
-    scene.add(measureLengthGroup);
-
-    measureAreaGroup = new THREE.Group();
-    scene.add(measureAreaGroup);
-
-    polyLineGroup = new THREE.Group();
-    scene.add(polyLineGroup);
-
-    guangouGroup = new THREE.Group();
-    scene.add(guangouGroup);
-
-    pipe.lableGroup = new THREE.Group();
-    scene.add(pipe.lableGroup);
-
-    chaoliufenxiGroup = [];
-
-    for (var i = 0; i < chaoliufenxiGroupCount; i++) {
-        var g = new THREE.Group();
-        chaoliufenxiGroup.push(g);
-        chaoliuFenxiData.push([]);
-        scene.add(g);
-    }
-    songdianquGroup = new THREE.Group();
-    scene.add(songdianquGroup);
-
-    environmentInfoGroup = new THREE.Group();
-    scene.add(environmentInfoGroup);
-
-    xingquDianGroup = {
-        school: new THREE.Group(),
-        hosipital: new THREE.Group(),
-        shop: new THREE.Group(),
-        factory: new THREE.Group(),
-        environment: new THREE.Group(),
-        government: new THREE.Group(),
-        bank: new THREE.Group(),
-        microStation: new THREE.Group()
-        //unit: { school: null, hosipital: null }
-    };
-
-    scene.add(xingquDianGroup.school);
-    scene.add(xingquDianGroup.hosipital);
-    scene.add(xingquDianGroup.shop);
-    scene.add(xingquDianGroup.factory);
-    scene.add(xingquDianGroup.environment);
-    scene.add(xingquDianGroup.government);
-    scene.add(xingquDianGroup.bank);
-    scene.add(xingquDianGroup.microStation);
-
-    panorama.group = new THREE.Group();
-    scene.add(panorama.group);
-
-    drawTowerOfPowerLines.group = new THREE.Group();
-    scene.add(drawTowerOfPowerLines.group);
-
-    drawTowerOfPowerLines.lineGroup = new THREE.Group();
-    scene.add(drawTowerOfPowerLines.lineGroup);
-
-    drawTowerOfPowerLines.labelGroup = new THREE.Group();
-    scene.add(drawTowerOfPowerLines.labelGroup);
-
-    infoStream.group = new THREE.Group();
-    scene.add(infoStream.group);
-    infoStream.stationGroup = new THREE.Group();
-    scene.add(infoStream.stationGroup);
-
-    infoStream2.group = new THREE.Group();
-    scene.add(infoStream2.group);
-    infoStream2.stationGroup = new THREE.Group();
-    scene.add(infoStream2.stationGroup);
-
-    resource.mineralResourcesGroup = new THREE.Group();
-    scene.add(resource.mineralResourcesGroup);
-
-    workStream2.group = new THREE.Group();
-    scene.add(workStream2.group);
-
-    workStream2.lineGroup = new THREE.Group();
-    scene.add(workStream2.lineGroup);
-
-    workStream2.objGroup = new THREE.Group();
-    scene.add(workStream2.objGroup);
-
-    enegyStream2.initialize();
-
-    enegyStream3.initialize();
-
-    yingjiWeiwen.initialize();
-
-    wangjia.initialize();
-
-    taiqu.initialize();
-
-    walkerIndexController.initialize();
-
-    groupOfRoadDetail.initialize();
-
-    {
-        var measureGeometry = new THREE.PlaneGeometry(1, 1, 2);
-        var measurematerial = new THREE.MeshBasicMaterial({
-            color: 0x489dfb,
-            //linewidth: 10,
-            side: THREE.DoubleSide,
-        });
-        var measureLine = new THREE.Mesh(measureGeometry, measurematerial); //new THREE.Line(measureGeometry, measurematerial);
-        //measureLine.rotateX(-Math.PI / 2);
-        measureLengthGroup.add(measureLine);
-
-        measureLengthObj.measureLineDiv = document.createElement('div');
-        measureLengthObj.measureLineDiv.className = 'label_MeasureLine';
-        measureLengthObj.measureLineDiv.textContent = 'Earth';
-        measureLengthObj.measureLineDiv.style.marginTop = '-1em';
-        measureLengthObj.measureLineDivLabel = new THREE.CSS2DObject(measureLengthObj.measureLineDiv);
-        measureLengthObj.measureLineDivLabel.position.set(0, 0, 0);
-        measureLengthGroup.add(measureLengthObj.measureLineDivLabel);
-    }
-    {
-        measureAreaObj.measureAreaDiv = document.createElement('div');
-        measureAreaObj.measureAreaDiv.className = 'label_MeasureLine';
-        measureAreaObj.measureAreaDiv.textContent = 'Earth';
-        measureAreaObj.measureAreaDiv.style.marginTop = '-1em';
-        measureAreaObj.measureAreaDivLabel = new THREE.CSS2DObject(measureAreaObj.measureAreaDiv);
-        measureAreaObj.measureAreaDivLabel.position.set(0, 0, 0);
-        measureAreaGroup.add(measureAreaObj.measureAreaDivLabel);
-    }
-    var geometry = new THREE.CylinderBufferGeometry(0, 10, 30, 4, 1);
-    var material = new THREE.MeshPhongMaterial({ color: 0xffffff, flatShading: true });
-
-
-
-    // lights
-    {
-        light1 = new THREE.PointLight(0xffffff);
-        light1.position.set(0, 90000, 0);
-        light1.intensity = 0.5;
-        scene.add(light1);
-    }
-    {
-        //light2 = new THREE.PointLight(0xffffff);
-        //light2.position.set(0, 90000, -180000);
-        //light2.intensity = 0.5;
-        //scene.add(light2);
-    }
-    {
-        //light3 = new THREE.PointLight(0xffffff);
-        //light3.position.set(180000, 90000, -180000);
-        //light3.intensity = 0.5;
-        //scene.add(light3);
-    }
-    {
-        //light4 = new THREE.PointLight(0xffffff);
-        //light4.position.set(180000, 90000, 180000);
-        //light4.intensity = 0.5;
-        //scene.add(light4);
-    }
-    setIntensity(0.5);
-    raycaster = new THREE.Raycaster();
-    raycaster.linePrecision = 0.2;
-
-    mouse = new THREE.Vector2();
-    //window.addEventListener('mousemove', onMouseMove, false);
-    document.addEventListener('click', onDocumentClick);
-    //document.addEventListener('contextmenu', onDocumentRightClick);
-
-    document.addEventListener('mousemove', onDocumentMouseMove, false);
-    window.addEventListener('resize', onWindowResize, false);
-
-
-
-    mapGroup.renderOrder = 0;
-    boundryGroup.renderOrder = 9;
-
-    biandiansuo.group.renderOrder = 9;
-    peibianGroup.renderOrder = 9;
-    tongxin5GMapGroup.renderOrder = 9;
-    regionBlockGroup.renderOrder = 9;
-    buildingsGroups.renderer = 10;
-
-
-    controls.rotateSpeed = 0.06;
-    controls.panSpeed = 0.2;
-
-    //document.addEventListener('mousemove', onDocumentMouseMove, false);
-
-    var ws = new WebSocket('ws://127.0.0.1:9760/websocket');
-    ws.onopen = function (event) {
-        ws.send('allMap');
-        groupOfRoadDetail.started = true;
-    };
-    ws.onmessage = function (evt) {
-        var received_msg = evt.data;
-        console.log("数据已接收...", received_msg);
-        var obj = JSON.parse(received_msg);
-        if (obj.reqMsg == 'allMap' && obj.t == 'road') {
-            drawRoadInfomation(obj.obj, obj.colors);
-        }
-        else if (obj.reqMsg == 'allMap' && obj.t == 'cross') {
-            // drawRoadInfomation(obj.obj);
-            drawCrosses(obj.obj);
-        }
-    };
-}
 
 
 var clothForRender = {
@@ -2233,7 +2144,10 @@ var drawCarBtns = function () {
                                     var names = ['carA', 'carB', 'carC', 'carD', 'carE'];
                                     objMain.Task.carSelect = names[i] + '_' + objMain.indexKey;
 
-                                    objMain.mainF.lookTwoPositionCenter(objMain.promoteDiamond.children[0].position, objMain.carGroup.getObjectByName(objMain.Task.carSelect).position);
+                                    if (objMain.PromoteList.indexOf(objMain.Task.state) >= 0)
+                                        objMain.mainF.lookTwoPositionCenter(objMain.promoteDiamond.children[0].position, objMain.carGroup.getObjectByName(objMain.Task.carSelect).position);
+                                    else if (objMain.Task.state == 'collect')
+                                        objMain.mainF.lookTwoPositionCenter(objMain.collectGroup.children[0].position, objMain.carGroup.getObjectByName(objMain.Task.carSelect).position);
                                     /*
                                      * 以下方法用户绘制二级菜单
                                      */
@@ -2337,7 +2251,14 @@ var drawCarBtns = function () {
 
                 document.body.appendChild(divCreate);
             }
-            addItemToTaskOperatingPanle('收集金钱', function () { showBtnEvent(); alert('收集金钱'); });
+            addItemToTaskOperatingPanle('收集金钱', function () {
+                showBtnEvent(true);
+                objMain.Task.state = 'collect'
+                objMain.Task.carSelect = '';
+                // alert('提升续航');
+                console.log('点击', '收集金钱');
+                objMain.mainF.refreshCollectAndPanle();
+            });
             addItemToTaskOperatingPanle('使用物品', function () {
                 showBtnEvent(false);
                 objMain.mainF.lookAtPosition(objMain.basePoint);
@@ -2348,25 +2269,7 @@ var drawCarBtns = function () {
                 objMain.Task.carSelect = '';
                 // alert('提升续航');
                 console.log('点击', '提升续航');
-                var startIndex = objMain.promoteDiamond.children.length - 1;
-                for (var i = startIndex; i >= 0; i--) {
-                    objMain.promoteDiamond.remove(objMain.promoteDiamond.children[i]);
-                }
-                //var mirrorCubeCamera = new THREE.CubeCamera(0.1, 5000, 512);
-                //objMain.scene.add(mirrorCubeCamera);
-                var geometry = objMain.diamondGeometry;
-                var material = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.5, depthWrite: true });
-
-                var diamond = new THREE.Mesh(geometry, material);
-                diamond.scale.set(0.2, 0.22, 0.2);
-                diamond.position.set(MercatorGetXbyLongitude(objMain.PromotePositions.mile.Fp.Longitude), 0, -MercatorGetYbyLatitude(objMain.PromotePositions.mile.Fp.Latitde));
-                objMain.promoteDiamond.add(diamond);
-
-
-                objMain.mainF.drawLineOfFpToRoad(objMain.PromotePositions.mile.Fp, objMain.promoteDiamond, 0xff0000);
-                objMain.mainF.lookAtPosition(objMain.PromotePositions.mile.Fp);
-
-                objMain.mainF.drawPanelOfPromotion(objMain.Task.state);
+                objMain.mainF.refreshPromotionDiamondAndPanle(objMain.PromotePositions[objMain.Task.state]);
             });
             addItemToTaskOperatingPanle('提升业务', function () {
                 showBtnEvent(true);
@@ -2374,25 +2277,7 @@ var drawCarBtns = function () {
                 // alert('提升续航');
                 console.log('点击', '提升业务');
                 objMain.Task.carSelect = '';
-                var startIndex = objMain.promoteDiamond.children.length - 1;
-                for (var i = startIndex; i >= 0; i--) {
-                    objMain.promoteDiamond.remove(objMain.promoteDiamond.children[i]);
-                }
-                //var mirrorCubeCamera = new THREE.CubeCamera(0.1, 5000, 512);
-                //objMain.scene.add(mirrorCubeCamera);
-                var geometry = objMain.diamondGeometry;
-                var material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5, depthWrite: true });
-
-                var diamond = new THREE.Mesh(geometry, material);
-                diamond.scale.set(0.2, 0.22, 0.2);
-                diamond.position.set(MercatorGetXbyLongitude(objMain.PromotePositions.bussiness.Fp.Longitude), 0, -MercatorGetYbyLatitude(objMain.PromotePositions.bussiness.Fp.Latitde));
-                objMain.promoteDiamond.add(diamond);
-
-
-                objMain.mainF.drawLineOfFpToRoad(objMain.PromotePositions.bussiness.Fp, objMain.promoteDiamond, 0x00ff00);
-                objMain.mainF.lookAtPosition(objMain.PromotePositions.bussiness.Fp);
-
-                objMain.mainF.drawPanelOfPromotion(objMain.Task.state);
+                objMain.mainF.refreshPromotionDiamondAndPanle(objMain.PromotePositions[objMain.Task.state]);
             });
             addItemToTaskOperatingPanle('提升容量', function () {
                 showBtnEvent(true);
@@ -2400,25 +2285,7 @@ var drawCarBtns = function () {
                 // alert('提升续航');
                 console.log('点击', '提升容量');
                 objMain.Task.carSelect = '';
-                var startIndex = objMain.promoteDiamond.children.length - 1;
-                for (var i = startIndex; i >= 0; i--) {
-                    objMain.promoteDiamond.remove(objMain.promoteDiamond.children[i]);
-                }
-                //var mirrorCubeCamera = new THREE.CubeCamera(0.1, 5000, 512);
-                //objMain.scene.add(mirrorCubeCamera);
-                var geometry = objMain.diamondGeometry;
-                var material = new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.5, depthWrite: true });
-
-                var diamond = new THREE.Mesh(geometry, material);
-                diamond.scale.set(0.2, 0.22, 0.2);
-                diamond.position.set(MercatorGetXbyLongitude(objMain.PromotePositions.volume.Fp.Longitude), 0, -MercatorGetYbyLatitude(objMain.PromotePositions.volume.Fp.Latitde));
-                objMain.promoteDiamond.add(diamond);
-
-
-                objMain.mainF.drawLineOfFpToRoad(objMain.PromotePositions.volume.Fp, objMain.promoteDiamond, 0x0000ff);
-                objMain.mainF.lookAtPosition(objMain.PromotePositions.volume.Fp);
-
-                objMain.mainF.drawPanelOfPromotion(objMain.Task.state);
+                objMain.mainF.refreshPromotionDiamondAndPanle(objMain.PromotePositions[objMain.Task.state]);
             });
             addItemToTaskOperatingPanle('提升速度', function () {
                 showBtnEvent(true);
@@ -2426,25 +2293,7 @@ var drawCarBtns = function () {
                 // alert('提升续航');
                 console.log('点击', '提升速度');
                 objMain.Task.carSelect = '';
-                var startIndex = objMain.promoteDiamond.children.length - 1;
-                for (var i = startIndex; i >= 0; i--) {
-                    objMain.promoteDiamond.remove(objMain.promoteDiamond.children[i]);
-                }
-                //var mirrorCubeCamera = new THREE.CubeCamera(0.1, 5000, 512);
-                //objMain.scene.add(mirrorCubeCamera);
-                var geometry = objMain.diamondGeometry;
-                var material = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.5, depthWrite: true });
-
-                var diamond = new THREE.Mesh(geometry, material);
-                diamond.scale.set(0.2, 0.22, 0.2);
-                diamond.position.set(MercatorGetXbyLongitude(objMain.PromotePositions.speed.Fp.Longitude), 0, -MercatorGetYbyLatitude(objMain.PromotePositions.speed.Fp.Latitde));
-                objMain.promoteDiamond.add(diamond);
-
-
-                objMain.mainF.drawLineOfFpToRoad(objMain.PromotePositions.speed.Fp, objMain.promoteDiamond, 0x000000);
-                objMain.mainF.lookAtPosition(objMain.PromotePositions.speed.Fp);
-
-                objMain.mainF.drawPanelOfPromotion(objMain.Task.state);
+                objMain.mainF.refreshPromotionDiamondAndPanle(objMain.PromotePositions[objMain.Task.state]);
             });
             addItemToTaskOperatingPanle('收取税金', function () { showBtnEvent(); alert('使用物品'); });
             addItemToTaskOperatingPanle('打压对手', function () { showBtnEvent(); alert('使用物品'); });
@@ -2527,6 +2376,9 @@ Complex.prototype.toOne = function () {
     this.r /= m, this.i /= m;
     //return Math.sqrt(this.r * this.r + this.i * this.i);
 };
+Complex.prototype.isZero = function () {
+    return this.mo() < 1e-4;
+}
 Complex.prototype.toString = function () {
     return "{" + this.r + "," + this.i + "}";
 };
