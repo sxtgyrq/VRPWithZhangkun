@@ -219,9 +219,20 @@ namespace HouseManager
 
         public CarState state { get; set; }
         public Purpose purpose { get; set; }
+        /// <summary>
+        /// 汽车的目标地点。
+        /// </summary>
         public int targetFpIndex { get; set; }
         public int changeState { get; set; }
         public AnimateData animateData { get; internal set; }
+
+        internal void Refresh()
+        {
+            this.state = CarState.waitAtBaseStation;
+            Console.WriteLine("执行了归位");
+            this.targetFpIndex = -1;
+            this.purpose = Purpose.@null; 
+        }
     }
     public class AbilityAndState
     {
@@ -257,6 +268,7 @@ namespace HouseManager
             this.Data["volume"].RemoveAll(item => (item - this.CreateTime).TotalMinutes > 120);
             this.Data["speed"].RemoveAll(item => (item - this.CreateTime).TotalMinutes > 120);
             this.costMiles = 0;
+
         }
         /// <summary>
         /// 必须是在基地的时候引用

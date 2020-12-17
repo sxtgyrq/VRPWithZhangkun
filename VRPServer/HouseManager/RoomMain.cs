@@ -272,69 +272,127 @@ namespace HouseManager
                         {
                             case "findWork":
                                 {
+                                    var player = this._Players[sc.Key];
                                     var car = this._Players[sc.Key].getCar(carIndex);
                                     switch (car.state)
                                     {
+                                        case CarState.waitForCollectOrAttack:
                                         case CarState.waitAtBaseStation:
                                             {
-                                                if (car.purpose == Purpose.@null)
+                                                var from = getFromWhenUpdateCollect(this._Players[sc.Key], sc.cType, car);
+                                                var to = getCollectPositionTo();//  this.promoteMilePosition;
+                                                var fp1 = Program.dt.GetFpByIndex(from);
+                                                var fp2 = Program.dt.GetFpByIndex(to);
+                                                var fbBase = Program.dt.GetFpByIndex(player.StartFPIndex);
+                                                var goPath = Program.dt.GetAFromB(fp1, fp2.FastenPositionID);
+                                                var returnPath = Program.dt.GetAFromB(fp2, fbBase.FastenPositionID);
+                                                var goMile = getMile(goPath);
+                                                var returnMile = getMile(returnPath);
+                                                if (car.ability.leftMile >= goMile + returnMile)
                                                 {
-                                                    var from = this._Players[sc.Key].StartFPIndex;
-                                                    var to = getCollectPositionTo();//  this.promoteMilePosition;
-                                                    var fp1 = Program.dt.GetFpByIndex(from);
-                                                    var fp2 = Program.dt.GetFpByIndex(to);
-                                                    var goPath = Program.dt.GetAFromB(fp1, fp2.FastenPositionID);
-                                                    var returnPath = Program.dt.GetAFromB(fp2, fp1.FastenPositionID);
-                                                    var goMile = getMile(goPath);
-                                                    var returnMile = getMile(goPath);
-                                                    if (car.ability.leftMile >= goMile + returnMile)
+                                                    car.targetFpIndex = to;
+                                                    car.purpose = Purpose.collect;
+                                                    car.state = CarState.roadForCollect;
+                                                    // car.ability.costMiles += goMile;
+                                                    var speed = car.ability.Speed;
+                                                    int startT = 0;
+                                                    var result = getStartPositon(fp1, sc.car, ref startT);
+                                                    Program.dt.GetAFromBPoint(goPath, fp1, speed, ref result, ref startT);
+                                                    result.RemoveAll(item => item.t0 == item.t1);
+                                                    car.animateData = new AnimateData()
                                                     {
-                                                        car.purpose = Purpose.collect;
-                                                        car.state = CarState.roadForCollect;
-                                                        car.ability.costMiles += goMile;
-                                                        var speed = car.ability.Speed;
-                                                        int startT = 0;
-                                                        var result = getStartPositon(fp1, sc.car, ref startT);
-                                                        Program.dt.GetAFromBPoint(goPath, fp1, speed, ref result, ref startT);
-                                                        result.RemoveAll(item => item.t0 == item.t1);
-                                                        car.animateData = new AnimateData()
+                                                        animateData = result,
+                                                        recordTime = DateTime.Now
+                                                    };
+                                                    //  int carState = car.changeState + 1;
+                                                    Thread th = new Thread(() => setArrive(startT, new commandWithTime.placeArriving()
+                                                    {
+                                                        c = "placeArriving",
+                                                        key = sc.Key,
+                                                        car = sc.car,
+                                                        returnPath = returnPath,
+                                                        target = getCollectPositionTo(),
+                                                        costMile = goMile
+                                                    }));
+                                                    th.Start();
+                                                    //this.loopCommands.Add();
+
+                                                    //  this.breakMiniSecods = 0;
+                                                    //第二步，更改状态
+                                                    //car.changeState++;//更改状态
+
+
+                                                    // car.state = CarState.buying;
+
+
+                                                    getAllCarInfomations(sc.Key, ref notifyMsg);
+                                                }
+
+                                                else if (car.ability.leftMile >= goMile)
+                                                {
+
+                                                    Console.Write($"现在剩余里程为{car.ability.leftMile}去程{goMile}，回程{returnMile}");
+                                                    Console.Write($"你去了回不来");
+                                                    Console.Write($"该汽车被安排回去了");
+                                                    if (car.state == CarState.waitForCollectOrAttack)
+                                                    {
+                                                        int startT = 1;
+                                                        var carKey = $"{sc.car}_{sc.Key}";
+                                                        var returnPath_Record = this.returningRecord[carKey];
+                                                        Thread th = new Thread(() => setReturn(startT, new commandWithTime.returnning()
                                                         {
-                                                            animateData = result,
-                                                            recordTime = DateTime.Now
-                                                        };
-                                                        //  int carState = car.changeState + 1;
-                                                        Thread th = new Thread(() => setArrive(startT, new commandWithTime.placeArriving()
-                                                        {
-                                                            c = "placeArriving",
+                                                            c = "returnning",
                                                             key = sc.Key,
                                                             car = sc.car,
-                                                            returnPath = returnPath
+                                                            returnPath = returnPath_Record,
+                                                            target = from,
+                                                            changeType = "collect-return",
                                                         }));
                                                         th.Start();
-                                                        //this.loopCommands.Add();
-
-                                                        //  this.breakMiniSecods = 0;
-                                                        //第二步，更改状态
-                                                        //car.changeState++;//更改状态
-
-
-                                                        // car.state = CarState.buying;
-
-
-                                                        getAllCarInfomations(sc.Key, ref notifyMsg);
                                                     }
-
-                                                    else if (car.ability.leftMile >= goMile)
+                                                    else if (car.state == CarState.waitAtBaseStation)
                                                     {
-                                                        Console.Write($"去程{goMile}，回程{returnMile}");
-                                                        Console.Write($"你去了回不来");
+                                                        //Console.Write($"现在剩余里程为{car.ability.leftMile}去程{goMile}，回程{returnMile}");
+                                                        //Console.Write($"你去了回不来");
+                                                        //Console.Write($"该汽车被安排回去了");
                                                     }
                                                     else
                                                     {
-                                                        Console.Write($"去程{goMile}，回程{returnMile}");
-                                                        Console.Write($"你去不了");
+                                                        throw new Exception("没有这种情况！");
                                                     }
                                                 }
+                                                else
+                                                {
+                                                    Console.Write($"现在剩余里程为{car.ability.leftMile}去程{goMile}，回程{returnMile}");
+                                                    Console.Write($"你去不了");
+                                                    if (car.state == CarState.waitForCollectOrAttack)
+                                                    {
+                                                        int startT = 1;
+                                                        var carKey = $"{sc.car}_{sc.Key}";
+                                                        var returnPath_Record = this.returningRecord[carKey];
+                                                        Thread th = new Thread(() => setReturn(startT, new commandWithTime.returnning()
+                                                        {
+                                                            c = "returnning",
+                                                            key = sc.Key,
+                                                            car = sc.car,
+                                                            returnPath = returnPath_Record,
+                                                            target = from,
+                                                            changeType = "collect-return",
+                                                        }));
+                                                        th.Start();
+                                                    }
+                                                    else if (car.state == CarState.waitAtBaseStation)
+                                                    {
+                                                        //Console.Write($"现在剩余里程为{car.ability.leftMile}去程{goMile}，回程{returnMile}");
+                                                        //Console.Write($"你去了回不来");
+                                                        //Console.Write($"该汽车被安排回去了");
+                                                    }
+                                                    else
+                                                    {
+                                                        throw new Exception("没有这种情况！");
+                                                    }
+                                                }
+
 
 
 
@@ -344,6 +402,7 @@ namespace HouseManager
 
 
                                             }; break;
+
                                     }
                                     //this._Players[sp.Key].PromoteState[sp.pType]
                                 }; break;
@@ -363,12 +422,63 @@ namespace HouseManager
             }
         }
 
+        private int getFromWhenUpdateCollect(Player player, string cType, Car car)
+        {
+            switch (cType)
+            {
+                case "findWork":
+                    {
+                        switch (car.state)
+                        {
+                            case CarState.waitAtBaseStation:
+                                {
+                                    if (car.targetFpIndex != -1)
+                                    {
+                                        //出现这种情况，应该是回了基站里没有初始
+                                        throw new Exception("参数混乱");
+                                    }
+                                    else if (car.purpose == Purpose.@null)
+                                    {
+                                        return player.StartFPIndex;
+                                    }
+                                    else
+                                    {
+                                        //出现这种情况，应该是回了基站里没有初始
+                                        throw new Exception("参数混乱");
+                                    }
+                                };
+                            case CarState.waitForCollectOrAttack:
+                                {
+                                    if (car.targetFpIndex == -1)
+                                    {
+                                        throw new Exception("参数混乱");
+                                    }
+                                    else if (car.purpose == Purpose.collect)
+                                    {
+                                        return car.targetFpIndex;
+                                    }
+                                    else
+                                    {
+                                        //出现这种情况，应该是回了基站里没有初始
+                                        throw new Exception("参数混乱");
+                                    }
+                                }; ;
+                        };
+                    }; break;
+            }
+            throw new Exception("非法调用");
+        }
+
         /// <summary>
         /// 删除对象时，这个要释放
         /// </summary>
         Dictionary<string, List<Model.MapGo.nyrqPosition>> returningRecord = new Dictionary<string, List<Model.MapGo.nyrqPosition>>();
         private async void setArrive(int startT, commandWithTime.placeArriving pa)
         {
+            /*
+             * 到达地点某地点时，说明汽车在这个地点待命。
+             */
+
 
             Console.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}开始执行setArrive");
             Thread.Sleep(startT + 1);
@@ -379,6 +489,10 @@ namespace HouseManager
             {
                 var car = this._Players[pa.key].getCar(pa.car);
                 {
+                    if (car.targetFpIndex == -1)
+                    {
+                        throw new Exception("这个地点应该是等待的地点！");
+                    }
                     if (pa.target == this.getCollectPositionTo())
                     {
                         this.collectPosition = this.GetRandomPosition();
@@ -391,7 +505,7 @@ namespace HouseManager
                     }
 #warning 这里的金钱未定，如果没有买成，留在原地
                     //    var car = this._Players[cmp.key].getCar(cmp.car);
-
+                    car.ability.costMiles += pa.costMile;
                     var fp = Program.dt.GetFpByIndex(pa.target);
                     double endX, endY;
                     CommonClass.Geography.calculatBaideMercatorIndex.getBaiduPicIndex(fp.positionLongitudeOnRoad, fp.positionLatitudeOnRoad, out endX, out endY);
@@ -428,6 +542,7 @@ namespace HouseManager
                         car.changeState++;
                         getAllCarInfomations(pa.key, ref notifyMsg);
                     }
+
                 }
             }
             for (var i = 0; i < notifyMsg.Count; i += 2)
@@ -464,6 +579,7 @@ namespace HouseManager
 
             foreach (var item in this._Players)
             {
+                A = item.Value.StartFPIndex == fpIndex || A;
                 for (var i = 0; i < 5; i++)
                     A = item.Value.getCar(i).targetFpIndex == fpIndex || A;
             }
@@ -564,6 +680,7 @@ namespace HouseManager
                                             {
                                                 var from = this._Players[sp.Key].StartFPIndex;
                                                 var to = getPromotePositionTo(sp.pType);//  this.promoteMilePosition;
+                                                car.targetFpIndex = to;
                                                 var fp1 = Program.dt.GetFpByIndex(from);
                                                 var fp2 = Program.dt.GetFpByIndex(to);
                                                 var goPath = Program.dt.GetAFromB(fp1, fp2.FastenPositionID);
@@ -594,7 +711,7 @@ namespace HouseManager
                                                         key = sp.Key,
                                                         car = sp.car,
                                                         returnPath = returnPath,
-                                                        target = this.getPromoteState(sp.pType),
+                                                        target = this.getPromoteState(sp.pType),//新的起点
                                                         changeType = sp.pType
                                                     }));
                                                     th.Start();
@@ -668,10 +785,13 @@ namespace HouseManager
             bool needUpdatePromoteState = false;
             lock (this.PlayerLock)
             {
+                var player = this._Players[cmp.key];
                 var car = this._Players[cmp.key].getCar(cmp.car);
+                car.targetFpIndex = this._Players[cmp.key].StartFPIndex;
                 if ((cmp.changeType == "mile" || cmp.changeType == "bussiness" || cmp.changeType == "volume" || cmp.changeType == "speed")
                     && car.state == CarState.buying)
                 {
+#warning 这里需要进行拆分，拆分出一个购买的过程。
                     // cons
                     // if(this.pla cmp.key)
                     if (cmp.target == this.getPromoteState(cmp.changeType))
@@ -685,8 +805,7 @@ namespace HouseManager
                     {
                         Console.WriteLine("没有执行购买过程！");
                     }
-#warning 这里的金钱未定，如果没有买成，留在原地
-                    //    var car = this._Players[cmp.key].getCar(cmp.car);
+
                     car.ability.costBusiness += 1;
 
                     var speed = car.ability.Speed;
@@ -713,6 +832,38 @@ namespace HouseManager
                     //第二步，更改状态
                     car.changeState++;
                     getAllCarInfomations(cmp.key, ref notifyMsg);
+                }
+                else if (cmp.changeType == "collect-return" && car.state == CarState.waitForCollectOrAttack)
+                {
+                    if (car.state != CarState.waitForTaxOrAttack)
+                    {
+
+                        var speed = car.ability.Speed;
+                        startT = 0;
+                        var result = new List<Data.PathResult>();
+                        Program.dt.GetAFromBPoint(cmp.returnPath, Program.dt.GetFpByIndex(cmp.target), speed, ref result, ref startT);
+                        getEndPositon(Program.dt.GetFpByIndex(this._Players[cmp.key].StartFPIndex), cmp.car, ref result, ref startT);
+                        result.RemoveAll(item => item.t0 == item.t1);
+                        car.state = CarState.returning;
+                        Thread th = new Thread(() => setBack(startT, new commandWithTime.comeBack()
+                        {
+                            c = "comeBack",
+                            car = cmp.car,
+                            key = cmp.key
+                        }));
+                        th.Start();
+
+
+                        car.animateData = new AnimateData()
+                        {
+                            animateData = result,
+                            recordTime = DateTime.Now
+                        };
+                        //第二步，更改状态
+                        car.changeState++;
+                        getAllCarInfomations(cmp.key, ref notifyMsg);
+                    }
+                    // var return=
                 }
             }
             for (var i = 0; i < notifyMsg.Count; i += 2)
@@ -762,10 +913,10 @@ namespace HouseManager
             {
                 if (this._Players[comeBack.key].getCar(comeBack.car).state == CarState.returning)
                 {
-                    this._Players[comeBack.key].getCar(comeBack.car).state = CarState.waitAtBaseStation;
-                    Console.WriteLine("执行了归位");
+
 
                     this._Players[comeBack.key].getCar(comeBack.car).ability.Refresh();
+                    this._Players[comeBack.key].getCar(comeBack.car).Refresh();
                 }
             }
         }
@@ -1096,6 +1247,8 @@ namespace HouseManager
                         WebSocketID = self.WebSocketID,
                         carID = getCarName(indexOfCar) + "_" + self.Key,
                         parentID = self.Key,
+                        CostMile = self.getCar(indexOfCar).ability.costMiles,
+
                     };
                     var json = Newtonsoft.Json.JsonConvert.SerializeObject(obj);
                     msgsWithUrl.Add(self.FromUrl);
@@ -1229,6 +1382,9 @@ namespace HouseManager
 
 
                 internal List<Model.MapGo.nyrqPosition> returnPath { get; set; }
+                /// <summary>
+                /// 返回路程的起点
+                /// </summary>
                 internal int target { get; set; }
 
                 /// <summary>
@@ -1239,6 +1395,7 @@ namespace HouseManager
 
             public class placeArriving : baseC
             {
+                public int costMile { get; set; }
                 internal int target { get; set; }
 
                 internal List<Model.MapGo.nyrqPosition> returnPath { get; set; }

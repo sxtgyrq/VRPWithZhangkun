@@ -52,22 +52,22 @@
     <None Update="diamond.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="rmb.jpg">
+    <None Update="rmb\rmb.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="rmb.mtl">
+    <None Update="rmb\rmb.mtl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="rmb.obj">
+    <None Update="rmb\rmb.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="rmb100.jpg">
+    <None Update="rmb\rmb100.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="rmb100.mtl">
+    <None Update="rmb\rmb100.mtl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="rmb100.obj">
+    <None Update="rmb\rmb100.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="RobotExpressive.glb">

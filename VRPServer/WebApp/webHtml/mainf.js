@@ -826,6 +826,7 @@ var startA = function () {
                     console.log('显示', received_obj);
                     //  switch (received_obj.
                     objMain.CollectPosition = received_obj;
+                    objMain.mainF.refreshCollectAndPanle();
                     //  objMain.mainF.refreshCollectPositionAndPanle(received_obj);
                     // objMain.mainF.refreshPromotionDiamondAndPanle(received_obj);
                 }; break;

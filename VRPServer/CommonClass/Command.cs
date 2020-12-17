@@ -44,6 +44,8 @@ namespace CommonClass
 
         public object Animate { get; set; }
         public string parentID { get; set; }
+
+
     }
     public class BradCastAnimateOfSelfCar : CommandNotify
     {
@@ -51,6 +53,8 @@ namespace CommonClass
 
         public object Animate { get; set; }
         public string parentID { get; set; }
+        public decimal CostMile { get; set; }
+        public int LeftMile { get; set; }
     }
     public class BradCastPromoteInfoDetail : CommandNotify
     {
@@ -61,7 +65,7 @@ namespace CommonClass
         public Model.FastonPosition Fp { get; set; }
         public decimal Price { get; set; }
     }
-    public class BradCastCollectInfoDetail : CommandNotify 
+    public class BradCastCollectInfoDetail : CommandNotify
     {
         public Model.FastonPosition Fp { get; set; }
     }

@@ -3,8 +3,7 @@
     "",
     "\\VRPServer",
     "\\VRPServer\\HouseManager",
-    "\\VRPServer\\Server",
-    "\\VRPServer\\ShowDemo"
+    "\\VRPServer\\Server"
   ],
   "SelectedNode": "\\VRPServer\\Server\\Server.sln",
   "PreviewInSolutionExplorer": false
