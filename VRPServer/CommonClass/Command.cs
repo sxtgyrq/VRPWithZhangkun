@@ -68,6 +68,7 @@ namespace CommonClass
     public class BradCastCollectInfoDetail : CommandNotify
     {
         public Model.FastonPosition Fp { get; set; }
+        public int collectMoney { get; set; }
     }
 
 

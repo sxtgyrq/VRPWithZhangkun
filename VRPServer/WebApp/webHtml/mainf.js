@@ -323,7 +323,30 @@ var objMain =
                 for (var i = startIndex; i >= 0; i--) {
                     objMain.collectGroup.remove(objMain.collectGroup.children[i]);
                 }
-                var model = objMain.rmbModel['rmb100'].clone();
+                var model;
+
+                switch (objMain.CollectPosition.collectMoney) {
+                    case 5:
+                        {
+                            model = objMain.rmbModel['rmb5'].clone();
+                        }; break;
+                    case 10:
+                        {
+                            model = objMain.rmbModel['rmb10'].clone();
+                        }; break;
+                    case 20:
+                        {
+                            model = objMain.rmbModel['rmb20'].clone();
+                        }; break;
+                    case 50:
+                        {
+                            model = objMain.rmbModel['rmb50'].clone();
+                        }; break;
+                    case 100:
+                        {
+                            model = objMain.rmbModel['rmb100'].clone();
+                        }; break;
+                }
                 // model.name = names[i] + '_' + key;
                 //model.position.set(end.x, 0, end.z);
                 // model.scale.set(0.002, 0.002, 0.002);
@@ -335,13 +358,17 @@ var objMain =
                 var color = 0xFFD700;
 
                 objMain.mainF.drawLineOfFpToRoad(objMain.CollectPosition.Fp, objMain.collectGroup, color);
-                if (objMain.Task.carSelect == '') {
-                    objMain.mainF.lookAtPosition(objMain.CollectPosition.Fp);
+                if (objMain.Task.state == 'collect') {
+                    if (objMain.Task.carSelect == '') {
+                        objMain.mainF.lookAtPosition(objMain.CollectPosition.Fp);
+                    }
+                    else {
+                        objMain.mainF.lookTwoPositionCenter(objMain.collectGroup.children[0].position, objMain.carGroup.getObjectByName(objMain.Task.carSelect).position);
+                    }
                 }
-                else {
-                    objMain.mainF.lookTwoPositionCenter(objMain.collectGroup.children[0].position, objMain.carGroup.getObjectByName(objMain.Task.carSelect).position);
+                if (objMain.Task.state == 'collect') {
+                    objMain.mainF.drawPanelOfCollect();
                 }
-                objMain.mainF.drawPanelOfCollect();
 
                 //var startIndex = objMain.promoteDiamond.children.length - 1;
                 //for (var i = startIndex; i >= 0; i--) {
@@ -429,7 +456,7 @@ var objMain =
             var div2 = document.createElement('div');
 
             var b = document.createElement('b');
-            b.innerHTML = '到[<span style="color:#05ffba">' + objMain.CollectPosition.Fp.FastenPositionName + '</span>]回收<span style="color:#05ffba">100元' + '</span>现金。';
+            b.innerHTML = '到[<span style="color:#05ffba">' + objMain.CollectPosition.Fp.FastenPositionName + '</span>]回收<span style="color:#05ffba">' + objMain.CollectPosition.collectMoney + '元</span>现金。';
             div2.appendChild(b);
 
             var div3 = document.createElement('div');
@@ -458,7 +485,7 @@ var objMain =
                     objMain.Task.carSelect = '';
                     objMain.mainF.removeF.removePanle('carsSelectionPanel');
 
-                    objMain.mainF.removeF.clearGroup(objMain.collectGroup);
+                    // objMain.mainF.removeF.clearGroup(objMain.collectGroup);
                     objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
 
                 }
@@ -755,13 +782,13 @@ var startA = function () {
                     var f = function (received_obj, field) {
                         var manager = new THREE.LoadingManager();
                         new THREE.MTLLoader(manager)
-                            .loadTextOnly(received_obj.modelBase64[1], 'data:image/jpeg;base64,' + received_obj.modelBase64[2], function (materials) {
+                            .loadTextOnly(received_obj.modelBase64[0], 'data:image/jpeg;base64,' + received_obj.modelBase64[1], function (materials) {
                                 materials.preload();
                                 // materials.depthTest = false;
                                 new THREE.OBJLoader(manager)
                                     .setMaterials(materials)
                                     //.setPath('/Pic/')
-                                    .loadTextOnly(received_obj.modelBase64[0], function (object) {
+                                    .loadTextOnly(objMain.rmbModel.geometry, function (object) {
                                         console.log('o', object);
                                         for (var iOfO = 0; iOfO < object.children.length; iOfO++) {
                                             if (object.children[iOfO].isMesh) {
@@ -769,18 +796,38 @@ var startA = function () {
                                                     object.children[iOfO].material[mi].transparent = true;
                                                     object.children[iOfO].material[mi].opacity = 1;
                                                     object.children[iOfO].material[mi].side = THREE.FrontSide;
+                                                    object.children[iOfO].material[mi].color = new THREE.Color(0.45, 0.45, 0.45);
                                                 }
                                             }
                                         }
                                         console.log('o', object);
-                                        object.scale.set(0.002, 0.002, 0.002);
+                                        object.scale.set(0.003, 0.003, 0.003);
                                         object.rotateX(-Math.PI / 2);
                                         objMain.rmbModel[field] = object;
 
                                     }, function () { }, function () { });
                             });
                     };
-                    f(received_obj, received_obj.faceValue);
+                    //  f(received_obj, received_obj.faceValue);
+                    switch (received_obj.faceValue) {
+                        case 'model':
+                            {
+                                objMain.rmbModel.geometry = received_obj.modelBase64;
+                            }; break;
+                        case 'rmb100':
+                        case 'rmb50':
+                        case 'rmb20':
+                        case 'rmb10':
+                            {
+                                f(received_obj, received_obj.faceValue);
+                            }; break;
+                        case 'rmb5':
+                            {
+                                f(received_obj, received_obj.faceValue);
+                                objMain.rmbModel.geometry = undefined;
+                            }; break;
+                    };
+
                 }; break;
             case 'BradCastAnimateOfCar':
                 {
@@ -894,13 +941,14 @@ function animate() {
 
                 if (objMain.collectGroup.children[i].isGroup) {
                     if (objMain.Task.state == 'collect') {
-                        var scale = objMain.mainF.getLength(objMain.camera.position, objMain.controls.target) / 1840;
+                        var scale = objMain.mainF.getLength(objMain.camera.position, objMain.controls.target) / 1226;
                         objMain.collectGroup.children[i].scale.set(scale, scale, scale);
                     }
                     else {
-                        objMain.collectGroup.children[i].scale.set(0.002, 0.002, 0.002);
+                        var scale = objMain.mainF.getLength(objMain.camera.position, objMain.controls.target) / 1840;
+                        objMain.collectGroup.children[i].scale.set(scale, scale, scale);
                     }
-                    objMain.collectGroup.children[i].rotation.set(-Math.PI / 2, 0, Date.now() % 2000 / 2000 * Math.PI * 2);
+                    objMain.collectGroup.children[i].rotation.set(-Math.PI / 2, 0, Date.now() % 3000 / 3000 * Math.PI * 2);
                 }
             }
             for (var i = 0; i < objMain.promoteDiamond.children.length; i++) {

@@ -44,6 +44,11 @@ namespace WsOfWebClient
 
         public static string DiamondObj = "";
 
+        public static string YuanModel = "";
         public static string[] RMB100 = new string[] { };
+        public static string[] RMB50 = new string[] { };
+        public static string[] RMB20 = new string[] { };
+        public static string[] RMB10 = new string[] { };
+        public static string[] RMB5 = new string[] { };
     }
 }

@@ -184,36 +184,8 @@ namespace WsOfWebClient
                     var sendData = Encoding.ASCII.GetBytes(msg);
                     await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
                 }
-                if (ConnectInfo.RMB100.Length == 0)
-                {
-                    string obj, mtl, rmbJpg;
-                    {
-                        var bytes = File.ReadAllBytes("rmb100.jpg");
-                        var Base64 = Convert.ToBase64String(bytes);
-                        rmbJpg = Base64;
-                    }
-                    {
-                        mtl = File.ReadAllText("rmb100.mtl");
-                    }
-                    {
-                        obj = File.ReadAllText("rmb100.obj");
-                    }
-                    ConnectInfo.RMB100 = new string[] { obj, mtl, rmbJpg };
-                }
-                else
-                {
+                addRMB(webSocket);
 
-                }
-                {
-                    var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new
-                    {
-                        c = "SetRMB",
-                        modelBase64 = ConnectInfo.RMB100,
-                        faceValue = "rmb100"
-                    });
-                    var sendData = Encoding.ASCII.GetBytes(msg);
-                    await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
-                }
 
                 if (string.IsNullOrEmpty(ConnectInfo.DiamondObj))
                 {
@@ -232,6 +204,166 @@ namespace WsOfWebClient
                 await initializeOperation(s);
             }
             return result;
+        }
+
+        private static async void addRMB(WebSocket webSocket)
+        {
+            if (ConnectInfo.YuanModel == "")
+            {
+                string obj;
+                obj = File.ReadAllText("rmb/rmb100.obj");
+                ConnectInfo.YuanModel = obj;
+            }
+            {
+                var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new
+                {
+                    c = "SetRMB",
+                    modelBase64 = ConnectInfo.YuanModel,
+                    faceValue = "model"
+                });
+                var sendData = Encoding.ASCII.GetBytes(msg);
+                await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+
+            }
+            if (ConnectInfo.RMB100.Length == 0)
+            {
+                string  mtl, rmbJpg;
+                {
+                    var bytes = File.ReadAllBytes("rmb/rmb100.jpg");
+                    var Base64 = Convert.ToBase64String(bytes);
+                    rmbJpg = Base64;
+                }
+                {
+                    mtl = File.ReadAllText("rmb/rmb100.mtl");
+                } 
+                ConnectInfo.RMB100 = new string[] {   mtl, rmbJpg };
+            }
+            else
+            {
+
+            }
+            {
+                var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new
+                {
+                    c = "SetRMB",
+                    modelBase64 = ConnectInfo.RMB100,
+                    faceValue = "rmb100"
+                });
+                var sendData = Encoding.ASCII.GetBytes(msg);
+                await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+            }
+
+            if (ConnectInfo.RMB50.Length == 0)
+            {
+                string mtl, rmbJpg;
+                {
+                    var bytes = File.ReadAllBytes("rmb/rmb50.jpg");
+                    var Base64 = Convert.ToBase64String(bytes);
+                    rmbJpg = Base64;
+                }
+                {
+                    mtl = File.ReadAllText("rmb/rmb50.mtl");
+                }
+                ConnectInfo.RMB50 = new string[] { mtl, rmbJpg };
+            }
+            else
+            {
+
+            }
+            {
+                var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new
+                {
+                    c = "SetRMB",
+                    modelBase64 = ConnectInfo.RMB50,
+                    faceValue = "rmb50"
+                });
+                var sendData = Encoding.ASCII.GetBytes(msg);
+                await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+            }
+
+            if (ConnectInfo.RMB20.Length == 0)
+            {
+                string mtl, rmbJpg;
+                {
+                    var bytes = File.ReadAllBytes("rmb/rmb20.jpg");
+                    var Base64 = Convert.ToBase64String(bytes);
+                    rmbJpg = Base64;
+                }
+                {
+                    mtl = File.ReadAllText("rmb/rmb20.mtl");
+                }
+                ConnectInfo.RMB20 = new string[] { mtl, rmbJpg };
+            }
+            else
+            {
+
+            }
+            {
+                var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new
+                {
+                    c = "SetRMB",
+                    modelBase64 = ConnectInfo.RMB20,
+                    faceValue = "rmb20"
+                });
+                var sendData = Encoding.ASCII.GetBytes(msg);
+                await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+            }
+
+            if (ConnectInfo.RMB10.Length == 0)
+            {
+                string mtl, rmbJpg;
+                {
+                    var bytes = File.ReadAllBytes("rmb/rmb10.jpg");
+                    var Base64 = Convert.ToBase64String(bytes);
+                    rmbJpg = Base64;
+                }
+                {
+                    mtl = File.ReadAllText("rmb/rmb10.mtl");
+                }
+                ConnectInfo.RMB10 = new string[] { mtl, rmbJpg };
+            }
+            else
+            {
+
+            }
+            {
+                var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new
+                {
+                    c = "SetRMB",
+                    modelBase64 = ConnectInfo.RMB10,
+                    faceValue = "rmb10"
+                });
+                var sendData = Encoding.ASCII.GetBytes(msg);
+                await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+            }
+
+            if (ConnectInfo.RMB5.Length == 0)
+            {
+                string mtl, rmbJpg;
+                {
+                    var bytes = File.ReadAllBytes("rmb/rmb5.jpg");
+                    var Base64 = Convert.ToBase64String(bytes);
+                    rmbJpg = Base64;
+                }
+                {
+                    mtl = File.ReadAllText("rmb/rmb5.mtl");
+                }
+                ConnectInfo.RMB5 = new string[] { mtl, rmbJpg };
+            }
+            else
+            {
+
+            }
+            {
+                var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new
+                {
+                    c = "SetRMB",
+                    modelBase64 = ConnectInfo.RMB5,
+                    faceValue = "rmb5"
+                });
+                var sendData = Encoding.ASCII.GetBytes(msg);
+                await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+            }
         }
 
 

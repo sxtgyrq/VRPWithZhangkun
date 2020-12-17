@@ -128,6 +128,7 @@ namespace HouseManager
                 c = "BradCastCollectInfoDetail",
                 WebSocketID = webSocketID,
                 Fp = Program.dt.GetFpByIndex(this.collectPosition),
+                collectMoney = this.collectMoney
             };
             return obj;
         }
@@ -1362,6 +1363,7 @@ namespace HouseManager
                 this.promoteVolumePosition = GetRandomPosition();
                 this.promoteSpeedPosition = GetRandomPosition();
                 this.collectPosition = GetRandomPosition();
+
                 //BaseInfomation.rm._Players[checkItem.Key]
             }
             return;
@@ -1564,9 +1566,47 @@ namespace HouseManager
                 lock (this.PlayerLock)
                 {
                     this._collectPosition = value;
+                    if (collectMoney == 10)
+                    {
+                        if (this.rm.NextDouble() < 0.5)
+                        {
+                            collectMoney = 5;
+                        }
+                        else
+                        {
+                            collectMoney = 20;
+                        }
+                    }
+                    else if (collectMoney == 20)
+                    {
+                        if (this.rm.NextDouble() < 0.5)
+                        {
+                            collectMoney = 10;
+                        }
+                        else
+                        {
+                            collectMoney = 50;
+                        }
+                    }
+                    else if (collectMoney == 50)
+                    {
+                        if (this.rm.NextDouble() < 0.5)
+                        {
+                            collectMoney = 20;
+                        }
+                        else
+                        {
+                            collectMoney = 100;
+                        }
+                    }
+                    else
+                    {
+                        collectMoney = 10;
+                    }
                 }
             }
         }
+        int collectMoney = 10;
         class TaskPromote
         {
 
