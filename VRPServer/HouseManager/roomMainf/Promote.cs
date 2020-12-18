@@ -230,8 +230,8 @@ namespace HouseManager
             var goPath = Program.dt.GetAFromB(fp1, fp2.FastenPositionID);
             var returnPath = Program.dt.GetAFromB(fp2, baseFp.FastenPositionID);
 
-            var goMile = getMile(goPath);
-            var returnMile = getMile(returnPath);
+            var goMile = GetMile(goPath);
+            var returnMile = GetMile(returnPath);
 
 
             //第一步，计算去程和回程。
@@ -295,6 +295,35 @@ namespace HouseManager
                 Console.Write($"去程{goMile}，回程{returnMile}");
                 Console.Write($"你去不了");
             }
+        }
+
+        private void setPromtePosition(string changeType)
+        {
+            if (changeType == "mile")
+                this.promoteMilePosition = GetRandomPosition();
+            else if (changeType == "bussiness")
+                this.promoteBussinessPosition = GetRandomPosition();
+            else if (changeType == "volume")
+                this.promoteVolumePosition = GetRandomPosition();
+            else if (changeType == "speed")
+                this.promoteSpeedPosition = GetRandomPosition();
+            else
+            {
+                throw new Exception($"{changeType}是什么类型？");
+            }
+        }
+
+        /// <summary>
+        /// 获取一个玩家的 四个能力提升点
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        private async Task CheckAllPromoteState(string key)
+        {
+            await CheckPromoteState(key, "mile");
+            await CheckPromoteState(key, "bussiness");
+            await CheckPromoteState(key, "volume");
+            await CheckPromoteState(key, "speed");
         }
     }
 }

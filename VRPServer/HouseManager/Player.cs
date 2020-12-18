@@ -201,6 +201,9 @@ namespace HouseManager
         roadForCollect,
         waitForCollectOrAttack,
         roadForAttack,
+        /// <summary>
+        /// returning状态，只能在setReturn -ReturnThenSetComeBack是定义。
+        /// </summary>
         returning,
         buying
     }
