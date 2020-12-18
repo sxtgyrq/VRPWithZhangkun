@@ -231,15 +231,21 @@ namespace HouseManager
             this.state = CarState.waitAtBaseStation;
             Console.WriteLine("执行了归位");
             this.targetFpIndex = -1;
-            this.purpose = Purpose.@null; 
+            this.purpose = Purpose.@null;
         }
     }
     public class AbilityAndState
     {
+
+
         Dictionary<string, List<DateTime>> Data { get; set; }
+
+
+        public string diamondInCar { get; set; }
         DateTime CreateTime { get; set; }
         public decimal costMiles { get; set; }
         public decimal costBusiness { get; set; }
+        internal decimal costVolume { get; set; }
         public AbilityAndState()
         {
             this.CreateTime = DateTime.Now;
@@ -259,6 +265,9 @@ namespace HouseManager
                 }
             };
             this.costMiles = 0;
+            this.costVolume = 0;
+            this.costBusiness = 0;
+            this.diamondInCar = "";
         }
         public void Refresh()
         {
@@ -268,6 +277,10 @@ namespace HouseManager
             this.Data["volume"].RemoveAll(item => (item - this.CreateTime).TotalMinutes > 120);
             this.Data["speed"].RemoveAll(item => (item - this.CreateTime).TotalMinutes > 120);
             this.costMiles = 0;
+            this.costBusiness = 0;
+            this.costVolume = 0;
+
+            this.diamondInCar = "";
 
         }
         /// <summary>
@@ -306,6 +319,13 @@ namespace HouseManager
                 return this.Business - this.costBusiness;
             }
         }
+        public decimal leftVolume
+        {
+            get
+            {
+                return this.Volume - this.costVolume;
+            }
+        }
         /// <summary>
         /// 小车能携带的金钱数量！
         /// </summary>
@@ -313,11 +333,13 @@ namespace HouseManager
         /// <summary>
         /// 小车能装载的最大容量，默认为3！
         /// </summary>
-        public int Volume { get { return this.Data["volume"].Count + 3; } }
+        public int Volume { get { return this.Data["volume"].Count + 100; } }
         /// <summary>
         /// 小车能跑的最快速度！
         /// </summary>
         public int Speed { get { return this.Data["speed"].Count + 50; } }
+
+
     }
 
     public class AnimateData
