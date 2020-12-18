@@ -81,12 +81,15 @@ namespace HouseManager
                     animateData = null,
                     purpose = Purpose.@null
                 });
+            this.Money = 500m;
+
         }
 
         public Dictionary<string, OtherPlayers> others { get; set; }
 
         public Dictionary<string, int> PromoteState { get; set; }
         public int Collect { get; internal set; }
+        public decimal Money { get; private set; }
     }
     public class OtherPlayers
     {
@@ -247,7 +250,13 @@ namespace HouseManager
         public string diamondInCar { get; set; }
         DateTime CreateTime { get; set; }
         public decimal costMiles { get; set; }
+        /// <summary>
+        /// 在车上的通过初始携带、税收获得的钱。
+        /// </summary>
         public decimal costBusiness { get; set; }
+        /// <summary>
+        /// 在车上的通过收集获得的钱。
+        /// </summary>
         internal decimal costVolume { get; set; }
         public AbilityAndState()
         {
@@ -315,6 +324,9 @@ namespace HouseManager
                 return this.mile - this.costMiles;
             }
         }
+        /// <summary>
+        /// 通过税收、携带，还能带多少钱。
+        /// </summary>
         public decimal leftBussiness
         {
             get
@@ -322,6 +334,9 @@ namespace HouseManager
                 return this.Business - this.costBusiness;
             }
         }
+        /// <summary>
+        /// 通过收集，还能收集多少钱
+        /// </summary>
         public decimal leftVolume
         {
             get
@@ -332,9 +347,9 @@ namespace HouseManager
         /// <summary>
         /// 小车能携带的金钱数量！
         /// </summary>
-        public decimal Business { get { return this.Data["business"].Count + 2; } }
+        public decimal Business { get { return this.Data["business"].Count + 100; } }
         /// <summary>
-        /// 小车能装载的最大容量，默认为3！
+        /// 小车能装载的最大容量，默认为100鼋！
         /// </summary>
         public int Volume { get { return this.Data["volume"].Count + 100; } }
         /// <summary>

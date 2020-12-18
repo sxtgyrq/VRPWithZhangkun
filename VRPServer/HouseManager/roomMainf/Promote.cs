@@ -53,22 +53,33 @@ namespace HouseManager
                                     {
                                         case CarState.waitAtBaseStation:
                                             {
+                                               // if(player.Money<)
                                                 promote(player, car, sp, ref notifyMsg);
                                             }; break;
                                         case CarState.waitOnRoad:
                                             {
-                                                if (car.ability.diamondInCar == "")
-                                                {
+                                                Console.WriteLine("");
+                                                /*
+                                                 * 原来是没有抢到还能接着抢。
+                                                 * 现在是没有抢到，就不能抢了。因为现金是携带的。需要匹配的哦。
+                                                 * 但是通过继续收集后，就可以抢能力提升宝石了。
+                                                 */
+                                                //if (car.ability.diamondInCar == "")
+                                                //{
 
-                                                    promote(player, car, sp, ref notifyMsg);
-                                                }
-                                                else
-                                                {
-                                                    throw new Exception("在路上走的车，有了宝石，居然没返回！");
-                                                }
+                                                //    promote(player, car, sp, ref notifyMsg);
+                                                //}
+                                                //else
+                                                //{
+                                                //    throw new Exception("在路上走的车，有了宝石，居然没返回！");
+                                                //}
                                             }; break;
                                         case CarState.waitForCollectOrAttack:
                                             {
+                                                if (car.ability.costVolume + car.ability.costBusiness >= 0) 
+                                                {
+                                                    
+                                                }
                                                 promote(player, car, sp, ref notifyMsg);
                                             }; break;
                                     }
@@ -136,9 +147,6 @@ namespace HouseManager
                 if ((dor.changeType == "mile" || dor.changeType == "bussiness" || dor.changeType == "volume" || dor.changeType == "speed")
                     && car.state == CarState.buying)
                 {
-#warning 这里需要进行拆分，拆分出一个购买的过程。
-                    // cons
-                    // if(this.pla cmp.key)
                     if (car.targetFpIndex == -1)
                     {
                         throw new Exception("居然来了一个没有目标的车！！！");
@@ -201,7 +209,10 @@ namespace HouseManager
                         // car.state = CarState.waitOnRoad;
                     }
                 }
-
+                else
+                {
+                    throw new Exception("car.state == CarState.buying!或者 dor.changeType不是四种类型");
+                }
             }
             for (var i = 0; i < notifyMsg.Count; i += 2)
             {
@@ -221,7 +232,7 @@ namespace HouseManager
         public void promote(Player player, Car car, SetPromote sp, ref List<string> notifyMsg)
         {
             var from = this.getFromWhenUpdatePromote(player, car);
-            var to = getPromotePositionTo(sp.pType);//  this.promoteMilePosition;
+            var to = GetPromotePositionTo(sp.pType);//  this.promoteMilePosition;
 
             var fp1 = Program.dt.GetFpByIndex(from);
             var fp2 = Program.dt.GetFpByIndex(to);

@@ -25,6 +25,30 @@ namespace HouseManager
                 //this._PlayerFp = new Dictionary<string, int>();
             }
             LookFor();
+            this.recordOfPromote = new Dictionary<string, List<DateTime>>()
+            {
+                {  "mile" ,new List<DateTime>()},
+                {  "bussiness" ,new List<DateTime>() },
+                {  "volume" ,new List<DateTime>() },
+                {  "speed" ,new List<DateTime>() },
+            };
+
+            // case "mile":
+            //        {
+            //    return 1;
+            //}; break;
+            //    case "bussiness":
+            //        {
+            //    return 1;
+            //}; break;
+            //    case "volume":
+            //        {
+            //    return 1;
+            //}; break;
+            //    case "speed":
+            //        {
+            //    return 1;
+            //}; break;
         }
         object PlayerLock = new object();
         /// <summary>
@@ -182,7 +206,7 @@ namespace HouseManager
             }
         }
 
-       
+
 
         private void carsVolumeIsFullMustReturn(Car car, Player player, SetCollect sc, ref List<string> notifyMsg)
         {
@@ -208,9 +232,9 @@ namespace HouseManager
             }
         }
 
-      
 
-      
+
+
 
         /// <summary>
         /// 删除对象时，这个要释放
@@ -248,8 +272,8 @@ namespace HouseManager
                     {
                         Console.WriteLine("----Not do the collect process----！");
                     }
-#warning 这里的金钱未定，如果没有买成，留在原地
-                    //    var car = this._Players[cmp.key].getCar(cmp.car);
+                    //收集完，留在原地。
+                    //var car = this._Players[cmp.key].getCar(cmp.car);
                     car.ability.costMiles += pa.costMile;
                     carParkOnRoad(pa.target, ref car);
 
@@ -284,7 +308,6 @@ namespace HouseManager
             Console.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}执行setReturn结束");
             if (needUpdateCollectState)
             {
-#warning 这里还没有进行编写！
                 await CheckAllPlayersCollectState();
             }
         }
@@ -339,9 +362,9 @@ namespace HouseManager
 
 
 
-       
 
-        private int getPromotePositionTo(string pType)
+
+        private int GetPromotePositionTo(string pType)
         {
             switch (pType)
             {
@@ -361,6 +384,11 @@ namespace HouseManager
 
 
 
+        /// <summary>
+        /// 更新所有玩家的功能提升点
+        /// </summary>
+        /// <param name="pType"></param>
+        /// <returns></returns>
         private async Task CheckAllPlayersPromoteState(string pType)
         {
             var all = getGetAllPlayer();
@@ -387,7 +415,7 @@ namespace HouseManager
             return Convert.ToInt32(sumMiles) / 1000;
         }
 
-      
+
         private void getEndPositon(Model.FastonPosition fp, string car, ref List<Data.PathResult> animateResult, ref int startTInput)
         {
             double endX, endY;
@@ -784,32 +812,7 @@ namespace HouseManager
 
             }
         }
-        decimal PriceOfPromotePosition(string resultType)
-        {
-            switch (resultType)
-            {
-                case "mile":
-                    {
-                        return 1;
-                    }; break;
-                case "bussiness":
-                    {
-                        return 1;
-                    }; break;
-                case "volume":
-                    {
-                        return 1;
-                    }; break;
-                case "speed":
-                    {
-                        return 1;
-                    }; break;
-                default:
-                    {
-                        throw new Exception("");
-                    }; break;
-            }
-        }
+
         private BradCastPromoteInfoDetail GetPromoteInfomation(int webSocketID, string resultType)
         {
             switch (resultType)
