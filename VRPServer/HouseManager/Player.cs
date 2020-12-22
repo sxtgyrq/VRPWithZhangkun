@@ -81,15 +81,147 @@ namespace HouseManager
                     animateData = null,
                     purpose = Purpose.@null
                 });
-            this.Money = 500m;
-
+            this.Money = 500 * 100;
+            this.SupportToPlay = null;
         }
 
         public Dictionary<string, OtherPlayers> others { get; set; }
 
         public Dictionary<string, int> PromoteState { get; set; }
         public int Collect { get; internal set; }
-        public decimal Money { get; private set; }
+
+        long _Money = 0;
+        /// <summary>
+        /// 单位是分
+        /// </summary>
+        public long Money
+        {
+            get
+            {
+                return this._Money;
+            }
+            set
+            {
+                if (value < 0)
+                {
+                    throw new Exception("金钱怎么能负，为何不做判断？");
+                }
+                this._Money = value;
+            }
+        }
+        public long MoneyToPromote
+        {
+            get
+            {
+                return this.Money + (this.SupportToPlay == null ? 0 : this.SupportToPlay.Money);
+            }
+        }
+
+        public Support SupportToPlay { get; private set; }
+        public class Support
+        {
+            long _Money = 0;
+            /// <summary>
+            /// 单位是分
+            /// </summary>
+            public long Money
+            {
+                get
+                {
+                    return this._Money;
+                }
+                set
+                {
+                    if (value < 0)
+                    {
+                        throw new Exception("金钱怎么能负，为何不做判断？");
+                    }
+                    this._Money = value;
+                }
+            }
+        }
+
+        internal void PayWithSupport(long needMoney, out long moneyFromSupport, out long moneyFromEarn)
+        {
+            if (this.SupportToPlay != null)
+            {
+                if (needMoney <= this.SupportToPlay.Money)
+                {
+                    moneyFromSupport = needMoney;
+                }
+                else
+                {
+                    moneyFromSupport = this.SupportToPlay.Money;
+                }
+            }
+            else
+            {
+                moneyFromSupport = 0;
+            }
+            //  Console.WriteLine($"{needMoney}{moneyFromSupport}{}");
+            moneyFromEarn = needMoney - moneyFromSupport;
+            if (this.SupportToPlay != null)
+                this.SupportToPlay.Money -= moneyFromSupport;
+            this.Money -= moneyFromEarn;
+        }
+        /// <summary>
+        /// 玩家欠其他玩家的债！
+        /// </summary>
+        public Dictionary<string, long> Debts { get; set; }
+
+        /// <summary>
+        /// 返回使玩家破产需要的资金！
+        /// </summary>
+        /// <param name="victim">玩家</param>
+        /// <returns>返回使玩家破产需要的资金！</returns>
+        public long LastDebt
+        {
+            /*
+             * a asset资产
+             * d debt债务
+             * a+x=(d+x)*t
+             * t=t1/t2
+             * t1=120
+             * t2-100
+             */
+            get
+            {
+                long debt = 0;
+                foreach (var item in this.Debts)
+                {
+                    debt += item.Value;
+                }
+                long asset = this.Money;
+                const long t2 = 100;
+                const long t1 = 120;
+                return (asset * t2 - debt * t1) / (t1 - t2);
+            }
+
+        }
+
+        /// <summary>
+        /// 表征玩家已破产。已破产后，系统接管玩家进行还债。玩家的操作权被收回。
+        /// </summary>
+        public bool Bust
+        {
+            get; set;
+        }
+
+        internal void AddDebts(string key, long attack)
+        {
+            if (key == this.Key) 
+            {
+                throw new Exception("自己给自己增加债务？");
+            }
+            if (this.Debts.ContainsKey(key))
+            {
+                this.Debts[key] += attack;
+            }
+            else 
+            {
+                this.Debts.Add(key, attack);
+            } 
+        }
     }
     public class OtherPlayers
     {
@@ -232,6 +364,8 @@ namespace HouseManager
         public int changeState { get; set; }
         public AnimateData animateData { get; internal set; }
 
+
+
         internal void Refresh()
         {
             this.state = CarState.waitAtBaseStation;
@@ -243,6 +377,23 @@ namespace HouseManager
     public class AbilityAndState
     {
 
+        long _subsidize = 0;
+        /// <summary>
+        /// 资助用于提升能力的钱。专款专用。如果没有用完，还是将这个资金返回player的 subsidize账户。这个资金不能用于攻击。
+        /// 单位为分
+        /// </summary>
+        public long subsidize
+        {
+            get { return this._subsidize; }
+            set
+            {
+                if (value < 0)
+                {
+                    throw new Exception("错误的输入");
+                }
+                this._subsidize = value;
+            }
+        }
 
         Dictionary<string, List<DateTime>> Data { get; set; }
 
@@ -250,14 +401,47 @@ namespace HouseManager
         public string diamondInCar { get; set; }
         DateTime CreateTime { get; set; }
         public decimal costMiles { get; set; }
+
+        long _costBusiness = 0;
         /// <summary>
-        /// 在车上的通过初始携带、税收获得的钱。
+        /// 在车上的通过初始携带、税收获得的钱。单位为分，1/100元
         /// </summary>
-        public decimal costBusiness { get; set; }
+        public long costBusiness
+        {
+            get
+            {
+                return _costBusiness;
+            }
+            set
+
+            {
+                if (value < 0)
+                {
+                    throw new Exception("错误的输入");
+                }
+                this._costBusiness = value;
+            }
+        }
+        long _costVolume = 0;
         /// <summary>
-        /// 在车上的通过收集获得的钱。
+        /// 在车上的通过收集获得的钱。单位为分，1/100元
         /// </summary>
-        internal decimal costVolume { get; set; }
+        internal long costVolume
+        {
+            get
+            {
+                return _costVolume;
+            }
+            set
+
+            {
+                if (value < 0)
+                {
+                    throw new Exception("错误的输入");
+                }
+                this._costVolume = value;
+            }
+        }
         public AbilityAndState()
         {
             this.CreateTime = DateTime.Now;
@@ -280,6 +464,7 @@ namespace HouseManager
             this.costVolume = 0;
             this.costBusiness = 0;
             this.diamondInCar = "";
+            this.subsidize = 0;
         }
         public void Refresh()
         {
@@ -293,7 +478,7 @@ namespace HouseManager
             this.costVolume = 0;
 
             this.diamondInCar = "";
-
+            this.subsidize = 0;
         }
         /// <summary>
         /// 必须是在基地的时候引用
@@ -307,6 +492,37 @@ namespace HouseManager
             }
             this.Refresh();
         }
+
+        internal void getMoneyWithSupport(long moneyFromSupport, long moneyFromEarn)
+        {
+            this.subsidize += moneyFromSupport;
+            this.costBusiness += moneyFromEarn;
+        }
+
+        /// <summary>
+        /// 依次用辅助、bussiness、volume来支付。
+        /// </summary>
+        /// <param name="needMoney"></param>
+        internal void payForPromote(long needMoney)
+        {
+            var pay1 = Math.Min(needMoney, this.subsidize);
+            this.subsidize -= pay1;
+            needMoney -= pay1;
+
+            var pay2 = Math.Min(needMoney, this.costBusiness);
+            this.costBusiness -= pay2;
+            needMoney -= pay2;
+
+            var pay3 = Math.Min(needMoney, this.costVolume);
+            this.costVolume -= pay3;
+            needMoney -= pay3;
+
+            if (needMoney != 0)
+            {
+                throw new Exception("");
+            }
+        }
+
         /// <summary>
         /// 小车能跑的最大距离，最小值为160km！
         /// </summary>
@@ -325,9 +541,9 @@ namespace HouseManager
             }
         }
         /// <summary>
-        /// 通过税收、携带，还能带多少钱。
+        /// 通过税收、携带，还能带多少钱。单位为分，即1/100元
         /// </summary>
-        public decimal leftBussiness
+        public long leftBussiness
         {
             get
             {
@@ -335,9 +551,9 @@ namespace HouseManager
             }
         }
         /// <summary>
-        /// 通过收集，还能收集多少钱
+        /// 通过收集，还能收集多少钱。单位为分，即1/100元
         /// </summary>
-        public decimal leftVolume
+        public long leftVolume
         {
             get
             {
@@ -345,18 +561,28 @@ namespace HouseManager
             }
         }
         /// <summary>
-        /// 小车能携带的金钱数量！
+        /// 小车能携带的金钱数量！单位为分，即1/100元。
         /// </summary>
-        public decimal Business { get { return this.Data["business"].Count + 100; } }
+        public long Business { get { return (this.Data["business"].Count + 100) * 100; } }
         /// <summary>
-        /// 小车能装载的最大容量，默认为100鼋！
+        /// 小车能装载的最大容量，默认为100鼋！单位为分，即1/100元。
         /// </summary>
-        public int Volume { get { return this.Data["volume"].Count + 100; } }
+        public long Volume { get { return (this.Data["volume"].Count + 100) * 100; } }
         /// <summary>
         /// 小车能跑的最快速度！
         /// </summary>
         public int Speed { get { return this.Data["speed"].Count + 50; } }
 
+        /// <summary>
+        /// 单位为分
+        /// </summary>
+        public long SumMoneyCanForCollect
+        {
+            get
+            {
+                return this.costVolume + this.costBusiness + this.subsidize;
+            }
+        }
 
     }
 

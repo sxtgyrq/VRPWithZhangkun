@@ -15,7 +15,8 @@ namespace HouseManager
         System.Random rm { get; set; }
         public RoomMain()
         {
-            this.rm = new System.Random(DateTime.Now.GetHashCode());
+            //这儿采用0，用于样例测试
+            this.rm = new System.Random(0);
             //  breakMiniSecods
 
             lock (PlayerLock)
@@ -32,7 +33,13 @@ namespace HouseManager
                 {  "volume" ,new List<DateTime>() },
                 {  "speed" ,new List<DateTime>() },
             };
-
+            this.promotePrice = new Dictionary<string, long>()
+            {
+                {  "mile" ,0},
+                {  "bussiness" ,0 },
+                {  "volume" ,0 },
+                {  "speed" ,0},
+            };
             // case "mile":
             //        {
             //    return 1;
@@ -160,7 +167,9 @@ namespace HouseManager
                     fp = fp,
                     WebSocketID = webSocketID,
                     carsNames = carsNames,
-                    key = other.Key
+                    key = other.Key,
+                    PlayerName = other.PlayerName,
+                    fPIndex = other.StartFPIndex
                     // var xx=  getPosition.Key
                 };
                 msgsWithUrl.Add(self.FromUrl);
@@ -755,6 +764,8 @@ namespace HouseManager
                 this.promoteBussinessPosition = GetRandomPosition();
                 this.promoteVolumePosition = GetRandomPosition();
                 this.promoteSpeedPosition = GetRandomPosition();
+
+
                 this.collectPosition = GetRandomPosition();
 
                 //BaseInfomation.rm._Players[checkItem.Key]
@@ -793,6 +804,12 @@ namespace HouseManager
                 public int costMile { get; internal set; }
             }
 
+            public class debtOwner : returnning
+            {
+                //  public int costMile { get; internal set; }
+                public string victim { get; internal set; }
+            }
+
             public class placeArriving : baseC
             {
                 public int costMile { get; set; }
@@ -825,7 +842,7 @@ namespace HouseManager
                             WebSocketID = webSocketID,
                             resultType = resultType,
                             Fp = Program.dt.GetFpByIndex(this.promoteMilePosition),
-                            Price = this.PriceOfPromotePosition(resultType)
+                            Price = this.promotePrice[resultType]
                         };
                         return obj;
                     }; break;
@@ -837,7 +854,7 @@ namespace HouseManager
                             WebSocketID = webSocketID,
                             resultType = resultType,
                             Fp = Program.dt.GetFpByIndex(this.promoteBussinessPosition),
-                            Price = this.PriceOfPromotePosition(resultType)
+                            Price = this.promotePrice[resultType]
                         };
                         return obj;
                     }; break;
@@ -849,7 +866,7 @@ namespace HouseManager
                             WebSocketID = webSocketID,
                             resultType = resultType,
                             Fp = Program.dt.GetFpByIndex(this.promoteVolumePosition),
-                            Price = this.PriceOfPromotePosition(resultType)
+                            Price = this.promotePrice[resultType]
                         };
                         return obj;
                     }; break;
@@ -861,7 +878,7 @@ namespace HouseManager
                             WebSocketID = webSocketID,
                             resultType = resultType,
                             Fp = Program.dt.GetFpByIndex(this.promoteSpeedPosition),
-                            Price = this.PriceOfPromotePosition(resultType)
+                            Price = this.promotePrice[resultType]
                         };
                         return obj;
                     }; break;

@@ -273,7 +273,7 @@ namespace WsOfWebClient
                                     {
                                         Promote promote = Newtonsoft.Json.JsonConvert.DeserializeObject<Promote>(returnResult.result);
 
-                                        await Room.setPromote(s, promote); 
+                                        await Room.setPromote(s, promote);
                                     }
                                 }; break;
                             case "Collect":
@@ -283,6 +283,14 @@ namespace WsOfWebClient
                                         Collect collect = Newtonsoft.Json.JsonConvert.DeserializeObject<Collect>(returnResult.result);
 
                                         await Room.setCollect(s, collect);
+                                    }
+                                }; break;
+                            case "Attack":
+                                {
+                                    if (s.Ls == LoginState.OnLine) 
+                                    {
+                                        Attack attack = Newtonsoft.Json.JsonConvert.DeserializeObject<Attack>(returnResult.result);
+                                        await Room.setAttack(s, attack);
                                     }
                                 }; break;
 

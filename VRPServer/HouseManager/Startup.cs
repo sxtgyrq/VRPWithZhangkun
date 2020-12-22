@@ -126,20 +126,13 @@ namespace HouseManager
                                 var result = await BaseInfomation.rm.updateCollect(sc);
                                 await context.Response.WriteAsync("ok");
                             }; break;
+                        case "SetAttack":
+                            {
+                                CommonClass.SetAttack sa = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.SetAttack>(notifyJson);
+                                var result = await BaseInfomation.rm.updateAttack(sa);
+                                await context.Response.WriteAsync("ok");
+                            }; break;
                     }
-                    //if (c.c == "PlayerAdd")
-                    //{
-                    //    CommonClass.PlayerAdd addItem = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.PlayerAdd>(notifyJson);
-                    //    BaseInfomation.rm.Players.Add(addItem.Key, new Player()
-                    //    {
-                    //        Key = addItem.Key,
-                    //        FromUrl = addItem.FromUrl,
-
-                    //    });
-                    //    // await sendInmationToUrl(addItem.FromUrl, notifyJson);
-                    //    await context.Response.WriteAsync("ok");
-                    //}
-                    // await context.Response.WriteAsync("ok");
                 }
             });
         }

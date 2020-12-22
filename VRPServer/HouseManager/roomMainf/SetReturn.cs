@@ -1,7 +1,9 @@
-﻿using System;
+﻿using CommonClass;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace HouseManager
 {
@@ -30,6 +32,23 @@ namespace HouseManager
                     {
                         ReturnThenSetComeBack(car, cmp, ref notifyMsg);
                     }
+                }
+                else if (cmp.changeType == "Attack" && car.state == CarState.roadForAttack && car.purpose == Purpose.attack)
+                {
+                    if (car.state == CarState.roadForAttack)
+                    {
+                        ReturnThenSetComeBack(car, cmp, ref notifyMsg);
+                    }
+                }
+                else
+                {
+                    //c = "debtOwner",
+                    //key = sa.Key,
+                    //car = sa.car,
+                    //returnPath = returnPath,
+                    //target = to,//新的起点
+                    //changeType = "Attack",
+                    //victim = sa.targetOwner
                 }
             }
             for (var i = 0; i < notifyMsg.Count; i += 2)
@@ -80,19 +99,25 @@ namespace HouseManager
             Thread.Sleep(startT);
             lock (this.PlayerLock)
             {
-                if (this._Players[comeBack.key].getCar(comeBack.car).state == CarState.returning)
+                var player = this._Players[comeBack.key];
+                var car = player.getCar(comeBack.car);
+                if (car.state == CarState.returning)
                 {
-
-
-                    this._Players[comeBack.key].getCar(comeBack.car).ability.Refresh();
-                    this._Players[comeBack.key].getCar(comeBack.car).Refresh();
+                    player.Money += car.ability.costBusiness;
+                    if (car.ability.subsidize > 0)
+                    {
+                        player.SupportToPlay.Money += car.ability.subsidize;
+                    }
+                    car.ability.Refresh();
+                    car.Refresh();
                 }
                 else
                 {
-                    var car = this._Players[comeBack.key].getCar(comeBack.car);
                     throw new Exception($"{car.name}返回是状态为{this._Players[comeBack.key].getCar(comeBack.car).state}");
                 }
             }
         }
+
+
     }
 }

@@ -43,7 +43,10 @@ namespace HouseManager
                             {"volume",-1 },
                             {"speed",-1 }
                         },
-                        Collect = -1
+                        Collect = -1,
+                        Debts = new Dictionary<string, long>(),
+                        Money = 500 * 100,
+                        Bust = false
                     });
                     this._Players[addItem.Key].initializeCars(addItem.CarsNames);
                     //System.Random rm = new System.Random(DateTime.Now.GetHashCode());

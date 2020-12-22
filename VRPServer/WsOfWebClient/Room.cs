@@ -227,7 +227,7 @@ namespace WsOfWebClient
             }
             if (ConnectInfo.RMB100.Length == 0)
             {
-                string  mtl, rmbJpg;
+                string mtl, rmbJpg;
                 {
                     var bytes = File.ReadAllBytes("rmb/rmb100.jpg");
                     var Base64 = Convert.ToBase64String(bytes);
@@ -235,8 +235,8 @@ namespace WsOfWebClient
                 }
                 {
                     mtl = File.ReadAllText("rmb/rmb100.mtl");
-                } 
-                ConnectInfo.RMB100 = new string[] {   mtl, rmbJpg };
+                }
+                ConnectInfo.RMB100 = new string[] { mtl, rmbJpg };
             }
             else
             {
@@ -385,6 +385,36 @@ namespace WsOfWebClient
             var msg = Newtonsoft.Json.JsonConvert.SerializeObject(getPosition);
             var result = await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[s.roomIndex], msg);
 
+        }
+
+        internal static async Task<string> setAttack(State s, Attack attack)
+        {
+            Regex r = new Regex("^car(?<car>[A-E]{1})_(?<key>[a-f0-9]{32})$");
+            Regex rex_Target = new Regex("^(?<target>[a-f0-9]{32})$");
+
+            var m = r.Match(attack.car);
+            var m_Target = rex_Target.Match(attack.TargetOwner);
+            if (m.Success && m_Target.Success)
+            {
+                var targetOwner = m_Target.Groups["target"].Value;
+
+                Console.WriteLine($"正则匹配成功：{m.Groups["car"] }+{m.Groups["key"] }");
+                if (m.Groups["key"].Value == s.Key)
+                {
+                    var getPosition = new SetAttack()
+                    {
+                        c = "SetAttack",
+                        Key = s.Key,
+                        car = "car" + m.Groups["car"].Value,
+                        targetOwner = targetOwner,
+                        target = attack.Target
+                    };
+                    var msg = Newtonsoft.Json.JsonConvert.SerializeObject(getPosition);
+                    await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[s.roomIndex], msg);
+                }
+            }
+            return "";
+            throw new NotImplementedException();
         }
 
         private async static Task<string> getRoadInfomation(State s)

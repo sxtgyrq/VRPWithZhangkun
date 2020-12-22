@@ -1,4 +1,5 @@
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Server\bin\Release\netcoreapp3.1\Server.exe
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Server\bin\Release\netcoreapp3.1\jsconfig1.json
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Server\bin\Release\netcoreapp3.1\Server.deps.json
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Server\bin\Release\netcoreapp3.1\Server.runtimeconfig.json
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Server\bin\Release\netcoreapp3.1\Server.runtimeconfig.dev.json
@@ -30,4 +31,3 @@ F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Server\obj\Releas
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Server\obj\Release\netcoreapp3.1\Server.dll
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Server\obj\Release\netcoreapp3.1\Server.pdb
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Server\obj\Release\netcoreapp3.1\Server.genruntimeconfig.cache
-F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Server\bin\Release\netcoreapp3.1\jsconfig1.json

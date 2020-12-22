@@ -30,6 +30,8 @@ namespace CommonClass
         public Model.FastonPosition fp { get; set; }
         public string[] carsNames { get; set; }
         public string key { get; set; }
+        public string PlayerName { get; set; }
+        public int fPIndex { get; set; }
     }
 
     public class BradCastAnimateOfCar : CommandNotify
@@ -109,6 +111,15 @@ namespace CommonClass
         public string cType { get; set; }
         public string car { get; set; }
     }
+
+    public class SetAttack : Command
+    {
+        public string Key { get; set; }
+        public string car { get; set; }
+        public string targetOwner { get; set; }
+        public int target { get; set; }
+    }
+
     public class GetBtns : Command
     {
         public string FromUrl { get; set; }

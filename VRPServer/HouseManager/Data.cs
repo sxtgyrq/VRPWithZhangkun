@@ -64,7 +64,7 @@ namespace HouseManager
             result = this._road;
         }
 
-        internal int Get61Fp()
+        public int Get61Fp()
         {
 
             return this._allFp.Count;
@@ -73,7 +73,7 @@ namespace HouseManager
 
 
 
-        internal OssModel.FastonPosition GetFpByIndex(int indexValule)
+        public OssModel.FastonPosition GetFpByIndex(int indexValule)
         {
 
             if (indexValule >= this._allFp.Count || indexValule < 0)
@@ -178,11 +178,25 @@ namespace HouseManager
 
 
 
+        public List<OssModel.MapGo.nyrqPosition> GetAFromB(OssModel.FastonPosition fpStart, string fpID2, out bool sucess)
+        {
+            //  throw new Exception("");
+            // var dt1 = DateTime.Now;
+            FindF.DataToNavigateWithTimeFunction2 data = new FindF.DataToNavigateWithTimeFunction2();
+            data.ReadRoadInfo(this._road, this._allFp);
+            // bool findObjSuccess;
+            var dataResult = data.FindPlace(fpStart, fpID2, out sucess);
+            return dataResult;
+            //var json = Newtonsoft.Json.JsonConvert.SerializeObject(dataResult);
+            //// Console.WriteLine(json);
+            //// var dt2 = DateTime.Now;
+            ////Console.WriteLine($"计算时间{(dt2 - dt1).TotalSeconds}");
+            //return json;
+        }
 
 
 
-
-        internal List<OssModel.MapGo.nyrqPosition> GetAFromB(OssModel.FastonPosition fpStart, string fpID2)
+        public List<OssModel.MapGo.nyrqPosition> GetAFromB(OssModel.FastonPosition fpStart, string fpID2)
         {
             //  throw new Exception("");
             // var dt1 = DateTime.Now;
