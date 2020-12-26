@@ -100,22 +100,20 @@ namespace WsOfWebClient
                     ConnectInfo.mapRoadAndCrossJson = await getRoadInfomation(s);
                     Console.WriteLine($"获取ConnectInfo.mapRoadAndCrossJson json的长度为{ConnectInfo.mapRoadAndCrossJson.Length}");
                 }
-                else
                 {
-                    // json = ConnectInfo.mapRoadAndCrossJson;
-                }
-
-
-
-
-                {
-
-
-                    //Console.WriteLine($"获取json的长度为{ConnectInfo.mapRoadAndCrossJson.Length}");
-
                     var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { c = "MapRoadAndCrossJson", action = "start" });
                     var sendData = Encoding.ASCII.GetBytes(msg);
                     await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+                    {
+                        #region 校验响应
+                        var checkIsOk = await CheckRespon(webSocket, "MapRoadAndCrossJson,start");
+                        if (checkIsOk) { }
+                        else
+                        {
+                            return null;
+                        }
+                        #endregion
+                    }
 
                     for (var i = 0; i < ConnectInfo.mapRoadAndCrossJson.Length; i += 1000)
                     {
@@ -123,11 +121,33 @@ namespace WsOfWebClient
                         msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { c = "MapRoadAndCrossJson", action = "mid", passStr = passStr });
                         sendData = Encoding.ASCII.GetBytes(msg);
                         await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+
+                        {
+                            #region 校验响应
+                            var checkIsOk = await CheckRespon(webSocket, "MapRoadAndCrossJson,mid");
+                            if (checkIsOk) { }
+                            else
+                            {
+                                return null;
+                            }
+                            #endregion
+                        }
                     }
 
                     msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { c = "MapRoadAndCrossJson", action = "end" });
                     sendData = Encoding.ASCII.GetBytes(msg);
                     await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+
+                    {
+                        #region 校验响应
+                        var checkIsOk = await CheckRespon(webSocket, "MapRoadAndCrossJson,end");
+                        if (checkIsOk) { }
+                        else
+                        {
+                            return null;
+                        }
+                        #endregion
+                    }
                 }
 
                 if (ConnectInfo.RobotBase64.Length == 0)
@@ -158,11 +178,6 @@ namespace WsOfWebClient
                         var Base64 = Convert.ToBase64String(bytes);
                         carE = Base64;
                     }
-                    //{
-                    //    var bytes = File.ReadAllBytes("Car_02.png");
-                    //    var Base64 = Convert.ToBase64String(bytes);
-                    //    carA = Base64;
-                    //} 
                     {
                         mtl = File.ReadAllText("Car1.mtl"); ;
                     }
@@ -176,6 +191,9 @@ namespace WsOfWebClient
                     // json = ConnectInfo.mapRoadAndCrossJson;
                 }
                 {
+                    /*
+                     * 前台的汽车模型
+                     */
                     var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new
                     {
                         c = "SetRobot",
@@ -183,8 +201,26 @@ namespace WsOfWebClient
                     });
                     var sendData = Encoding.ASCII.GetBytes(msg);
                     await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+
+                    {
+                        #region 校验响应
+                        var checkIsOk = await CheckRespon(webSocket, "SetRobot");
+                        if (checkIsOk) { }
+                        else
+                        {
+                            return null;
+                        }
+                        #endregion
+                    }
                 }
-                addRMB(webSocket);
+                {
+                    var checkIsOk = await addRMB(webSocket);
+                    if (checkIsOk) { }
+                    else
+                    {
+                        return null;
+                    }
+                }
 
 
                 if (string.IsNullOrEmpty(ConnectInfo.DiamondObj))
@@ -199,14 +235,62 @@ namespace WsOfWebClient
                     });
                     var sendData = Encoding.ASCII.GetBytes(msg);
                     await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+
+                    {
+                        #region 校验响应
+                        var checkIsOk = await CheckRespon(webSocket, "SetDiamond");
+                        if (checkIsOk) { }
+                        else
+                        {
+                            return null;
+                        }
+                        #endregion
+                    }
                 }
                 result = await setState(s, webSocket, LoginState.OnLine);
+
+                {
+                    #region 校验响应
+                    var checkIsOk = await CheckRespon(webSocket, "SetOnLine");
+                    if (checkIsOk) { }
+                    else
+                    {
+                        return null;
+                    }
+                    #endregion
+                }
                 await initializeOperation(s);
             }
             return result;
         }
 
-        private static async void addRMB(WebSocket webSocket)
+        /// <summary>
+        /// 校验网页的回应！
+        /// </summary>
+        /// <param name="webSocket"></param>
+        /// <param name="v"></param>
+        /// <returns></returns>
+        private static async Task<bool> CheckRespon(WebSocket webSocket, string checkValue)
+        {
+            var resultAsync = await Startup.ReceiveStringAsync(webSocket);
+            if (resultAsync.result == checkValue)
+            {
+                return true;
+            }
+            else
+            {
+                Console.WriteLine($"{resultAsync.result}校验{checkValue}失败！");
+                await webSocket.CloseAsync(WebSocketCloseStatus.PolicyViolation, "错误的回话", new CancellationToken());
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 增加金钱模型
+        /// </summary>
+        /// <param name="webSocket"></param>
+        /// <returns></returns>
+        private static async Task<bool> addRMB(WebSocket webSocket)
         {
             if (ConnectInfo.YuanModel == "")
             {
@@ -225,6 +309,17 @@ namespace WsOfWebClient
                 await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
 
             }
+            #region 校验响应
+            {
+                var checkIsOk = await CheckRespon(webSocket, "SetRMB");
+                if (checkIsOk) { }
+                else
+                {
+                    return false;
+                }
+            }
+            #endregion
+
             if (ConnectInfo.RMB100.Length == 0)
             {
                 string mtl, rmbJpg;
@@ -238,10 +333,6 @@ namespace WsOfWebClient
                 }
                 ConnectInfo.RMB100 = new string[] { mtl, rmbJpg };
             }
-            else
-            {
-
-            }
             {
                 var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new
                 {
@@ -251,7 +342,18 @@ namespace WsOfWebClient
                 });
                 var sendData = Encoding.ASCII.GetBytes(msg);
                 await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+
             }
+            #region 校验响应
+            {
+                var checkIsOk = await CheckRespon(webSocket, "SetRMB");
+                if (checkIsOk) { }
+                else
+                {
+                    return false;
+                }
+            }
+            #endregion
 
             if (ConnectInfo.RMB50.Length == 0)
             {
@@ -266,10 +368,6 @@ namespace WsOfWebClient
                 }
                 ConnectInfo.RMB50 = new string[] { mtl, rmbJpg };
             }
-            else
-            {
-
-            }
             {
                 var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new
                 {
@@ -279,7 +377,18 @@ namespace WsOfWebClient
                 });
                 var sendData = Encoding.ASCII.GetBytes(msg);
                 await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+
             }
+            #region 校验响应
+            {
+                var checkIsOk = await CheckRespon(webSocket, "SetRMB");
+                if (checkIsOk) { }
+                else
+                {
+                    return false;
+                }
+            }
+            #endregion
 
             if (ConnectInfo.RMB20.Length == 0)
             {
@@ -294,10 +403,6 @@ namespace WsOfWebClient
                 }
                 ConnectInfo.RMB20 = new string[] { mtl, rmbJpg };
             }
-            else
-            {
-
-            }
             {
                 var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new
                 {
@@ -308,6 +413,16 @@ namespace WsOfWebClient
                 var sendData = Encoding.ASCII.GetBytes(msg);
                 await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
             }
+            #region 校验响应
+            {
+                var checkIsOk = await CheckRespon(webSocket, "SetRMB");
+                if (checkIsOk) { }
+                else
+                {
+                    return false;
+                }
+            }
+            #endregion
 
             if (ConnectInfo.RMB10.Length == 0)
             {
@@ -322,10 +437,6 @@ namespace WsOfWebClient
                 }
                 ConnectInfo.RMB10 = new string[] { mtl, rmbJpg };
             }
-            else
-            {
-
-            }
             {
                 var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new
                 {
@@ -335,7 +446,18 @@ namespace WsOfWebClient
                 });
                 var sendData = Encoding.ASCII.GetBytes(msg);
                 await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+
             }
+            #region 校验响应
+            {
+                var checkIsOk = await CheckRespon(webSocket, "SetRMB");
+                if (checkIsOk) { }
+                else
+                {
+                    return false;
+                }
+            }
+            #endregion
 
             if (ConnectInfo.RMB5.Length == 0)
             {
@@ -350,10 +472,6 @@ namespace WsOfWebClient
                 }
                 ConnectInfo.RMB5 = new string[] { mtl, rmbJpg };
             }
-            else
-            {
-
-            }
             {
                 var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new
                 {
@@ -364,6 +482,19 @@ namespace WsOfWebClient
                 var sendData = Encoding.ASCII.GetBytes(msg);
                 await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
             }
+            #region 校验响应
+            {
+                var checkIsOk = await CheckRespon(webSocket, "SetRMB");
+                if (checkIsOk)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            #endregion
         }
 
 

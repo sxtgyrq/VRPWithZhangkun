@@ -65,6 +65,7 @@ namespace HouseManager
                                             }
                                             else
                                             {
+#warning 前端要提示
                                                 Console.WriteLine($"金钱不足以展开攻击！");
                                             }
                                             //if (car.ability.leftVolume > 0)

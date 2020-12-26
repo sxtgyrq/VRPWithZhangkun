@@ -103,7 +103,7 @@ namespace HouseManager
                 c = "BradCastCollectInfoDetail",
                 WebSocketID = webSocketID,
                 Fp = Program.dt.GetFpByIndex(this.collectPosition),
-                collectMoney = this.collectMoney
+                collectMoney = this.CollectMoney
             };
             return obj;
         }
@@ -254,8 +254,6 @@ namespace HouseManager
             /*
              * 到达地点某地点时，说明汽车在这个地点待命。
              */
-
-
             Console.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}开始执行setArrive");
             Thread.Sleep(startT + 1);
             Console.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}开始执行setArrive正文");
@@ -263,6 +261,7 @@ namespace HouseManager
             bool needUpdateCollectState = false;
             lock (this.PlayerLock)
             {
+                var player = this._Players[pa.key];
                 var car = this._Players[pa.key].getCar(pa.car);
                 {
                     if (car.targetFpIndex == -1)
@@ -271,7 +270,46 @@ namespace HouseManager
                     }
                     if (pa.target == this.getCollectPositionTo())
                     {
-                        car.ability.costVolume += this.collectMoney;
+                        int taxPostion = this.getCollectPositionTo();
+                        long sumCollect = this.CollectMoney;
+                        long sumDebet = 0;
+                        foreach (var item in player.Debts)
+                        {
+                            sumDebet += item.Value;
+                        }
+                        if (sumDebet > 0)
+                        {
+                            Dictionary<string, long> profiles = new Dictionary<string, long>();
+                            foreach (var item in player.Debts)
+                            {
+                                if (item.Value > 0)
+                                {
+                                    var profileOfOther = item.Value * sumCollect / sumDebet;
+                                    profileOfOther = Math.Min(profileOfOther, 1);
+                                    profiles.Add(item.Key, profileOfOther);
+                                }
+                                else
+                                {
+                                    throw new Exception("出现item.Value <= 0");
+                                }
+                            }
+                            foreach (var item in profiles)
+                            {
+                                if (this._Players.ContainsKey(item.Key))
+                                {
+                                    this._Players[item.Key].AddTax(taxPostion, item.Value);
+                                    sumCollect -= item.Value;
+                                }
+                                else 
+                                {
+                                    throw new Exception("系统错误！");
+                                }
+                            }
+                        } 
+                        {
+                            sumCollect = Math.Min(1, sumCollect);
+                            car.ability.costVolume += sumCollect;
+                        }
                         this.collectPosition = this.GetRandomPosition();
                         needUpdateCollectState = true;
 
@@ -956,47 +994,57 @@ namespace HouseManager
                 lock (this.PlayerLock)
                 {
                     this._collectPosition = value;
-                    if (collectMoney == 10)
+                    if (_collectMoney == 10)
                     {
                         if (this.rm.NextDouble() < 0.5)
                         {
-                            collectMoney = 5;
+                            _collectMoney = 5;
                         }
                         else
                         {
-                            collectMoney = 20;
+                            _collectMoney = 20;
                         }
                     }
-                    else if (collectMoney == 20)
+                    else if (_collectMoney == 20)
                     {
                         if (this.rm.NextDouble() < 0.5)
                         {
-                            collectMoney = 10;
+                            _collectMoney = 10;
                         }
                         else
                         {
-                            collectMoney = 50;
+                            _collectMoney = 50;
                         }
                     }
-                    else if (collectMoney == 50)
+                    else if (_collectMoney == 50)
                     {
                         if (this.rm.NextDouble() < 0.5)
                         {
-                            collectMoney = 20;
+                            _collectMoney = 20;
                         }
                         else
                         {
-                            collectMoney = 100;
+                            _collectMoney = 100;
                         }
                     }
                     else
                     {
-                        collectMoney = 10;
+                        _collectMoney = 10;
                     }
                 }
             }
         }
-        int collectMoney = 10;
+        /// <summary>
+        /// 单位是元，外部传输数据时，请使用CollectMoney
+        /// </summary>
+        int _collectMoney = 10;
+        /// <summary>
+        /// 此处的单位是分。
+        /// </summary>
+        int CollectMoney
+        {
+            get { return this._collectMoney * 100; }
+        }
         class TaskPromote
         {
 

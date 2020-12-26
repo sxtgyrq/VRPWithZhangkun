@@ -287,7 +287,7 @@ namespace WsOfWebClient
                                 }; break;
                             case "Attack":
                                 {
-                                    if (s.Ls == LoginState.OnLine) 
+                                    if (s.Ls == LoginState.OnLine)
                                     {
                                         Attack attack = Newtonsoft.Json.JsonConvert.DeserializeObject<Attack>(returnResult.result);
                                         await Room.setAttack(s, attack);
@@ -353,13 +353,13 @@ namespace WsOfWebClient
             }
         }
 
-        class ReceiveObj
+        public class ReceiveObj
         {
             public WebSocketReceiveResult wr { get; set; }
             public string result { get; set; }
         }
 
-        private static async Task<ReceiveObj> ReceiveStringAsync(System.Net.WebSockets.WebSocket socket, CancellationToken ct = default(CancellationToken))
+        public static async Task<ReceiveObj> ReceiveStringAsync(System.Net.WebSockets.WebSocket socket, CancellationToken ct = default(CancellationToken))
         {
             var buffer = new ArraySegment<byte>(new byte[size]);
             WebSocketReceiveResult result;

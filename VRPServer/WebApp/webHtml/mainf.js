@@ -325,7 +325,7 @@ var objMain =
                 }
                 var model;
 
-                switch (objMain.CollectPosition.collectMoney) {
+                switch (objMain.CollectPosition.collectMoney / 100) {
                     case 5:
                         {
                             model = objMain.rmbModel['rmb5'].clone();
@@ -691,6 +691,7 @@ var startA = function () {
                                 if (objMain.GetPositionNotify.data != null) {
                                     objMain.GetPositionNotify.F(objMain.GetPositionNotify.data);
                                 }
+                                objMain.ws.send('SetOnLine');
                             }; break;
                         case 'WaitingToStart':
                             {
@@ -802,16 +803,18 @@ var startA = function () {
                         case 'start':
                             {
                                 Map.roadAndCrossJson = '';
+                                objMain.ws.send('MapRoadAndCrossJson,start');
                             }; break;
                         case 'mid':
                             {
                                 Map.roadAndCrossJson += received_obj.passStr;
+                                objMain.ws.send('MapRoadAndCrossJson,mid');
                             }; break;
                         case 'end':
                             {
                                 Map.roadAndCross = JSON.parse(Map.roadAndCrossJson);
-
                                 Map.roadAndCrossJson = '';
+                                objMain.ws.send('MapRoadAndCrossJson,end');
                             }; break;
                     }
                 }; break;
@@ -871,6 +874,7 @@ var startA = function () {
                     f(received_obj, 4, 'carC');
                     f(received_obj, 5, 'carD');
                     f(received_obj, 6, 'carE');
+                    objMain.ws.send('SetRobot');
                 }; break;
             case 'SetRMB':
                 {
@@ -908,6 +912,7 @@ var startA = function () {
                         case 'model':
                             {
                                 objMain.rmbModel.geometry = received_obj.modelBase64;
+                                objMain.ws.send('SetRMB');
                             }; break;
                         case 'rmb100':
                         case 'rmb50':
@@ -915,14 +920,15 @@ var startA = function () {
                         case 'rmb10':
                             {
                                 f(received_obj, received_obj.faceValue);
+                                objMain.ws.send('SetRMB');
                             }; break;
                         case 'rmb5':
                             {
                                 f(received_obj, received_obj.faceValue);
                                 objMain.rmbModel.geometry = undefined;
+                                objMain.ws.send('SetRMB');
                             }; break;
                     };
-
                 }; break;
             case 'BradCastAnimateOfCar':
                 {
@@ -981,6 +987,8 @@ var startA = function () {
                             var geometry = object.children[0].geometry;
                             objMain.diamondGeometry = geometry;
                         }, function () { }, function () { });
+
+                    objMain.ws.send('SetDiamond');
                 }; break;
         }
     };

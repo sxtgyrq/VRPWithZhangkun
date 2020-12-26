@@ -46,7 +46,8 @@ namespace HouseManager
                         Collect = -1,
                         Debts = new Dictionary<string, long>(),
                         Money = 500 * 100,
-                        Bust = false
+                        Bust = false,
+                        TaxInPosition = new Dictionary<int, long>()
                     });
                     this._Players[addItem.Key].initializeCars(addItem.CarsNames);
                     //System.Random rm = new System.Random(DateTime.Now.GetHashCode());

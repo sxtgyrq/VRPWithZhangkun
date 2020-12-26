@@ -117,6 +117,9 @@ namespace HouseManager
             }
         }
 
+        /// <summary>
+        /// 表征玩家玩耍是不是有外部支持！
+        /// </summary>
         public Support SupportToPlay { get; private set; }
         public class Support
         {
@@ -209,7 +212,7 @@ namespace HouseManager
 
         internal void AddDebts(string key, long attack)
         {
-            if (key == this.Key) 
+            if (key == this.Key)
             {
                 throw new Exception("自己给自己增加债务？");
             }
@@ -217,10 +220,32 @@ namespace HouseManager
             {
                 this.Debts[key] += attack;
             }
-            else 
+            else
             {
                 this.Debts.Add(key, attack);
-            } 
+            }
+        }
+
+        /// <summary>
+        /// 表征玩家在某一地点能,key是地点，long是金钱（分）
+        /// </summary>
+        internal Dictionary<int, long> TaxInPosition { get; set; }
+
+        /// <summary>
+        /// 记录待收税金！
+        /// </summary>
+        /// <param name="taxPostion">地点</param>
+        /// <param name="taxValue">待收税金（分）</param>
+        internal void AddTax(int taxPostion, long taxValue)
+        {
+            if (this.TaxInPosition.ContainsKey(taxPostion))
+            {
+                this.TaxInPosition[taxPostion] += taxValue;
+            }
+            else
+            {
+                this.TaxInPosition.Add(taxPostion, taxValue);
+            }
         }
     }
     public class OtherPlayers
@@ -397,7 +422,9 @@ namespace HouseManager
 
         Dictionary<string, List<DateTime>> Data { get; set; }
 
-
+        /// <summary>
+        /// 车上有没有已经完成的能力提升任务！""代表无，如mile则代表有！
+        /// </summary>
         public string diamondInCar { get; set; }
         DateTime CreateTime { get; set; }
         public decimal costMiles { get; set; }
