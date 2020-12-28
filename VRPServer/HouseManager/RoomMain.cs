@@ -16,6 +16,7 @@ namespace HouseManager
         public RoomMain()
         {
             //这儿采用0，用于样例测试
+            //如果用于生产环境，请用当前时间！
             this.rm = new System.Random(0);
             //  breakMiniSecods
 
@@ -217,7 +218,7 @@ namespace HouseManager
 
 
 
-        private void carsVolumeIsFullMustReturn(Car car, Player player, SetCollect sc, ref List<string> notifyMsg)
+        private void collectFailedThenReturn(Car car, Player player, SetCollect sc, ref List<string> notifyMsg)
         {
             if (car.state == CarState.waitForCollectOrAttack)
             {
@@ -238,6 +239,9 @@ namespace HouseManager
                     changeType = "collect-return",
                 }));
                 th.Start();
+
+                car.changeState++;//更改状态  
+
             }
         }
 
@@ -249,116 +253,13 @@ namespace HouseManager
         /// 删除对象时，这个要释放
         /// </summary>
         Dictionary<string, List<Model.MapGo.nyrqPosition>> returningRecord = new Dictionary<string, List<Model.MapGo.nyrqPosition>>();
-        private async void setArrive(int startT, commandWithTime.placeArriving pa)
-        {
-            /*
-             * 到达地点某地点时，说明汽车在这个地点待命。
-             */
-            Console.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}开始执行setArrive");
-            Thread.Sleep(startT + 1);
-            Console.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}开始执行setArrive正文");
-            List<string> notifyMsg = new List<string>();
-            bool needUpdateCollectState = false;
-            lock (this.PlayerLock)
-            {
-                var player = this._Players[pa.key];
-                var car = this._Players[pa.key].getCar(pa.car);
-                {
-                    if (car.targetFpIndex == -1)
-                    {
-                        throw new Exception("这个地点应该是等待的地点！");
-                    }
-                    if (pa.target == this.getCollectPositionTo())
-                    {
-                        int taxPostion = this.getCollectPositionTo();
-                        long sumCollect = this.CollectMoney;
-                        long sumDebet = 0;
-                        foreach (var item in player.Debts)
-                        {
-                            sumDebet += item.Value;
-                        }
-                        if (sumDebet > 0)
-                        {
-                            Dictionary<string, long> profiles = new Dictionary<string, long>();
-                            foreach (var item in player.Debts)
-                            {
-                                if (item.Value > 0)
-                                {
-                                    var profileOfOther = item.Value * sumCollect / sumDebet;
-                                    profileOfOther = Math.Min(profileOfOther, 1);
-                                    profiles.Add(item.Key, profileOfOther);
-                                }
-                                else
-                                {
-                                    throw new Exception("出现item.Value <= 0");
-                                }
-                            }
-                            foreach (var item in profiles)
-                            {
-                                if (this._Players.ContainsKey(item.Key))
-                                {
-                                    this._Players[item.Key].AddTax(taxPostion, item.Value);
-                                    sumCollect -= item.Value;
-                                }
-                                else 
-                                {
-                                    throw new Exception("系统错误！");
-                                }
-                            }
-                        } 
-                        {
-                            sumCollect = Math.Min(1, sumCollect);
-                            car.ability.costVolume += sumCollect;
-                        }
-                        this.collectPosition = this.GetRandomPosition();
-                        needUpdateCollectState = true;
+    
 
-                        Console.WriteLine("----Do the collect process----！");
-                    }
-                    else
-                    {
-                        Console.WriteLine("----Not do the collect process----！");
-                    }
-                    //收集完，留在原地。
-                    //var car = this._Players[cmp.key].getCar(cmp.car);
-                    car.ability.costMiles += pa.costMile;
-                    carParkOnRoad(pa.target, ref car);
-
-                    if (car.purpose == Purpose.collect && car.state == CarState.roadForCollect)
-                    {
-                        car.state = CarState.waitForCollectOrAttack;
-                        var carKey = $"{pa.car}_{pa.key}";
-                        if (this.returningRecord.ContainsKey(carKey))
-                        {
-                            this.returningRecord[carKey] = pa.returnPath;
-                        }
-                        else
-                        {
-                            this.returningRecord.Add(carKey, pa.returnPath);
-                        }
-
-                        //第二步，更改状态
-                        car.changeState++;
-                        getAllCarInfomations(pa.key, ref notifyMsg);
-                    }
-
-                }
-            }
-            for (var i = 0; i < notifyMsg.Count; i += 2)
-            {
-                var url = notifyMsg[i];
-                var sendMsg = notifyMsg[i + 1];
-                Console.WriteLine($"url:{url}");
-
-                await Startup.sendMsg(url, sendMsg);
-            }
-            Console.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}执行setReturn结束");
-            if (needUpdateCollectState)
-            {
-                await CheckAllPlayersCollectState();
-            }
-        }
-
+        /// <summary>
+        /// 当没有抢到宝石-或者收集失败时，在路上待命。
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="car"></param>
         private void carParkOnRoad(int target, ref Car car)
         {
             var fp = Program.dt.GetFpByIndex(target);

@@ -36,75 +36,117 @@ namespace HouseManager
                 List<string> notifyMsg = new List<string>();
                 var player = this._Players[sp.Key];
                 var car = player.getCar(carIndex);
-                lock (this.PlayerLock)
+                if (player.Bust)
                 {
-                    if (this._Players.ContainsKey(sp.Key))
+#warning 这里要提示前台，已经进行破产清算了。
+                }
+                else
+                {
+                    lock (this.PlayerLock)
                     {
-                        //if(sp.pType=="mi")
-                        switch (sp.pType)
+                        if (this._Players.ContainsKey(sp.Key))
                         {
-                            case "mile":
-                            case "bussiness":
-                            case "volume":
-                            case "speed":
-                                {
-                                    // var car = this._Players[sp.Key].getCar(carIndex);
-                                    switch (car.state)
+                            //if(sp.pType=="mi")
+                            switch (sp.pType)
+                            {
+                                case "mile":
+                                case "bussiness":
+                                case "volume":
+                                case "speed":
                                     {
-                                        case CarState.waitAtBaseStation:
-                                            {
-                                                // if(player.Money<)
-                                                var moneyIsEnoughToStart = giveMoneyFromPlayerToCar(player, car, sp.pType);
-                                                if (moneyIsEnoughToStart)
+                                        // var car = this._Players[sp.Key].getCar(carIndex);
+                                        switch (car.state)
+                                        {
+                                            case CarState.waitAtBaseStation:
                                                 {
-                                                    var hasBeginToPromote = promote(player, car, sp, ref notifyMsg);
-                                                    if (hasBeginToPromote) { }
+                                                    // if(player.Money<)
+                                                    var moneyIsEnoughToStart = giveMoneyFromPlayerToCarForPromoting(player, car, sp.pType);
+                                                    if (moneyIsEnoughToStart)
+                                                    {
+                                                        var hasBeginToPromote = promote(player, car, sp, ref notifyMsg);
+                                                        if (hasBeginToPromote)
+                                                        {
+                                                            printState(player, car, "开始在路上寻找能力宝石的路上了！！！");
+                                                        }
+                                                        else
+                                                        {
+                                                            printState(player, car, "各种原因，不能开始！");
+                                                            giveMoneyFromCarToPlayer(player, car);
+                                                        }
+                                                    }
                                                     else
                                                     {
-                                                        giveMoneyFromCarToPlayer(player, car);
+                                                        printState(player, car, "钱不够了,由于本身待在基地，不用返回。");
                                                     }
-                                                }
-                                            }; break;
-                                        case CarState.waitOnRoad:
-                                            {
-                                                if (car.ability.diamondInCar == "")
+                                                }; break;
+                                            case CarState.waitOnRoad:
                                                 {
-                                                    if (car.ability.SumMoneyCanForCollect >= this.promotePrice[sp.pType])
-
-                                                        promote(player, car, sp, ref notifyMsg);
+                                                    if (car.ability.diamondInCar == "")
+                                                    {
+                                                        if (car.ability.SumMoneyCanForCollect >= this.promotePrice[sp.pType])
+                                                        {
+                                                            var hasBeginToPromote = promote(player, car, sp, ref notifyMsg);
+                                                            if (hasBeginToPromote)
+                                                            {
+                                                                printState(player, car, $"已经在收集{sp.pType}宝石的路上了！");
+                                                            }
+                                                            else
+                                                            {
+                                                                printState(player, car, "收集宝石剩余里程不足，必须立即返回！");
+                                                                setReturnWhenPromoteFailed(sp, car);
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            printState(player, car, "在路上走的车，想找宝石，钱不够啊，必须立即返回！");
+                                                            Console.WriteLine($"宝石的价格{this.promotePrice[sp.pType]}，钱不够啊， {car.ability.subsidize},{car.ability.costBusiness},{car.ability.costVolume}！");
+                                                            setReturnWhenPromoteFailed(sp, car);
+                                                        }
+                                                    }
                                                     else
                                                     {
-                                                        Console.WriteLine("在路上走的车，想找宝石，钱不够啊，继续待命！");
-                                                        Console.WriteLine($"宝石的价格{this.promotePrice[sp.pType]}，钱不够啊， {car.ability.subsidize},{car.ability.costBusiness},{car.ability.costVolume}！");
+                                                        throw new Exception("在路上走的车，有了宝石，居然没返回！");
                                                     }
-                                                }
-                                                else
+                                                }; break;
+                                            case CarState.waitForCollectOrAttack:
                                                 {
-                                                    throw new Exception("在路上走的车，有了宝石，居然没返回！");
-                                                }
-                                            }; break;
-                                        case CarState.waitForCollectOrAttack:
-                                            {
-                                                if (car.ability.diamondInCar == "")
-                                                {
-                                                    if (car.ability.SumMoneyCanForCollect >= this.promotePrice[sp.pType])
-
-                                                        promote(player, car, sp, ref notifyMsg);
+                                                    if (car.ability.diamondInCar == "")
+                                                    {
+                                                        if (car.ability.SumMoneyCanForCollect >= this.promotePrice[sp.pType])
+                                                        {
+                                                            /*
+                                                             * 小车身上税收和收集的钱，是否足以购买宝石！
+                                                             */
+                                                            var hasBeginToPromote = promote(player, car, sp, ref notifyMsg);
+                                                            if (hasBeginToPromote)
+                                                            {
+                                                                printState(player, car, $"已经在收集{sp.pType}宝石的路上了！");
+                                                                // Console.WriteLine($"{player.PlayerName}的{sp.car}已经在收集{sp.pType}宝石的路上了！");
+                                                            }
+                                                            else
+                                                            {
+                                                                printState(player, car, "收集宝石剩余里程不足，必须立即返回！");
+                                                                setReturnWhenPromoteFailed(sp, car);
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            printState(player, car, $"在路上走的车，想找{sp.pType}宝石，钱不够啊，返回了！");
+                                                            setReturnWhenPromoteFailed(sp, car);
+                                                        }
+                                                    }
                                                     else
-                                                        Console.WriteLine("在路上走的车，想找宝石，钱不够啊，继续待命！");
-                                                }
-                                                else
-                                                {
-                                                    throw new Exception("在路上走的车，有了宝石，居然没返回！");
-                                                }
-                                            }; break;
-                                    }
-                                    //this._Players[sp.Key].PromoteState[sp.pType]
-                                }; break;
+                                                    {
+                                                        throw new Exception("在路上走的车，有了宝石，居然没返回！");
+                                                    }
+                                                }; break;
+                                        }
+                                        //this._Players[sp.Key].PromoteState[sp.pType]
+                                    }; break;
+                            }
                         }
                     }
                 }
-
                 for (var i = 0; i < notifyMsg.Count; i += 2)
                 {
                     var url = notifyMsg[i];
@@ -117,6 +159,27 @@ namespace HouseManager
             }
         }
 
+        private void setReturnWhenPromoteFailed(SetPromote sp, Car car)
+        {
+            var carKey = $"{sp.car}_{sp.Key}";
+            var returnPath = this.returningRecord[carKey];
+            Thread th = new Thread(() => setReturn(0, new commandWithTime.returnning()
+            {
+                c = "returnning",
+                key = sp.Key,
+                car = sp.car,
+                returnPath = returnPath,//returnPath_Record,
+                target = car.targetFpIndex,//这里的target 实际上是returnning 的起点,是汽车的上一个目标
+                changeType = sp.pType,
+            }));
+            th.Start();
+        }
+
+        private void printState(Player player, Car car, string msg)
+        {
+            Console.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}{player.PlayerName}-{car.name}--{msg}");
+        }
+
         /// <summary>
         /// 各种原因，使小车从基地里没有出发。小车上的钱必须从下车返回为玩家！
         /// </summary>
@@ -125,18 +188,32 @@ namespace HouseManager
         private void giveMoneyFromCarToPlayer(Player player, Car car)
         {
             player.Money += car.ability.leftBussiness;
+            player.Money += car.ability.leftVolume;
+
+            if (car.ability.leftBussiness > 0)
+                printState(player, car, $"返回基站，通过leftBussiness，是流动资金增加{car.ability.leftBussiness}");
+            if (car.ability.leftVolume > 0)
+                printState(player, car, $"返回基站，通过leftBussiness，是流动资金增加{car.ability.leftVolume}");
             if (car.ability.subsidize > 0)
             {
                 /*
                  * 从逻辑上，必须要保证car.ability.subsidize>0,player.SupportToPlay!=null
                  */
                 player.SupportToPlay.Money += car.ability.subsidize;
+                printState(player, car, $"返回基站，返还资助{car.ability.subsidize}");
             }
             car.Refresh();
             car.ability.Refresh();
         }
 
-        private bool giveMoneyFromPlayerToCar(Player player, Car car, string pType)
+        /// <summary>
+        /// 从player将钱转移到car
+        /// </summary>
+        /// <param name="player"></param>
+        /// <param name="car"></param>
+        /// <param name="pType"></param>
+        /// <returns></returns>
+        private bool giveMoneyFromPlayerToCarForPromoting(Player player, Car car, string pType)
         {
             var needMoney = this.promotePrice[pType];
             if (player.MoneyToPromote < needMoney)
@@ -205,89 +282,100 @@ namespace HouseManager
             {
                 var player = this._Players[dor.key];
                 var car = this._Players[dor.key].getCar(dor.car);
-                // car.targetFpIndex = this._Players[dor.key].StartFPIndex;
-                if ((dor.changeType == "mile" || dor.changeType == "bussiness" || dor.changeType == "volume" || dor.changeType == "speed")
-                    && car.state == CarState.buying)
+                if (!player.Bust)
                 {
-                    if (car.targetFpIndex == -1)
-                    {
-                        throw new Exception("居然来了一个没有目标的车！！！");
-                    }
-                    if (car.ability.diamondInCar != "")
-                    {
-                        throw new Exception("怎么能让满载车出来购买？");
-                    }
-                    if (!(car.purpose == Purpose.collect || car.purpose == Purpose.@null))
-                    {
-                        throw new Exception($"错误的purpose:{car.purpose}");
-                    }
-                    if (dor.target == this.getPromoteState(dor.changeType))
-                    {
-                        /*
-                         * 这里，整个流程，保证玩家在开始任务的时候，钱是够的。如果不够，要爆异常的。
-                         */
-                        var needMoney = this.promotePrice[dor.changeType];
-                        if (car.ability.SumMoneyCanForCollect < needMoney)
-                        {
-                            throw new Exception("钱不够，还让执行setDiamondOwner");
-                        }
-                        Console.WriteLine($"需要用钱支付");
-                        Console.WriteLine($"支付前：subsidize:{car.ability.subsidize},costBusiness:{car.ability.costBusiness},costVolume:{car.ability.costVolume},needMoney:{needMoney}");
-                        car.ability.payForPromote(needMoney);//用汽车上的钱支付
-                        Console.WriteLine($"支付后：subsidize:{car.ability.subsidize},costBusiness:{car.ability.costBusiness},costVolume:{car.ability.costVolume},needMoney:{needMoney}");
-
-                        setPromtePosition(dor.changeType);
-                        //this.promoteMilePosition = GetRandomPosition();
-                        needUpdatePromoteState = true;
-                        car.ability.diamondInCar = dor.changeType;
-                        Console.WriteLine("执行购买过程！需要立即执行返回！");
-                        Thread th = new Thread(() => setReturn(0, new commandWithTime.returnning()
-                        {
-                            c = "returnning",
-                            key = dor.key,
-                            car = dor.car,
-                            returnPath = dor.returnPath,//returnPath_Record,
-                            target = dor.target,
-                            changeType = dor.changeType,
-                        }));
-                        th.Start();
-                        ;
-                    }
-                    else
-                    {
-                        Console.WriteLine("由于迟到没有执行购买过程！");
-
-                        car.ability.costMiles += dor.costMile;
-                        carParkOnRoad(dor.target, ref car);
-
-                        if ((car.purpose == Purpose.collect || car.purpose == Purpose.@null) && car.state == CarState.buying)
-                        {
-                            car.state = CarState.waitOnRoad;
-                            var carKey = $"{dor.car}_{dor.key}";
-                            if (this.returningRecord.ContainsKey(carKey))
-                            {
-                                this.returningRecord[carKey] = dor.returnPath;
-                            }
-                            else
-                            {
-                                this.returningRecord.Add(carKey, dor.returnPath);
-                            }
-
-                            //第二步，更改状态
-                            car.changeState++;
-                            getAllCarInfomations(dor.key, ref notifyMsg);
-                        }
-                        else
-                        {
-                            throw new Exception($"错误的目标{car.purpose } 和 状态{car.state}");
-                        }
-                        // car.state = CarState.waitOnRoad;
-                    }
+                    //不能执行提升能力任务了！
+#warning 提示前台，已经破产了。
                 }
                 else
                 {
-                    throw new Exception("car.state == CarState.buying!或者 dor.changeType不是四种类型");
+                    if ((dor.changeType == "mile" || dor.changeType == "bussiness" || dor.changeType == "volume" || dor.changeType == "speed")
+                     && car.state == CarState.buying)
+                    {
+                        if (car.targetFpIndex == -1)
+                        {
+                            throw new Exception("居然来了一个没有目标的车！！！");
+                        }
+                        if (car.ability.diamondInCar != "")
+                        {
+                            throw new Exception("怎么能让满载车出来购买？");
+                        }
+                        if (!(car.purpose == Purpose.collect || car.purpose == Purpose.@null))
+                        {
+                            //在执行抢能力提升宝石是，有可能之前是在基地等待 car.purpose == Purpose.@null
+                            //在执行抢能力提升宝石时，也有可能之前是在完成收集任务之后 car.purpose == Purpose.collect
+                            //在执行抢能力提升宝石时，也有可能之前是在完成收集保护费之后 car.purpose == Purpose.tax
+                            throw new Exception($"错误的purpose:{car.purpose}");
+                        }
+                        if (dor.target == this.getPromoteState(dor.changeType))
+                        {
+                            /*
+                             * 这里，整个流程，保证玩家在开始任务的时候，钱是够的。如果不够，要爆异常的。
+                             */
+                            var needMoney = this.promotePrice[dor.changeType];
+                            if (car.ability.SumMoneyCanForCollect < needMoney)
+                            {
+                                throw new Exception("钱不够，还让执行setDiamondOwner");
+                            }
+                            Console.WriteLine($"需要用钱支付");
+                            printState(player, car, $"支付前：subsidize:{car.ability.subsidize},costBusiness:{car.ability.costBusiness},costVolume:{car.ability.costVolume},needMoney:{needMoney}");
+                            car.ability.payForPromote(needMoney);//用汽车上的钱支付
+                            printState(player, car, $"支付后：subsidize:{car.ability.subsidize},costBusiness:{car.ability.costBusiness},costVolume:{car.ability.costVolume},needMoney:{needMoney}");
+
+                            setPromtePosition(dor.changeType);
+                            //this.promoteMilePosition = GetRandomPosition();
+                            needUpdatePromoteState = true;
+                            car.ability.diamondInCar = dor.changeType;
+                            printState(player, car, "执行购买过程！需要立即执行返回！");
+                            Thread th = new Thread(() => setReturn(0, new commandWithTime.returnning()
+                            {
+                                c = "returnning",
+                                key = dor.key,
+                                car = dor.car,
+                                returnPath = dor.returnPath,//returnPath_Record,
+                                target = dor.target,
+                                changeType = dor.changeType,
+                            }));
+                            th.Start();
+                            ;
+                        }
+                        else
+                        {
+                            Console.WriteLine("由于迟到没有执行购买过程！");
+
+                            car.ability.costMiles += dor.costMile;
+                            Console.WriteLine($"{player.PlayerName}的{dor.car}执行完购买宝石过程，由于没有抢到，停在路上,待命中...！");
+                            carParkOnRoad(dor.target, ref car);
+
+                            if ((car.purpose == Purpose.collect || car.purpose == Purpose.@null) && car.state == CarState.buying)
+                            {
+                                car.state = CarState.waitOnRoad;
+                                var carKey = $"{dor.car}_{dor.key}";
+                                if (this.returningRecord.ContainsKey(carKey))
+                                {
+                                    this.returningRecord[carKey] = dor.returnPath;
+                                }
+                                else
+                                {
+                                    this.returningRecord.Add(carKey, dor.returnPath);
+                                }
+                                //第二步，更改状态
+                                car.changeState++;
+                                getAllCarInfomations(dor.key, ref notifyMsg);
+                            }
+                            else
+                            {
+                                throw new Exception($"错误的目标{car.purpose } 和 状态{car.state}");
+                            }
+                            // car.state = CarState.waitOnRoad;
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception("car.state == CarState.buying!或者 dor.changeType不是四种类型");
+                    }
                 }
+
             }
             for (var i = 0; i < notifyMsg.Count; i += 2)
             {
@@ -332,8 +420,10 @@ namespace HouseManager
             if (car.ability.leftMile >= goMile + returnMile)
             {
                 //car.ability.costMiles += (goMile + returnMile);
-                car.targetFpIndex = to;
-                Console.WriteLine($"{car.name}的目标设置成了{Program.dt.GetFpByIndex(to).FastenPositionName}");
+
+                car.targetFpIndex = to;//设置小车的target，且必须在里程足够的情况下操作。
+                this.printState(player, car, $"目标设置成了{Program.dt.GetFpByIndex(to).FastenPositionName}");
+                // Console.WriteLine($"{car.name}的);
                 var speed = car.ability.Speed;
                 int startT = 0;
                 List<Data.PathResult> result;
@@ -379,14 +469,12 @@ namespace HouseManager
 
             else if (car.ability.leftMile >= goMile)
             {
-                Console.Write($"去程{goMile}，回程{returnMile}");
-                Console.Write($"你去了回不来");
+                printState(player, car, $"去程{goMile}，回程{returnMile},去了回不来");
                 return false;
             }
             else
             {
-                Console.Write($"去程{goMile}，回程{returnMile}");
-                Console.Write($"你去不了");
+                printState(player, car, $"去程{goMile}，回程{returnMile},去不了");
                 return false;
             }
         }

@@ -48,21 +48,50 @@ namespace HouseManager
                                         case CarState.waitForCollectOrAttack:
                                             {
                                                 if (car.ability.leftVolume > 0)
-                                                    collect(car, player, sc, ref notifyMsg);
+                                                {
+                                                    var sucess = CollectF(car, player, sc, ref notifyMsg);
+                                                    if (sucess)
+                                                    {
+                                                        printState(player, car, "已经在收集金钱的路上了");
+                                                    }
+                                                    else
+                                                    {
+                                                        collectFailedThenReturn(car, player, sc, ref notifyMsg);
+                                                    }
+                                                }
                                                 else
                                                 {
-                                                    carsVolumeIsFullMustReturn(car, player, sc, ref notifyMsg);
+                                                    collectFailedThenReturn(car, player, sc, ref notifyMsg);
                                                 }
                                             }; break;
                                         case CarState.waitAtBaseStation:
                                             {
-                                                collect(car, player, sc, ref notifyMsg);
+                                                /*
+                                                 * 在基地进行等待。收集不需要volume 或者business
+                                                 */
+                                                var sucess = CollectF(car, player, sc, ref notifyMsg);
+                                                if (sucess)
+                                                {
+                                                    printState(player, car, "已经在收集金钱的路上了");
+                                                }
+                                                else 
+                                                {
+                                                    
+                                                }
                                             }; break;
                                         case CarState.waitOnRoad:
                                             {
                                                 if (car.purpose == Purpose.collect || car.purpose == Purpose.@null)
                                                 {
-                                                    collect(car, player, sc, ref notifyMsg);
+                                                    var sucess = CollectF(car, player, sc, ref notifyMsg);
+                                                    if (sucess)
+                                                    {
+                                                        printState(player, car, "已经在收集金钱的路上了");
+                                                    }
+                                                    else
+                                                    {
+                                                        collectFailedThenReturn(car, player, sc, ref notifyMsg);
+                                                    }
                                                 }
                                                 else
                                                 {
@@ -88,7 +117,7 @@ namespace HouseManager
             }
         }
 
-        void collect(Car car, Player player, SetCollect sc, ref List<string> notifyMsg)
+        bool CollectF(Car car, Player player, SetCollect sc, ref List<string> notifyMsg)
         {
             var from = GetFromWhenUpdateCollect(this._Players[sc.Key], sc.cType, car);
             var to = getCollectPositionTo();//  this.promoteMilePosition;
@@ -139,85 +168,140 @@ namespace HouseManager
                     costMile = goMile
                 }));
                 th.Start();
-                //this.loopCommands.Add();
-
-                //  this.breakMiniSecods = 0;
-                //第二步，更改状态
-                //car.changeState++;//更改状态
-
-
-                // car.state = CarState.buying;
-
+                //更改汽车的状态，使之广播！
+                car.changeState++;//更改状态  
+                car.purpose = Purpose.collect;
 
                 getAllCarInfomations(sc.Key, ref notifyMsg);
+                return true;
             }
 
             else if (car.ability.leftMile >= goMile)
             {
-
-                Console.Write($"现在剩余里程为{car.ability.leftMile}去程{goMile}，回程{returnMile}");
-                Console.Write($"你去了回不来");
-                Console.Write($"该汽车被安排回去了");
-                if (car.state == CarState.waitForCollectOrAttack)
-                {
-                    int startT = 1;
-                    var carKey = $"{sc.car}_{sc.Key}";
-                    var returnPath_Record = this.returningRecord[carKey];
-                    Thread th = new Thread(() => setReturn(startT, new commandWithTime.returnning()
-                    {
-                        c = "returnning",
-                        key = sc.Key,
-                        car = sc.car,
-                        returnPath = returnPath_Record,
-                        target = from,
-                        changeType = "collect-return",
-                    }));
-                    th.Start();
-                }
-                else if (car.state == CarState.waitAtBaseStation)
-                {
-                    //Console.Write($"现在剩余里程为{car.ability.leftMile}去程{goMile}，回程{returnMile}");
-                    //Console.Write($"你去了回不来");
-                    //Console.Write($"该汽车被安排回去了");
-                }
-                else
-                {
-                    throw new Exception("没有这种情况！");
-                }
+                printState(player, car, $"剩余里程为{car.ability.leftMile}去程{goMile}，回程{returnMile},你去了回不来。所以安排返回");
+                return false;
             }
             else
             {
-                Console.Write($"现在剩余里程为{car.ability.leftMile}去程{goMile}，回程{returnMile}");
-                Console.Write($"你去不了");
-                if (car.state == CarState.waitForCollectOrAttack)
-                {
-                    int startT = 1;
-                    var carKey = $"{sc.car}_{sc.Key}";
-                    var returnPath_Record = this.returningRecord[carKey];
-                    Thread th = new Thread(() => setReturn(startT, new commandWithTime.returnning()
-                    {
-                        c = "returnning",
-                        key = sc.Key,
-                        car = sc.car,
-                        returnPath = returnPath_Record,
-                        target = from,
-                        changeType = "collect-return",
-                    }));
-                    th.Start();
-                }
-                else if (car.state == CarState.waitAtBaseStation)
-                {
-                    //Console.Write($"现在剩余里程为{car.ability.leftMile}去程{goMile}，回程{returnMile}");
-                    //Console.Write($"你去了回不来");
-                    //Console.Write($"该汽车被安排回去了");
-                }
-                else
-                {
-                    throw new Exception("没有这种情况！");
-                }
+                printState(player, car, $"剩余里程为{car.ability.leftMile}去程{goMile}，回程{returnMile},去不了。所以安排返回");
+                return false;
             }
         }
 
+        /// <summary>
+        /// 到达某一地点。变更里程，进行collcet交易。
+        /// </summary>
+        /// <param name="startT"></param>
+        /// <param name="pa"></param>
+        private async void setArrive(int startT, commandWithTime.placeArriving pa)
+        {
+            /*
+             * 到达地点某地点时，说明汽车在这个地点待命。
+             */
+            Console.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}开始执行setArrive");
+            Thread.Sleep(startT + 1);
+            Console.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}开始执行setArrive正文");
+            List<string> notifyMsg = new List<string>();
+            bool needUpdateCollectState = false;
+            lock (this.PlayerLock)
+            {
+                var player = this._Players[pa.key];
+                var car = this._Players[pa.key].getCar(pa.car);
+                {
+                    if (car.targetFpIndex == -1)
+                    {
+                        throw new Exception("这个地点应该是等待的地点！");
+                    }
+                    if (pa.target == this.getCollectPositionTo())
+                    {
+                        int taxPostion = this.getCollectPositionTo();
+                        long sumCollect = this.CollectMoney;
+                        long sumDebet = 0;
+                        foreach (var item in player.Debts)
+                        {
+                            sumDebet += item.Value;
+                        }
+                        if (sumDebet > 0)
+                        {
+                            Dictionary<string, long> profiles = new Dictionary<string, long>();
+                            foreach (var item in player.Debts)
+                            {
+                                if (item.Value > 0)
+                                {
+                                    var profileOfOther = item.Value * sumCollect / sumDebet;
+                                    profileOfOther = Math.Min(profileOfOther, 1);
+                                    profiles.Add(item.Key, profileOfOther);
+                                }
+                                else
+                                {
+                                    throw new Exception("出现item.Value <= 0");
+                                }
+                            }
+                            foreach (var item in profiles)
+                            {
+                                if (this._Players.ContainsKey(item.Key))
+                                {
+                                    this._Players[item.Key].AddTax(taxPostion, item.Value);
+                                    sumCollect -= item.Value;
+                                }
+                                else
+                                {
+                                    throw new Exception("系统错误！");
+                                }
+                            }
+                        }
+                        {
+                            sumCollect = Math.Min(1, sumCollect);
+                            car.ability.costVolume += sumCollect;
+                        }
+                        this.collectPosition = this.GetRandomPosition();
+                        needUpdateCollectState = true;
+
+                        Console.WriteLine("----Do the collect process----！");
+                    }
+                    else
+                    {
+                        Console.WriteLine("----Not do the collect process----！");
+                    }
+                    //收集完，留在原地。
+                    //var car = this._Players[cmp.key].getCar(cmp.car);
+                    car.ability.costMiles += pa.costMile;//
+                    carParkOnRoad(pa.target, ref car);
+
+                    if (car.purpose == Purpose.collect && car.state == CarState.roadForCollect)
+                    {
+                        car.state = CarState.waitForCollectOrAttack;
+                        var carKey = $"{pa.car}_{pa.key}";
+                        if (this.returningRecord.ContainsKey(carKey))
+                        {
+                            this.returningRecord[carKey] = pa.returnPath;
+                        }
+                        else
+                        {
+                            this.returningRecord.Add(carKey, pa.returnPath);
+                        }
+
+                        //第二步，更改状态
+                        car.changeState++;
+                        getAllCarInfomations(pa.key, ref notifyMsg);
+                    }
+
+                }
+            }
+            for (var i = 0; i < notifyMsg.Count; i += 2)
+            {
+                var url = notifyMsg[i];
+                var sendMsg = notifyMsg[i + 1];
+                Console.WriteLine($"url:{url}");
+
+                await Startup.sendMsg(url, sendMsg);
+            }
+            Console.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}执行setReturn结束");
+            if (needUpdateCollectState)
+            {
+                await CheckAllPlayersCollectState();
+            }
+        }
         /// <summary>
         /// 获取出发地点
         /// </summary>

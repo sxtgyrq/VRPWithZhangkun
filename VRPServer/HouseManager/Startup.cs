@@ -49,6 +49,8 @@ namespace HouseManager
                 {
                     var notifyJson = getBodyStr(context);
 
+                    var t = Convert.ToInt64((DateTime.Now - Program.startTime).TotalMilliseconds);
+                    
                     Console.WriteLine($"notify receive:{notifyJson}");
                     CommonClass.Command c = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.Command>(notifyJson);
 

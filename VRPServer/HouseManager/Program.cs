@@ -9,9 +9,12 @@ namespace HouseManager
 {
     class Program
     {
+        public static DateTime startTime;
         public static Data dt;
+        public static bool Debug = false;
         static void Main(string[] args)
         {
+            Program.startTime = DateTime.Now;
             namal();
             startTaskForAwait();
             BaseInfomation.rm = new RoomMain();
@@ -19,7 +22,7 @@ namespace HouseManager
             var ip = "http://127.0.0.1:11100";
             Console.WriteLine($"输入ip和端口如“{ip}”");
             var inputIp = Console.ReadLine();
-           // return;
+            // return;
             if (string.IsNullOrEmpty(inputIp)) { }
             else
             {
@@ -31,14 +34,14 @@ namespace HouseManager
             //  Console.WriteLine("Hello World!");
         }
 
-        static void startTaskForAwait() 
+        static void startTaskForAwait()
         {
             //Thread t=new Thread()
         }
         static void namal()
         {
             Program.dt = new Data();
-            Program.dt.LoadRoad(); 
+            Program.dt.LoadRoad();
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>

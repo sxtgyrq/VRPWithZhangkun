@@ -9,6 +9,11 @@ namespace HouseManager
 {
     public partial class RoomMain
     {
+        /// <summary>
+        /// set return 本身自带广播功能
+        /// </summary>
+        /// <param name="startT"></param>
+        /// <param name="cmp"></param>
         private async void setReturn(int startT, commandWithTime.returnning cmp)
         {
             Console.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}开始执行setReturn");
@@ -28,9 +33,14 @@ namespace HouseManager
                 }
                 else if (cmp.changeType == "collect-return" && car.state == CarState.waitForCollectOrAttack)
                 {
-                    if (car.state != CarState.waitForTaxOrAttack)
+                    if (car.state == CarState.waitForCollectOrAttack)
                     {
                         ReturnThenSetComeBack(car, cmp, ref notifyMsg);
+                    }
+                    else if (car.state == CarState.waitForTaxOrAttack) 
+                    {
+                        Console.WriteLine("CarState.waitForTaxOrAttack没有编写");
+                        throw new Exception("");
                     }
                 }
                 else if (cmp.changeType == "Attack" && car.state == CarState.roadForAttack && car.purpose == Purpose.attack)
@@ -42,13 +52,8 @@ namespace HouseManager
                 }
                 else
                 {
-                    //c = "debtOwner",
-                    //key = sa.Key,
-                    //car = sa.car,
-                    //returnPath = returnPath,
-                    //target = to,//新的起点
-                    //changeType = "Attack",
-                    //victim = sa.targetOwner
+                    var json = Newtonsoft.Json.JsonConvert.SerializeObject(car);
+                    throw new Exception($"遇到未注册的情况--{json}！！！");
                 }
             }
             for (var i = 0; i < notifyMsg.Count; i += 2)

@@ -6,6 +6,10 @@ namespace HouseManager
 {
     public class Player
     {
+        /// <summary>
+        /// 玩家初始携带金额，单位分。
+        /// </summary>
+        const long intializedMoney = 50000;
         public string Key { get; internal set; }
         public string FromUrl { get; internal set; }
         public int WebSocketID { get; internal set; }
@@ -81,7 +85,7 @@ namespace HouseManager
                     animateData = null,
                     purpose = Purpose.@null
                 });
-            this.Money = 500 * 100;
+            this.Money = intializedMoney;
             this.SupportToPlay = null;
         }
 
@@ -109,11 +113,40 @@ namespace HouseManager
                 this._Money = value;
             }
         }
+        /// <summary>
+        /// 可用于攻击的金钱。
+        /// </summary>
+        public long MoneyToAttack
+        {
+            get
+            {
+                return this.LastMoneyCanUseForAttack;
+            }
+        }
+        /// <summary>
+        /// 玩家，总债务！
+        /// </summary>
+        long sumDebets
+        {
+            get
+            {
+                long debets = 0;
+                foreach (var item in this.Debts)
+                {
+                    debets += item.Value;
+                }
+                return debets;
+            }
+        }
+        /// <summary>
+        /// 可用于购买能力宝石的钱，总钱-总债-系统扶持+外部扶持为可用户购买宝石的钱！
+        /// </summary>
         public long MoneyToPromote
         {
             get
             {
-                return this.Money + (this.SupportToPlay == null ? 0 : this.SupportToPlay.Money);
+                //总钱-总债-系统扶持+外部扶持为可用户购买宝石的钱！
+                return this.Money - this.sumDebets - Player.intializedMoney + (this.SupportToPlay == null ? 0 : this.SupportToPlay.Money);
             }
         }
 
@@ -144,18 +177,17 @@ namespace HouseManager
             }
         }
 
+        /// <summary>
+        /// 专款专用，扶持的资金，进扶持的账户，赚的钱，进赚着的账户
+        /// </summary>
+        /// <param name="needMoney">总共需要的钱</param>
+        /// <param name="moneyFromSupport">用于扶持的钱</param>
+        /// <param name="moneyFromEarn">从自己腰包里掏出的钱</param>
         internal void PayWithSupport(long needMoney, out long moneyFromSupport, out long moneyFromEarn)
         {
             if (this.SupportToPlay != null)
             {
-                if (needMoney <= this.SupportToPlay.Money)
-                {
-                    moneyFromSupport = needMoney;
-                }
-                else
-                {
-                    moneyFromSupport = this.SupportToPlay.Money;
-                }
+                moneyFromSupport = Math.Min(needMoney, this.SupportToPlay.Money);
             }
             else
             {
@@ -172,6 +204,15 @@ namespace HouseManager
         /// </summary>
         public Dictionary<string, long> Debts { get; set; }
 
+
+        /// <summary>
+        /// 用于计算破产相关参数
+        /// </summary>
+        const long brokenParameterT2 = 100;
+        /// <summary>
+        /// 用于计算破产相关参数
+        /// </summary>
+        const long brokenParameterT1 = 120;
         /// <summary>
         /// 返回使玩家破产需要的资金！
         /// </summary>
@@ -195,11 +236,20 @@ namespace HouseManager
                     debt += item.Value;
                 }
                 long asset = this.Money;
-                const long t2 = 100;
-                const long t1 = 120;
-                return (asset * t2 - debt * t1) / (t1 - t2);
+                //const long t2 = 100;
+                //const long t1 = 120;
+                return Math.Max(1, (asset * brokenParameterT2 - debt * brokenParameterT1) / (brokenParameterT1 - brokenParameterT2));
             }
 
+        }
+
+        long LastMoneyCanUseForAttack
+        {
+            get
+            {
+                return Math.Max(1, this.Money - this.sumDebets * brokenParameterT1 / brokenParameterT2);
+            }
+            //get { return  }
         }
 
         /// <summary>
@@ -230,6 +280,8 @@ namespace HouseManager
         /// 表征玩家在某一地点能,key是地点，long是金钱（分）
         /// </summary>
         internal Dictionary<int, long> TaxInPosition { get; set; }
+
+
 
         /// <summary>
         /// 记录待收税金！
@@ -427,6 +479,9 @@ namespace HouseManager
         /// </summary>
         public string diamondInCar { get; set; }
         DateTime CreateTime { get; set; }
+        /// <summary>
+        /// 已经花费的里程！
+        /// </summary>
         public decimal costMiles { get; set; }
 
         long _costBusiness = 0;
@@ -520,6 +575,11 @@ namespace HouseManager
             this.Refresh();
         }
 
+        /// <summary>
+        /// 小车使用来自玩家的钱
+        /// </summary>
+        /// <param name="moneyFromSupport">来自扶持</param>
+        /// <param name="moneyFromEarn">来自经营</param>
         internal void getMoneyWithSupport(long moneyFromSupport, long moneyFromEarn)
         {
             this.subsidize += moneyFromSupport;
@@ -601,13 +661,20 @@ namespace HouseManager
         public int Speed { get { return this.Data["speed"].Count + 50; } }
 
         /// <summary>
-        /// 单位为分
+        /// 单位为分，是身上 volume（容量） business（业务） subsidize（资助）的和。
         /// </summary>
         public long SumMoneyCanForCollect
         {
             get
             {
                 return this.costVolume + this.costBusiness + this.subsidize;
+            }
+        }
+        public long SumMoneyCanForAttack
+        {
+            get
+            {
+                return this.costVolume + this.costBusiness;
             }
         }
 
