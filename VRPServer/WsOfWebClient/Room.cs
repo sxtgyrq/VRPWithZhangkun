@@ -517,6 +517,33 @@ namespace WsOfWebClient
             var result = await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[s.roomIndex], msg);
 
         }
+        internal static async Task<string> setToCollectTax(State s, Tax tax)
+        {
+            Regex r = new Regex("^car(?<car>[A-E]{1})_(?<key>[a-f0-9]{32})$");
+            //   Regex rex_Target = new Regex("^(?<target>[a-f0-9]{32})$");
+
+            var m = r.Match(tax.car);
+            // var m_Target = rex_Target.Match(attack.TargetOwner);
+            if (m.Success)//&& m_Target.Success)
+            {
+                //   var targetOwner = m_Target.Groups["target"].Value;
+
+                Console.WriteLine($"正则匹配成功：{m.Groups["car"] }+{m.Groups["key"] }");
+                if (m.Groups["key"].Value == s.Key)
+                {
+                    var getPosition = new SetTax()
+                    {
+                        c = "SetTax",
+                        Key = s.Key,
+                        car = "car" + m.Groups["car"].Value, 
+                        target = tax.Target
+                    };
+                    var msg = Newtonsoft.Json.JsonConvert.SerializeObject(getPosition);
+                    await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[s.roomIndex], msg);
+                }
+            }
+            return ""; 
+        }
 
         internal static async Task<string> setAttack(State s, Attack attack)
         {

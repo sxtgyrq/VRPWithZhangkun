@@ -39,6 +39,7 @@ namespace HouseManager
             {
                 await CheckAllPromoteState(checkItem.Key);
                 await CheckCollectState(checkItem.Key);
+                await SendAllTax(checkItem.Key);
                 return "ok";
             }
             else
@@ -46,5 +47,11 @@ namespace HouseManager
                 return "ng";
             }
         }
+
+        class TaxWebObj
+        {
+
+        }
+        
     }
 }

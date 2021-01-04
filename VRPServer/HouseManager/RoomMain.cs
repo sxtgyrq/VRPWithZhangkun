@@ -222,8 +222,8 @@ namespace HouseManager
         {
             if (car.state == CarState.waitForCollectOrAttack)
             {
-                Console.Write($"现在剩余容量为{car.ability.leftVolume}，总容量为{car.ability.Volume}");
-                Console.Write($"你装不下了！");
+                //Console.Write($"现在剩余容量为{car.ability.leftVolume}，总容量为{car.ability.Volume}");
+                //Console.Write($"你装不下了！");
                 Console.Write($"该汽车被安排回去了");
                 var from = GetFromWhenUpdateCollect(this._Players[sc.Key], sc.cType, car);
                 int startT = 1;
@@ -256,7 +256,7 @@ namespace HouseManager
     
 
         /// <summary>
-        /// 当没有抢到宝石-或者收集失败时，在路上待命。
+        /// 当没有抢到宝石-或者收集、保护费，在路上待命。
         /// </summary>
         /// <param name="target"></param>
         /// <param name="car"></param>
@@ -748,6 +748,7 @@ namespace HouseManager
                 //  public int costMile { get; internal set; }
                 public string victim { get; internal set; }
             }
+            
 
             public class placeArriving : baseC
             {

@@ -50,7 +50,7 @@ namespace HouseManager
                     var notifyJson = getBodyStr(context);
 
                     var t = Convert.ToInt64((DateTime.Now - Program.startTime).TotalMilliseconds);
-                    
+
                     Console.WriteLine($"notify receive:{notifyJson}");
                     CommonClass.Command c = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.Command>(notifyJson);
 
@@ -132,6 +132,12 @@ namespace HouseManager
                             {
                                 CommonClass.SetAttack sa = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.SetAttack>(notifyJson);
                                 var result = await BaseInfomation.rm.updateAttack(sa);
+                                await context.Response.WriteAsync("ok");
+                            }; break;
+                        case "SetTax":
+                            {
+                                CommonClass.SetTax st = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.SetTax>(notifyJson);
+                                var result = await BaseInfomation.rm.updateTax(st);
                                 await context.Response.WriteAsync("ok");
                             }; break;
                     }

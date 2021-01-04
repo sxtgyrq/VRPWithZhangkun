@@ -293,6 +293,14 @@ namespace WsOfWebClient
                                         await Room.setAttack(s, attack);
                                     }
                                 }; break;
+                            case "Tax": 
+                                {
+                                    if (s.Ls == LoginState.OnLine)
+                                    {
+                                        Tax tax = Newtonsoft.Json.JsonConvert.DeserializeObject<Tax>(returnResult.result);
+                                        await Room.setToCollectTax(s, tax);
+                                    }
+                                };break;
 
                         }
                     }

@@ -8,6 +8,11 @@ namespace HouseManager
 {
     public partial class RoomMain
     {
+        /*
+         * 攻击的目的是为了增加股份。
+         * A玩家，拿100块钱攻击B玩家，B玩家的债务和使用金额都增加100
+         * 当债务比例大于某个值时，宣布破产。
+         */
         internal async Task<string> updateAttack(SetAttack sa)
         {
             //  Attack a = new Attack(sa, this);
@@ -174,7 +179,7 @@ namespace HouseManager
                 car.ability.costBusiness = needMoney;
                 return true;
             }
-        } 
+        }
         /// <summary>
         /// 
         /// </summary>
@@ -244,6 +249,10 @@ namespace HouseManager
                         th.Start();
                         car.changeState++;//更改状态
                         if (car.purpose == Purpose.@null || car.purpose == Purpose.collect)
+                        {
+
+                        }
+                        else
                         {
                             throw new Exception("错误的car.purpose");
                         }
@@ -423,6 +432,7 @@ namespace HouseManager
                     car.purpose = Purpose.attack;
                 else
                 {
+                    Console.WriteLine($"{Newtonsoft.Json.JsonConvert.SerializeObject(car)}");
                     throw new Exception("car.purpose 未注册");
                 }
             }
@@ -489,6 +499,7 @@ namespace HouseManager
                                         attackMoney = car.ability.costBusiness + car.ability.costVolume;
                                     }
                                     while (attackMoney != 0 && player.Debts[dOwner.victim] != 0);
+
                                     if (player.Debts[dOwner.victim] == 0)
                                     {
                                         player.Debts.Remove(dOwner.victim);
@@ -530,6 +541,33 @@ namespace HouseManager
                             if (victim.Bust)
                             {
 #warning 这里要开始系统帮助玩家自动还债进程！
+                                /*
+                                 * 1期工程，直接偿还账务。
+                                 * 2期工程，做执行动画。
+                                 */
+                                victim.BustTime = DateTime.Now;
+                                var keys = new List<string>();
+                                foreach (var item in victim.Debts)
+                                {
+                                    keys.Add(item.Key);
+                                    //if(this._Players.ContainsKey(item))
+                                }
+                                for (var i = 0; i < keys.Count; i++)
+                                {
+                                    if (this._Players.ContainsKey(keys[i]))
+                                    {
+                                        if (!this._Players[keys[i]].Bust)
+                                            this._Players[keys[i]].Money += Math.Max(0, victim.Debts[keys[i]]);
+                                        victim.Debts[keys[i]] = 0;
+
+#warning 这里要提示。破产，你获取了多少资金。
+                                    }
+                                }
+                                victim.Debts = new Dictionary<string, long>();
+                                //for (var i = 0; i < victim.Debts.Count; i++)
+                                //{
+                                //    victim.Debts
+                                //}
                             }
                         }
                         else

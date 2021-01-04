@@ -33,15 +33,12 @@ namespace HouseManager
                 }
                 else if (cmp.changeType == "collect-return" && car.state == CarState.waitForCollectOrAttack)
                 {
-                    if (car.state == CarState.waitForCollectOrAttack)
-                    {
-                        ReturnThenSetComeBack(car, cmp, ref notifyMsg);
-                    }
-                    else if (car.state == CarState.waitForTaxOrAttack) 
-                    {
-                        Console.WriteLine("CarState.waitForTaxOrAttack没有编写");
-                        throw new Exception("");
-                    }
+
+                    ReturnThenSetComeBack(car, cmp, ref notifyMsg);
+                }
+                else if (cmp.changeType == "tax-return" && car.state == CarState.waitForTaxOrAttack)
+                {
+                    ReturnThenSetComeBack(car, cmp, ref notifyMsg);
                 }
                 else if (cmp.changeType == "Attack" && car.state == CarState.roadForAttack && car.purpose == Purpose.attack)
                 {

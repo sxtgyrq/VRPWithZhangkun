@@ -34,6 +34,13 @@ namespace CommonClass
         public int fPIndex { get; set; }
     }
 
+    public class TaxNotify : CommandNotify
+    {
+        public Model.FastonPosition fp { get; set; }
+        public long tax { get; set; }
+        public int target { get; set; }
+    }
+
     public class BradCastAnimateOfCar : CommandNotify
     {
         public string carID;
@@ -119,7 +126,19 @@ namespace CommonClass
         public string targetOwner { get; set; }
         public int target { get; set; }
     }
-
+    public class SetTax : Command
+    {
+        public string Key { get; set; }
+        public string car { get; set; } 
+        public int target { get; set; }
+    }
+    public class GetTax : Command
+    {
+        public string Key { get; set; }
+        public string car { get; set; }
+        public string targetOwner { get; set; }
+        public int target { get; set; }
+    }
     public class GetBtns : Command
     {
         public string FromUrl { get; set; }

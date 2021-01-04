@@ -54,6 +54,12 @@ namespace WsOfWebClient
         public string TargetOwner { get; set; }
         public string car { get; set; }
     }
+
+    public class Tax : CommonClass.Command
+    {
+        public int Target { get; set; } 
+        public string car { get; set; }
+    }
     public class Collect1 : CommonClass.Command
     {
         public string cType { get; set; }

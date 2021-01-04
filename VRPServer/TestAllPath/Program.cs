@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
+using System.Threading;
 
 namespace TestAllPath
 {
@@ -25,9 +26,39 @@ namespace TestAllPath
             {
                 namal_check();
             }
+            else if (select.ToLower().Trim() == "testc")
+            {
+                testCompress();
+            }
             Console.WriteLine("Hello World!");
 
             Console.ReadLine();
+        }
+
+        private static void testCompress()
+        {
+            string testStr = "";
+            for (var i = 0; i < 10; i++)
+            {
+                Thread.Sleep(1);
+                var itemData = DateTime.Now.ToString();
+                Console.WriteLine($"{i}-{itemData}");
+                testStr += CommonClass.Random.GetMD5HashFromStr(DateTime.Now.ToString());
+
+
+
+            }
+            var jsonData = Encoding.ASCII.GetBytes(testStr);
+            Console.WriteLine($"压缩前md5{CommonClass.Random.GetMD5HashFromBytes(jsonData)}");
+            var data = Compress(jsonData);
+            var length = data.Length;
+
+            var ucCompressData = Decompress(data, length);
+            Console.WriteLine($"解压后md5{CommonClass.Random.GetMD5HashFromBytes(ucCompressData)}");
+            var resultStr = Encoding.ASCII.GetString(ucCompressData);
+            Console.WriteLine(resultStr);
+            Console.ReadLine();
+
         }
 
         private static void namal_check()
@@ -96,14 +127,19 @@ namespace TestAllPath
             Program.dt = new Data();
             Program.dt.LoadRoad();
             long startIndex = 0;
-            List<int> startIndexList = new List<int>();
-
+            //  List<int> startIndexList = new List<int>();
+            Console.WriteLine($"输入起始数字:");
+            var start = int.Parse(Console.ReadLine());
             {
                 var count = Program.dt.Get61Fp();
-                for (var i = 0; i < count; i++)
+                for (var i = start; i < count; i++)
                 {
+                    //Dictionary<int, string> md5s = new Dictionary<int, string>();
                     for (var j = 0; j < count; j++)
                     {
+                        int length;
+                        int dataIndex;
+                        int position;
                         if (i != j)
                         {
                             var fp1 = Program.dt.GetFpByIndex(i);
@@ -113,27 +149,29 @@ namespace TestAllPath
                             var goPathSimple = ConvertToSimple(goPath);
                             var jsonStr = Newtonsoft.Json.JsonConvert.SerializeObject(goPathSimple).Trim();
                             var jsonByte = Encoding.ASCII.GetBytes(jsonStr);
-
+                            var md5 = CommonClass.Random.GetMD5HashFromBytes(jsonByte);
+                            // md5s.Add(j, md5);
                             //var compressStr = CompressString(jsonStr);
                             var bytes = Compress(jsonByte);
-                            var length = bytes.Length;
-                            var dataIndex = Convert.ToInt32((startIndex + length) / ((long)2147483648));
-                            int position;
-                            using (var fileStream = new FileStream($"bigData.rqdt{dataIndex}", FileMode.OpenOrCreate))
+                            length = bytes.Length;
+                            dataIndex = Convert.ToInt32((startIndex + length) / ((long)2147483648));
+                            //   position;
+                            using (var fileStream = new FileStream($"bigData{dataIndex}.rqdt", FileMode.OpenOrCreate))
                             {
                                 position = Convert.ToInt32(fileStream.Length);
                                 fileStream.Seek(0, SeekOrigin.End);
 
                                 fileStream.Write(bytes, 0, length);
                             }
-                            startIndexList.Add(dataIndex);
-                            startIndexList.Add(position);
-                            startIndexList.Add(length);
+                            //startIndexList.Add(dataIndex);
+                            //startIndexList.Add(position);
+                            //startIndexList.Add(length);
                             startIndex += length;
 
                             if (success)
                             {
                                 Console.WriteLine($"{i}-{j}计算成功！sumLength={startIndex}");
+                                Thread.Sleep(1);
                             }
                             else
                             {
@@ -143,20 +181,27 @@ namespace TestAllPath
                         }
                         else
                         {
-                            var length = 0;
-                            var dataIndex = Convert.ToInt32((startIndex + length) / ((long)2147483648));
-                            int position;
+                            //var 
+                            length = 0;
+                            dataIndex = Convert.ToInt32((startIndex + length) / ((long)2147483648));
+                            // int position;
                             using (var fileStream = new FileStream($"bigData.rqdt{dataIndex}", FileMode.OpenOrCreate))
                             {
                                 position = Convert.ToInt32(fileStream.Length);
                                 fileStream.Seek(0, SeekOrigin.End);
                             }
-                            startIndexList.Add(dataIndex);
-                            startIndexList.Add(position);
-                            startIndexList.Add(length);
+                            //startIndexList.Add(dataIndex);
+                            //startIndexList.Add(position);
+                            //startIndexList.Add(length);
                             startIndex += length;
                         }
+
+                        Console.WriteLine("记录写入日志");
+                        File.AppendAllText("CalLog.txt", $"{i}-{j}-{Environment.NewLine}");
+                        File.AppendAllText("indexRecord.txt", $"{dataIndex},{position},{length},");
+                        Console.WriteLine($"记录：{dataIndex},{position},{length},");
                     }
+
 
 
                 }
@@ -165,8 +210,8 @@ namespace TestAllPath
             }
 
 
-            var indexPageJson = Newtonsoft.Json.JsonConvert.SerializeObject(new { startIndexList = startIndexList });
-            File.WriteAllText("calResult.json", indexPageJson);
+            // var indexPageJson = Newtonsoft.Json.JsonConvert.SerializeObject(new { startIndexList = startIndexList });
+            // File.WriteAllText("calResult.json", indexPageJson);
 
             Console.WriteLine($"计算完毕！");
         }

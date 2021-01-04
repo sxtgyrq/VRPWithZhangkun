@@ -24,6 +24,26 @@ namespace HouseManager
                 else
                 {
                     success = true;
+
+                    bool hasTheSameName = false;
+                    do
+                    {
+                        hasTheSameName = false;
+                        foreach (var item in this._Players)
+                        {
+                            if (item.Value.PlayerName == addItem.PlayerName)
+                            {
+                                hasTheSameName = true;
+                                break;
+                            }
+                        }
+                        if (hasTheSameName)
+                        {
+                            addItem.PlayerName += "A";
+                        }
+
+                    } while (hasTheSameName);
+
                     // BaseInfomation.rm.AddPlayer
                     this._Players.Add(addItem.Key, new Player()
                     {

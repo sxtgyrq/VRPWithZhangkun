@@ -238,7 +238,7 @@ namespace HouseManager
                 long asset = this.Money;
                 //const long t2 = 100;
                 //const long t1 = 120;
-                return Math.Max(1, (asset * brokenParameterT2 - debt * brokenParameterT1) / (brokenParameterT1 - brokenParameterT2));
+                return Math.Max(0, (asset * brokenParameterT2 - debt * brokenParameterT1) / (brokenParameterT1 - brokenParameterT2));
             }
 
         }
@@ -280,6 +280,32 @@ namespace HouseManager
         /// 表征玩家在某一地点能,key是地点，long是金钱（分）
         /// </summary>
         internal Dictionary<int, long> TaxInPosition { get; set; }
+        DateTime _BustTime { get; set; }
+        public DateTime BustTime
+        {
+            get
+            {
+                if (this.Bust)
+                {
+                    return this._BustTime;
+                }
+                else
+                {
+                    return DateTime.Now.AddDays(1);
+                }
+            }
+            set
+            {
+                if (this.Bust)
+                {
+                    this._BustTime = DateTime.Now;
+                }
+                else
+                {
+                    this._BustTime = DateTime.Now.AddDays(1);
+                }
+            }
+        }
 
 
 
