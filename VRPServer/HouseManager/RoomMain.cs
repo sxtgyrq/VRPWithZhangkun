@@ -104,7 +104,7 @@ namespace HouseManager
                 c = "BradCastCollectInfoDetail",
                 WebSocketID = webSocketID,
                 Fp = Program.dt.GetFpByIndex(this.collectPosition),
-                collectMoney = this.CollectMoney
+                collectMoney = this.CollectReWard
             };
             return obj;
         }
@@ -896,42 +896,42 @@ namespace HouseManager
                 lock (this.PlayerLock)
                 {
                     this._collectPosition = value;
-                    if (_collectMoney == 10)
+                    if (_CollectReWard == 10)
                     {
                         if (this.rm.NextDouble() < 0.5)
                         {
-                            _collectMoney = 5;
+                            _CollectReWard = 5;
                         }
                         else
                         {
-                            _collectMoney = 20;
+                            _CollectReWard = 20;
                         }
                     }
-                    else if (_collectMoney == 20)
+                    else if (_CollectReWard == 20)
                     {
                         if (this.rm.NextDouble() < 0.5)
                         {
-                            _collectMoney = 10;
+                            _CollectReWard = 10;
                         }
                         else
                         {
-                            _collectMoney = 50;
+                            _CollectReWard = 50;
                         }
                     }
-                    else if (_collectMoney == 50)
+                    else if (_CollectReWard == 50)
                     {
                         if (this.rm.NextDouble() < 0.5)
                         {
-                            _collectMoney = 20;
+                            _CollectReWard = 20;
                         }
                         else
                         {
-                            _collectMoney = 100;
+                            _CollectReWard = 100;
                         }
                     }
                     else
                     {
-                        _collectMoney = 10;
+                        _CollectReWard = 10;
                     }
                 }
             }
@@ -939,13 +939,13 @@ namespace HouseManager
         /// <summary>
         /// 单位是元，外部传输数据时，请使用CollectMoney
         /// </summary>
-        int _collectMoney = 10;
+        int _CollectReWard = 10;
         /// <summary>
         /// 此处的单位是分。
         /// </summary>
-        int CollectMoney
+        int CollectReWard
         {
-            get { return this._collectMoney * 100; }
+            get { return this._CollectReWard * 100; }
         }
         class TaskPromote
         {

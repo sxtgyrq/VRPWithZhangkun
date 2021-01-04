@@ -326,7 +326,7 @@ namespace HouseManager
             if (pa.target == this.getCollectPositionTo())
             {
                 int taxPostion = this.getCollectPositionTo();
-                long sumCollect = this.CollectMoney;
+                long sumCollect = this.CollectReWard;
                 long sumDebet = 0;
                 foreach (var item in player.Debts)
                 {
