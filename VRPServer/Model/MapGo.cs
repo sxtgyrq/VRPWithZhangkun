@@ -53,6 +53,7 @@ namespace Model
 
         public class nyrqPosition_Simple
         {
+            public nyrqPosition_Simple() { }
             public nyrqPosition_Simple(string rc, int rorder, double percent_, double BDlongitude_, double BDlatitude_, int maxSpeed_)
             {
                 this.r = rc;
@@ -62,12 +63,12 @@ namespace Model
                 this.t = Math.Round(BDlatitude_, 8);
                 this.s = maxSpeed_;
             }
-            public string r { get; private set; }
-            public int o { get; private set; }
-            public double p { get; private set; }
-            public double g { get; private set; }
-            public double t { get; private set; }
-            public int s { get; private set; }
+            public string r { get; set; }
+            public int o { get; set; }
+            public double p { get; set; }
+            public double g { get; set; }
+            public double t { get; set; }
+            public int s { get; set; }
 
             public nyrqPosition copy()
             {

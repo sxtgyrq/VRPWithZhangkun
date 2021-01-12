@@ -20,7 +20,9 @@ namespace HouseManager
         static GetDistance getDistance = CommonClass.Geography.getLengthOfTwoPoint.GetDistance;
         public class DataToNavigateWithTimeFunction2
         {
-
+            /// <summary>
+            /// 线路衍生到此的时间。主键是商店，值是时间。
+            /// </summary>
             Dictionary<string, int> TimeToExpand { get; set; }
             Dictionary<string, string> LastDirection { get; set; }
             Dictionary<string, DictCross> CrossRecord { get; set; }
@@ -93,7 +95,9 @@ namespace HouseManager
                 //var operateRoadOrder = fpLast.RoadOrder;
                 //var operatePercent = fpLast.RoadPercent;
                 int operateT = 0;
-
+                /*
+                 * 这里的fpLast实际为出发地点。出发地点的操作时间为0
+                 */
                 this.TimeToExpand.Add(fpLast.FastenPositionID, operateT);
                 this.LastDirection.Add(fpLast.FastenPositionID, "start");
 
@@ -110,6 +114,9 @@ namespace HouseManager
                     }
                     else
                     {
+                        /*
+                         * 加入在预计的时间内，没有包含目标，继续寻找
+                         */
                         if (this.TimeToExpand[placePresentCode] > operateT)
                         {
                             if (dealWithWhileProcess(ref operateT, maxmSeconsCount, ref dealedKeys)) { }
@@ -120,6 +127,7 @@ namespace HouseManager
                         }
                         else
                         {
+                            ///A做为Path
                             List<nyrqPosition> A = new List<nyrqPosition>();
                             var key = placePresentCode;
                             while (key != "start")
@@ -779,14 +787,25 @@ namespace HouseManager
                 success = false;
                 return new List<nyrqPosition>();
             }
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="operateT">延展时间</param>
+            /// <param name="maxmSeconsCount">最大时间数，一般是24小时</param>
+            /// <param name="dealedKeys">已经处理的地点</param>
+            /// <returns></returns>
             private bool dealWithWhileProcess(ref int operateT, int maxmSeconsCount, ref Dictionary<string, bool> dealedKeys)
             {
                 bool hasFoundNewElement = false;//表征该过程是否找到了新的元素！
 
                 var newOperateT = int.MaxValue;//默认值为最大值
                 string key = "";//设置最大值
+
                 foreach (var item in this.TimeToExpand)
                 {
+                    /*
+                     * 确定最小时间间隔
+                     */
                     if (item.Value >= operateT)
                     {
                         if (item.Value < newOperateT)
@@ -963,6 +982,18 @@ namespace HouseManager
                 }
             }
 
+            /// <summary>
+            /// 将线路线段路口进行记录
+            /// </summary>
+            /// <param name="roadSegment"></param>
+            /// <param name="operateRoadPercent"></param>
+            /// <param name="operateRoadOrder"></param>
+            /// <param name="operateRoadCode"></param>
+            /// <param name="newOperateT"></param>
+            /// <param name="key"></param>
+            /// <param name="hasFoundNewElement"></param>
+            /// <param name="i"></param>
+            /// <param name="cd"></param>
             private void DealWithCross1(RoadInfo roadSegment, double operateRoadPercent, int operateRoadOrder, string operateRoadCode, int newOperateT, string key, ref bool hasFoundNewElement, int i, condition cd)
             {
                 DictCross[] selectResult;
@@ -1004,7 +1035,18 @@ namespace HouseManager
                     }
                 }
             }
-
+            /// <summary>
+            /// 将线段线路上的路口数据进行记录。
+            /// </summary>
+            /// <param name="roadSegment"></param>
+            /// <param name="operateRoadPercent"></param>
+            /// <param name="operateRoadOrder"></param>
+            /// <param name="operateRoadCode"></param>
+            /// <param name="newOperateT"></param>
+            /// <param name="key"></param>
+            /// <param name="hasFoundNewElement"></param>
+            /// <param name="i"></param>
+            /// <param name="cd"></param>
             private void DealWithCross2(RoadInfo roadSegment, double operateRoadPercent, int operateRoadOrder, string operateRoadCode, int newOperateT, string key, ref bool hasFoundNewElement, int i, condition cd)
             {
                 DictCross[] selectResult;
@@ -1112,6 +1154,16 @@ namespace HouseManager
             }
 
             //  private string getCrossKey
+            /// <summary>
+            /// 计算在一直线线路上的两点距离。
+            /// </summary>
+            /// <param name="operateRoadCode"></param>
+            /// <param name="operateRoadOrder"></param>
+            /// <param name="operateRoadPercent"></param>
+            /// <param name="roadCode"></param>
+            /// <param name="roadOrder"></param>
+            /// <param name="percent"></param>
+            /// <returns></returns>
             private int calTimeCost(string operateRoadCode, int operateRoadOrder, double operateRoadPercent, string roadCode, int roadOrder, double percent)
             {
                 if (operateRoadCode != roadCode)

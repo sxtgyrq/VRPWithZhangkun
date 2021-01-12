@@ -91,6 +91,9 @@ namespace HouseManager
 
         public Dictionary<string, OtherPlayers> others { get; set; }
 
+        /// <summary>
+        /// 能力提升宝石的状态，用于前台刷新
+        /// </summary>
         public Dictionary<string, int> PromoteState { get; set; }
         public int Collect { get; internal set; }
 
@@ -145,8 +148,8 @@ namespace HouseManager
         {
             get
             {
-                //总钱-总债-系统扶持+外部扶持为可用户购买宝石的钱！
-                return this.Money - this.sumDebets - Player.intializedMoney + (this.SupportToPlay == null ? 0 : this.SupportToPlay.Money);
+                //总钱+外部扶持为可用户购买宝石的钱！
+                return this.Money + (this.SupportToPlay == null ? 0 : this.SupportToPlay.Money);
             }
         }
 
@@ -238,7 +241,7 @@ namespace HouseManager
                 long asset = this.Money;
                 //const long t2 = 100;
                 //const long t1 = 120;
-                return Math.Max(0, (asset * brokenParameterT2 - debt * brokenParameterT1) / (brokenParameterT1 - brokenParameterT2));
+                return Math.Max(1, (asset * brokenParameterT2 - debt * brokenParameterT1) / (brokenParameterT1 - brokenParameterT2));
             }
 
         }
@@ -325,6 +328,12 @@ namespace HouseManager
                 this.TaxInPosition.Add(taxPostion, taxValue);
             }
         }
+        internal Dictionary<string, List<Model.MapGo.nyrqPosition>> returningRecord { get; set; }
+
+        /// <summary>
+        /// 用于表征，玩家是第一次打开还是第二次打开。
+        /// </summary>
+        public int OpenMore { get; set; }
     }
     public class OtherPlayers
     {
@@ -689,7 +698,7 @@ namespace HouseManager
         /// <summary>
         /// 单位为分，是身上 volume（容量） business（业务） subsidize（资助）的和。
         /// </summary>
-        public long SumMoneyCanForCollect
+        public long SumMoneyCanForPromote
         {
             get
             {

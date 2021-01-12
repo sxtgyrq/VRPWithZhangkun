@@ -293,14 +293,14 @@ namespace WsOfWebClient
                                         await Room.setAttack(s, attack);
                                     }
                                 }; break;
-                            case "Tax": 
+                            case "Tax":
                                 {
                                     if (s.Ls == LoginState.OnLine)
                                     {
                                         Tax tax = Newtonsoft.Json.JsonConvert.DeserializeObject<Tax>(returnResult.result);
                                         await Room.setToCollectTax(s, tax);
                                     }
-                                };break;
+                                }; break;
 
                         }
                     }
@@ -327,10 +327,14 @@ namespace WsOfWebClient
         public static async Task<string> sendInmationToUrlAndGetRes(string roomUrl, string sendMsg)
         {
             // ConnectInfo.Client.PostAsync(roomUrl,)
-            var buffer = Encoding.UTF8.GetBytes(sendMsg);
-            var byteContent = new ByteArrayContent(buffer);
-            var response = await ConnectInfo.Client.PostAsync(roomUrl, byteContent);
-            return await response.Content.ReadAsStringAsync();
+            using (HttpClient Client = new HttpClient())
+            {
+
+                var buffer = Encoding.UTF8.GetBytes(sendMsg);
+                var byteContent = new ByteArrayContent(buffer);
+                var response = await Client.PostAsync(roomUrl, byteContent);
+                return await response.Content.ReadAsStringAsync();
+            }
         }
 
         private static void addWs(System.Net.WebSockets.WebSocket webSocket, int websocketID)

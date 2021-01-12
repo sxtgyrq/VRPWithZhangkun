@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using OssModel = Model;
@@ -194,7 +195,111 @@ namespace HouseManager
             //return json;
         }
 
+        public List<OssModel.MapGo.nyrqPosition> GetAFromB(int start, int end)
+        {
+            if (start == end)
+            {
+                return new List<OssModel.MapGo.nyrqPosition>();
+            }
+            else
+            {
+                byte[] data;
+                int count = this.GetFpCount();
+                int startPosition = (start * count + end) * 8;
+                if (Read(ref startPosition, out data))
+                {
+                    var dataIndex = data[0] * 1;
+                    var startPositionInDB =
+                        data[1] * 1 +
+                        data[2] * 256 +
+                        data[3] * 256 * 256 +
+                        data[4] * 256 * 256 * 256;
+                    var length =
+                        data[5] * 1 +
+                        data[6] * 256 +
+                        data[7] * 256 * 256;
+                    Console.WriteLine($"{dataIndex},{startPositionInDB},{length}");
 
+                    var JsonByteFromDB = Decompress(GetDataOfPath(dataIndex, startPositionInDB, length), length * 50);
+                    var json = Encoding.ASCII.GetString(JsonByteFromDB);
+
+                    var objGet = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Model.MapGo.nyrqPosition_Simple>>(json);
+                    var result = new List<OssModel.MapGo.nyrqPosition>();
+                    for (var i = 0; i < objGet.Count; i++)
+                    {
+                        result.Add(objGet[i].copy());
+                    }
+                    return result;
+                    // Console.WriteLine($"fromDB:{json}");
+
+                }
+                else
+                {
+                    throw new Exception("具体看代码！");
+                }
+            }
+        }
+
+        private static byte[] Decompress(byte[] data, int comPressLength)
+        {
+            try
+            {
+                MemoryStream ms = new MemoryStream(data);
+                GZipStream zip = new GZipStream(ms, CompressionMode.Decompress, true);
+                MemoryStream msreader = new MemoryStream();
+                byte[] buffer = new byte[comPressLength * 50];
+                while (true)
+                {
+                    int reader = zip.Read(buffer, 0, buffer.Length);
+                    //zip.Read()
+                    if (reader <= 0)
+                    {
+                        break;
+                    }
+                    msreader.Write(buffer, 0, reader);
+                }
+                zip.Close();
+                ms.Close();
+                msreader.Position = 0;
+                buffer = msreader.ToArray();
+                msreader.Close();
+                return buffer;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        private static byte[] GetDataOfPath(int dataIndex, int startPositionInDB, int length)
+        {
+            using (var fileStream = new FileStream($"bigData{dataIndex}.rqdt", FileMode.OpenOrCreate))
+            {
+                var data = new byte[length];
+                fileStream.Seek(startPositionInDB, SeekOrigin.Begin);
+                fileStream.Read(data, 0, length);
+                return data;
+            }
+        }
+
+        private static bool Read(ref int startPosition, out byte[] data)
+        {
+            using (var fileStream = new FileStream($"contentofdata", FileMode.OpenOrCreate))
+            {
+                data = new byte[8];
+                if (startPosition < fileStream.Length)
+                {
+                    fileStream.Seek(startPosition, SeekOrigin.Begin);
+                    fileStream.Read(data, 0, 8);
+                    startPosition += 8;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
 
         public List<OssModel.MapGo.nyrqPosition> GetAFromB(OssModel.FastonPosition fpStart, string fpID2)
         {

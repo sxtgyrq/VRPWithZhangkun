@@ -1,6 +1,7 @@
 {
   "ExpandedNodes": [
     "",
+    "\\Document",
     "\\VRPServer",
     "\\VRPServer\\HouseManager",
     "\\VRPServer\\Server"

@@ -8,7 +8,7 @@ namespace HouseManager
 {
     public partial class RoomMain
     {
-        internal async Task<string> UpdatePlayer(PlayerCheck checkItem)
+        internal string UpdatePlayer(PlayerCheck checkItem)
         {
             bool success;
             lock (this.PlayerLock)
@@ -29,6 +29,7 @@ namespace HouseManager
                             {"speed",-1 }
                         };
                     BaseInfomation.rm._Players[checkItem.Key].Collect = -1;
+                    BaseInfomation.rm._Players[checkItem.Key].OpenMore++;
                 }
                 else
                 {
@@ -37,9 +38,6 @@ namespace HouseManager
             }
             if (success)
             {
-                await CheckAllPromoteState(checkItem.Key);
-                await CheckCollectState(checkItem.Key);
-                await SendAllTax(checkItem.Key);
                 return "ok";
             }
             else
@@ -52,6 +50,6 @@ namespace HouseManager
         {
 
         }
-        
+
     }
 }

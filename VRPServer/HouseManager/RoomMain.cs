@@ -66,6 +66,11 @@ namespace HouseManager
 
 
 
+        /// <summary>
+        /// 获取收集金钱的状态
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
         private async Task CheckCollectState(string key)
         {
 
@@ -217,18 +222,25 @@ namespace HouseManager
         }
 
 
-
+        /// <summary>
+        /// 收集失败，安排返回。
+        /// </summary>
+        /// <param name="car"></param>
+        /// <param name="player"></param>
+        /// <param name="sc"></param>
+        /// <param name="notifyMsg"></param>
         private void collectFailedThenReturn(Car car, Player player, SetCollect sc, ref List<string> notifyMsg)
         {
-            if (car.state == CarState.waitForCollectOrAttack)
+            if (car.state == CarState.waitForCollectOrAttack || car.state == CarState.waitForCollectOrAttack)
             {
                 //Console.Write($"现在剩余容量为{car.ability.leftVolume}，总容量为{car.ability.Volume}");
                 //Console.Write($"你装不下了！");
                 Console.Write($"该汽车被安排回去了");
                 var from = GetFromWhenUpdateCollect(this._Players[sc.Key], sc.cType, car);
                 int startT = 1;
-                var carKey = $"{sc.car}_{sc.Key}";
-                var returnPath_Record = this.returningRecord[carKey];
+                //var carKey = $"{sc.car}_{}";
+                var returnPath_Record = this._Players[sc.Key].returningRecord[sc.car];
+                // var returnPath_Record = this.returningRecord(carKey];
                 Thread th = new Thread(() => setReturn(startT, new commandWithTime.returnning()
                 {
                     c = "returnning",
@@ -239,8 +251,11 @@ namespace HouseManager
                     changeType = "collect-return",
                 }));
                 th.Start();
-
-                car.changeState++;//更改状态  
+                car.changeState++;//更改状态   
+                getAllCarInfomations(sc.Key, ref notifyMsg);
+            }
+            else if (car.state == CarState.waitAtBaseStation)
+            {
 
             }
         }
@@ -252,8 +267,18 @@ namespace HouseManager
         /// <summary>
         /// 删除对象时，这个要释放
         /// </summary>
-        Dictionary<string, List<Model.MapGo.nyrqPosition>> returningRecord = new Dictionary<string, List<Model.MapGo.nyrqPosition>>();
-    
+        //List<Model.MapGo.nyrqPosition> returningRecord(string playerKey, string carKey)
+        //{
+        //    if (this._Players.ContainsKey(key))
+        //    {
+        //        return this._Players[key].returningRecord;
+        //    }
+        //    else
+        //    {
+        //        return new List<Model.MapGo.nyrqPosition>();
+        //    }
+        //}
+
 
         /// <summary>
         /// 当没有抢到宝石-或者收集、保护费，在路上待命。
@@ -491,6 +516,16 @@ namespace HouseManager
             return result;
         }
 
+
+        public class GetPositionResult
+        {
+            public bool Success { get; set; }
+            public string FromUrl { get; set; }
+            public int WebSocketID { get; set; }
+            public Model.FastonPosition Fp { get; set; }
+            public string[] CarsNames { get; set; }
+            public List<string> NotifyMsgs { get; set; }
+        }
         /// <summary>
         /// 用于自己位置的初始化，实际上这个才是真正的初始化！在AddNewPlayer或者update以前，需要将self的others初始化
         /// </summary>
@@ -500,37 +535,66 @@ namespace HouseManager
         /// <param name="fp">地点</param>
         /// <param name="carsNames"></param>
         /// <returns></returns>
-        internal bool GetPosition(GetPosition getPosition, out string fromUrl, out int webSocketID, out Model.FastonPosition fp, out string[] carsNames, out List<string> notifyMsgs)
+        internal async Task<GetPositionResult> GetPosition(GetPosition getPosition)
         {
-            notifyMsgs = new List<string>();
+            GetPositionResult result;
+            
+            int OpenMore = -1;//第一次打开？
+            var notifyMsgs = new List<string>();
             lock (this.PlayerLock)
             {
                 if (this._Players.ContainsKey(getPosition.Key))
                 {
-                    fp = Program.dt.GetFpByIndex(this._Players[getPosition.Key].StartFPIndex);
-                    fromUrl = this._Players[getPosition.Key].FromUrl;
-                    webSocketID = this._Players[getPosition.Key].WebSocketID;
-                    carsNames = this._Players[getPosition.Key].CarsNames;
+                    var fp = Program.dt.GetFpByIndex(this._Players[getPosition.Key].StartFPIndex);
+                    var fromUrl = this._Players[getPosition.Key].FromUrl;
+                    var webSocketID = this._Players[getPosition.Key].WebSocketID;
+                    var carsNames = this._Players[getPosition.Key].CarsNames;
 
                     /*
                      * 这已经走查过，在AddNewPlayer、UpdatePlayer时，others都进行了初始化
                      */
                     AddOtherPlayer(getPosition.Key, ref notifyMsgs);
                     getAllCarInfomations(getPosition.Key, ref notifyMsgs);
-                    return true;
+                    OpenMore = this._Players[getPosition.Key].OpenMore;
+
+                    result = new GetPositionResult()
+                    {
+                        Success = true,
+                        CarsNames = carsNames,
+                        Fp = fp,
+                        FromUrl = fromUrl,
+                        NotifyMsgs = notifyMsgs,
+                        WebSocketID = webSocketID
+                    };
                 }
                 else
                 {
-                    fp = null;
-                    fromUrl = null;
-                    webSocketID = -1;
-                    carsNames = null;
-                    return false;
+                    result = new GetPositionResult()
+                    {
+                        Success = false
+                    };
                 }
             }
 
+            if (OpenMore == 0)
+            {
+                await CheckAllPromoteState(getPosition.Key);
+                await CheckCollectState(getPosition.Key);
+            }
+            else if (OpenMore > 0)
+            {
+                await CheckAllPromoteState(getPosition.Key);
+                await CheckCollectState(getPosition.Key);
+                await SendAllTax(getPosition.Key);
+            }
+            return result;
         }
 
+        /// <summary>
+        /// 广播小车状态
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="msgsWithUrl"></param>
         private void getAllCarInfomations(string key, ref List<string> msgsWithUrl)
         {
             var players = getGetAllPlayer();
@@ -748,7 +812,7 @@ namespace HouseManager
                 //  public int costMile { get; internal set; }
                 public string victim { get; internal set; }
             }
-            
+
 
             public class placeArriving : baseC
             {

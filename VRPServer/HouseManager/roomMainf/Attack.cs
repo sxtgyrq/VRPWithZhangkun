@@ -46,6 +46,8 @@ namespace HouseManager
                 {
                     if (this._Players.ContainsKey(sa.Key))
                     {
+                        if (this._Players[sa.Key].Bust) { }
+                        else
                         {
                             //  case "findWork":
                             {
@@ -91,6 +93,7 @@ namespace HouseManager
                                                 }
                                             }
                                         }; break;
+                                    case CarState.waitForTaxOrAttack:
                                     case CarState.waitForCollectOrAttack:
                                         {
                                             if (car.purpose == Purpose.collect)
@@ -118,8 +121,10 @@ namespace HouseManager
                     var url = notifyMsg[i];
                     var sendMsg = notifyMsg[i + 1];
                     Console.WriteLine($"url:{url}");
-
-                    await Startup.sendMsg(url, sendMsg);
+                    if (!string.IsNullOrEmpty(url))
+                    {
+                        await Startup.sendMsg(url, sendMsg);
+                    }
                 }
                 return "";
             }
@@ -128,7 +133,7 @@ namespace HouseManager
 
         private void doAttack(Player player, Car car, SetAttack sa, ref List<string> notifyMsg)
         {
-            int victimState;
+            VictimState victimState;
             var attackSuccess = attack(player, car, sa, ref notifyMsg, out victimState);
             if (attackSuccess)
             {
@@ -180,6 +185,13 @@ namespace HouseManager
                 return true;
             }
         }
+        public enum VictimState
+        {
+            victimNotExist,
+            victimHasBroken,
+            victimStateNormal
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -189,13 +201,13 @@ namespace HouseManager
         /// <param name="notifyMsg"></param>
         /// <param name="victimState">0，代表用户不存在了。1代表已经破产，2代表正常</param>
         /// <returns>true：表示已执行；false，表示各种原因(去不了、去了回不来)未执行。</returns>
-        public bool attack(Player player, Car car, SetAttack sa, ref List<string> notifyMsg, out int victimState)
+        public bool attack(Player player, Car car, SetAttack sa, ref List<string> notifyMsg, out VictimState victimState)
         {
             if (this._Players.ContainsKey(sa.targetOwner))
             {
                 if (this._Players[sa.targetOwner].Bust)
                 {
-                    victimState = 1;
+                    victimState = VictimState.victimHasBroken;
                     return false;
                 }
                 else
@@ -206,8 +218,10 @@ namespace HouseManager
                     var fp2 = Program.dt.GetFpByIndex(to);
                     var baseFp = Program.dt.GetFpByIndex(player.StartFPIndex);
 
-                    var goPath = Program.dt.GetAFromB(fp1, fp2.FastenPositionID);
-                    var returnPath = Program.dt.GetAFromB(fp2, baseFp.FastenPositionID);
+                    // var goPath = Program.dt.GetAFromB(fp1, fp2.FastenPositionID);
+                    var goPath = Program.dt.GetAFromB(from, to);
+                    //var returnPath = Program.dt.GetAFromB(fp2, baseFp.FastenPositionID);
+                    var returnPath = Program.dt.GetAFromB(to, player.StartFPIndex);
 
                     var goMile = GetMile(goPath);
                     var returnMile = GetMile(returnPath);
@@ -247,7 +261,7 @@ namespace HouseManager
                             victim = sa.targetOwner
                         }));
                         th.Start();
-                        car.changeState++;//更改状态
+
                         if (car.purpose == Purpose.@null || car.purpose == Purpose.collect)
                         {
 
@@ -257,8 +271,9 @@ namespace HouseManager
                             throw new Exception("错误的car.purpose");
                         }
                         car.state = CarState.roadForAttack;
+                        car.changeState++;//更改状态
                         getAllCarInfomations(sa.Key, ref notifyMsg);
-                        victimState = 2;
+                        victimState = VictimState.victimStateNormal;
                         return true;
                     }
 
@@ -269,7 +284,7 @@ namespace HouseManager
                         Console.Write($"你去了回不来");
 
 #warning 这里要在前台进行提示
-                        victimState = 2;
+                        victimState = VictimState.victimStateNormal;
                         return false;
                     }
                     else
@@ -278,7 +293,7 @@ namespace HouseManager
                         //当攻击失败，必须返回
                         Console.Write($"去程{goMile}，回程{returnMile}");
                         Console.Write($"你去不了");
-                        victimState = 2;
+                        victimState = VictimState.victimStateNormal;
                         return false;
                     }
                 }
@@ -286,7 +301,7 @@ namespace HouseManager
             }
             else
             {
-                victimState = 0;
+                victimState = VictimState.victimNotExist;
                 return false;
             }
 
@@ -397,8 +412,8 @@ namespace HouseManager
                 Console.WriteLine($"由于里程安排问题，必须返回！");
                 var from = getFromWhenAttack(this._Players[sc.Key], car);
                 int startT = 1;
-                var carKey = $"{sc.car}_{sc.Key}";
-                var returnPath_Record = this.returningRecord[carKey];
+                //var carKey = $"{}_{}";
+                var returnPath_Record = this._Players[sc.Key].returningRecord[sc.car];
                 Thread th = new Thread(() => setReturn(startT, new commandWithTime.returnning()
                 {
                     c = "returnning",

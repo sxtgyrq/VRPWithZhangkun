@@ -213,8 +213,7 @@ namespace HouseManager
                 Console.Write($"该汽车被安排回去了");
                 var from = getFromWhenDoCollectTax(this._Players[st.Key], car);
                 int startT = 1;
-                var carKey = $"{st.car}_{st.Key}";
-                var returnPath_Record = this.returningRecord[carKey];
+                var returnPath_Record = this._Players[st.Key].returningRecord[st.car];
                 Thread th = new Thread(() => setReturn(startT, new commandWithTime.returnning()
                 {
                     c = "returnning",
@@ -240,8 +239,8 @@ namespace HouseManager
             var fp2 = Program.dt.GetFpByIndex(to);
             var baseFp = Program.dt.GetFpByIndex(player.StartFPIndex);
 
-            var goPath = Program.dt.GetAFromB(fp1, fp2.FastenPositionID);
-            var returnPath = Program.dt.GetAFromB(fp2, baseFp.FastenPositionID);
+            var goPath = Program.dt.GetAFromB(from, to);
+            var returnPath = Program.dt.GetAFromB(to, player.StartFPIndex);
 
             var goMile = GetMile(goPath);
             var returnMile = GetMile(returnPath);
@@ -285,7 +284,7 @@ namespace HouseManager
                 }));
                 th.Start();
 
-               
+
                 reason = MileResultReason.Abundant;
 
                 car.changeState++;//更改状态  

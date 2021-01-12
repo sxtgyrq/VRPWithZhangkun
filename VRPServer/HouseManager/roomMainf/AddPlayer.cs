@@ -8,7 +8,7 @@ namespace HouseManager
 {
     public partial class RoomMain
     {
-        internal async Task<string> AddPlayer(PlayerAdd addItem)
+        internal string AddPlayer(PlayerAdd addItem)
         {
             bool success;
 
@@ -67,7 +67,16 @@ namespace HouseManager
                         Debts = new Dictionary<string, long>(),
                         Money = 500 * 100,
                         Bust = false,
-                        TaxInPosition = new Dictionary<int, long>()
+                        TaxInPosition = new Dictionary<int, long>(),
+                        returningRecord = new Dictionary<string, List<Model.MapGo.nyrqPosition>>()
+                        {
+                            {"carA",new List<Model.MapGo.nyrqPosition>() },
+                            {"carB",new List<Model.MapGo.nyrqPosition>() },
+                            {"carC",new List<Model.MapGo.nyrqPosition>() },
+                            {"carD",new List<Model.MapGo.nyrqPosition>() },
+                            {"carE",new List<Model.MapGo.nyrqPosition>() }
+                        },
+                        OpenMore = 0
                     });
                     this._Players[addItem.Key].initializeCars(addItem.CarsNames);
                     //System.Random rm = new System.Random(DateTime.Now.GetHashCode());
@@ -81,8 +90,7 @@ namespace HouseManager
 
             if (success)
             {
-                await CheckAllPromoteState(addItem.Key);
-                await CheckCollectState(addItem.Key);
+
                 return "ok";
             }
             else

@@ -831,6 +831,9 @@ var startA = function () {
                 }; break;
             case 'GetOthersPositionNotify':
                 {
+                    /*
+                     * 其他玩家的状态刷新
+                     */
                     if (objMain.state == "OnLine") {
 
                     }
@@ -853,11 +856,11 @@ var startA = function () {
                     //小车用 https://threejs.org/examples/#webgl_animation_skinning_morph
                     //小车用 基地用 https://threejs.org/examples/#webgl_animation_cloth
                     // drawFlag(); 
-                    drawPoint('green', basePoint, indexKey);
+                    drawPoint('orange', basePoint, indexKey);
                     /*画引线*/
                     objMain.mainF.drawLineOfFpToRoad(basePoint, objMain.playerGroup, 'green', indexKey);
                     //  objMain.mainF.lookAtPosition(objMain.basePoint);
-                    objMain.mainF.initilizeCars(basePoint, 'green', indexKey);
+                    objMain.mainF.initilizeCars(basePoint, 'orange', indexKey);
                     // drawCarBtns(objMain.carsNames);
                 }; break;
             case 'GetPositionNotify':

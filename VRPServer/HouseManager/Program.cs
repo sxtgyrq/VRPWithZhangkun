@@ -31,7 +31,16 @@ namespace HouseManager
             //ConnectInfo.ConnectedInfo = ip;
             CreateWebHostBuilder(new string[] { ip }).Build().Run();
 
+            Thread th = new Thread(() => ClearPlayers());
+            th.Start();
             //  Console.WriteLine("Hello World!");
+        }
+
+        private static void ClearPlayers()
+        {
+            Thread.Sleep(30 * 1000);
+            BaseInfomation.rm.ClearPlayers();
+            throw new NotImplementedException();
         }
 
         static void startTaskForAwait()

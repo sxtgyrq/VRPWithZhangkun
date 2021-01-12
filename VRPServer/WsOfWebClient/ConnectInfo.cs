@@ -13,7 +13,7 @@ namespace WsOfWebClient
         public static object connectedWs_LockObj = new object();
         public static Dictionary<int, WebSocket> connectedWs = new Dictionary<int, WebSocket>();
 
-        public static HttpClient Client = new HttpClient();
+       // public static HttpClient Client = new HttpClient();
 
         static string _mapRoadAndCrossJson = "";
         public static string mapRoadAndCrossJson

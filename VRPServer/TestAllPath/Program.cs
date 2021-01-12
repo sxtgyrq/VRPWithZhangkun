@@ -17,6 +17,7 @@ namespace TestAllPath
             Console.WriteLine("此程序目的是将运算结果压缩存储-最大存储单元2G！！！");
 
             Console.WriteLine("write or check?");
+            Console.WriteLine("combine可以结合程序?");
             var select = Console.ReadLine();
             if (select.ToLower().Trim() == "write")
             {
@@ -29,6 +30,15 @@ namespace TestAllPath
             else if (select.ToLower().Trim() == "testc")
             {
                 testCompress();
+            }
+            else if (select.ToLower() == "combine")
+            {
+                Combine.DoCombine();
+            }
+            else if (select.ToLower() == "generatecontent")
+            {
+                Content.Generate();
+                //  Combine.DoCombine();
             }
             Console.WriteLine("Hello World!");
 
@@ -63,28 +73,9 @@ namespace TestAllPath
 
         private static void namal_check()
         {
-            Program.dt = new Data();
-            Program.dt.LoadRoad();
-            Console.WriteLine("输入exit退出check");
-            var command = "";
-            Random rm = new Random(22);
-            while (command != "exit")
-            {
-                //var json = File.ReadAllText("calResult.json");
-                //var indexClassObj = Newtonsoft.Json.JsonConvert.DeserializeObject<indexClass>(json);
-                //var indexV = rm.Next(indexClassObj.startIndexList.Count / 2);
-                //var indexOfStart = indexClassObj.startIndexList[indexV * 2];
-                //var length = Convert.ToInt32(indexClassObj.startIndexList[indexV * 2 + 1]);
-                //using (var fileStream = new FileStream("bigData.rqdt", FileMode.Open))
-                //{
-                //    var bytesCompress = new byte[length];
-                //    fileStream.Read(bytesCompress,)
-                //    fileStream.Read(bytesCompress, indexOfStart, length);
-
-                //    var bytes = Decompress(bytesCompress, bytesCompress.Length);
-                //    //  var strByte = Decompress(bytes)
-                //}
-            }
+            //Program.dt = new Data();
+            //Program.dt.LoadRoad();
+            Check.CheckAll();
         }
         public class indexClass
         {
@@ -185,7 +176,7 @@ namespace TestAllPath
                             length = 0;
                             dataIndex = Convert.ToInt32((startIndex + length) / ((long)2147483648));
                             // int position;
-                            using (var fileStream = new FileStream($"bigData.rqdt{dataIndex}", FileMode.OpenOrCreate))
+                            using (var fileStream = new FileStream($"bigData{dataIndex}.rqdt", FileMode.OpenOrCreate))
                             {
                                 position = Convert.ToInt32(fileStream.Length);
                                 fileStream.Seek(0, SeekOrigin.End);
@@ -216,7 +207,7 @@ namespace TestAllPath
             Console.WriteLine($"计算完毕！");
         }
 
-        private static List<Model.MapGo.nyrqPosition_Simple> ConvertToSimple(List<Model.MapGo.nyrqPosition> goPath)
+        public static List<Model.MapGo.nyrqPosition_Simple> ConvertToSimple(List<Model.MapGo.nyrqPosition> goPath)
         {
             List<Model.MapGo.nyrqPosition_Simple> result = new List<Model.MapGo.nyrqPosition_Simple>();
             for (var i = 0; i < goPath.Count; i++)
