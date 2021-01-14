@@ -105,7 +105,7 @@ namespace HouseManager
                                                 }; break;
                                             case CarState.waitOnRoad:
                                                 {
-                                                    if (car.purpose != Purpose.tax)
+                                                    if (car.purpose != Purpose.tax && car.purpose != Purpose.attack)
                                                     {
                                                         if (car.ability.leftVolume > 0)
                                                         {
@@ -129,7 +129,8 @@ namespace HouseManager
                                                     }
                                                     else
                                                     {
-                                                        throw new Exception("CarState.waitOnRoad car.purpose!= Purpose.collect");
+                                                        Console.WriteLine("CarState.waitOnRoad car.purpose= Purpose.tax");
+                                                        //throw new Exception();
                                                     }
                                                 }; break;
 
@@ -339,7 +340,7 @@ namespace HouseManager
             }
             if (player.TaxInPosition[car.targetFpIndex] > 0)
             {
-                var tax = Math.Min(car.ability.leftBussiness, player.TaxInPosition[car.targetFpIndex]);
+                var tax = Math.Min(car.ability.leftBusiness, player.TaxInPosition[car.targetFpIndex]);
                 car.ability.costBusiness += tax;
                 player.TaxInPosition[car.targetFpIndex] -= tax;
 
@@ -349,7 +350,7 @@ namespace HouseManager
                 }
                 printState(player, car, $"{Program.dt.GetFpByIndex(car.targetFpIndex).FastenPositionName}收取{tax}");
                 car.ability.costMiles += pa.costMile;//
-                carParkOnRoad(pa.target, ref car);
+                carParkOnRoad(pa.target, ref car, player);
                 SendSingleTax(player.Key, car.targetFpIndex, ref notifyMsg);
                 if (car.purpose == Purpose.tax && car.state == CarState.roadForTax)
                 {
@@ -430,7 +431,7 @@ namespace HouseManager
             //收集完，留在原地。
             //var car = this._Players[cmp.key].getCar(cmp.car);
             car.ability.costMiles += pa.costMile;//
-            carParkOnRoad(pa.target, ref car);
+            carParkOnRoad(pa.target, ref car, player);
 
             if (car.purpose == Purpose.collect && car.state == CarState.roadForCollect)
             {

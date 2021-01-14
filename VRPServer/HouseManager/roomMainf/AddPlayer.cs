@@ -59,7 +59,7 @@ namespace HouseManager
                         PromoteState = new Dictionary<string, int>()
                         {
                             {"mile",-1},
-                            {"bussiness",-1 },
+                            {"business",-1 },
                             {"volume",-1 },
                             {"speed",-1 }
                         },
@@ -76,7 +76,14 @@ namespace HouseManager
                             {"carD",new List<Model.MapGo.nyrqPosition>() },
                             {"carE",new List<Model.MapGo.nyrqPosition>() }
                         },
-                        OpenMore = 0
+                        OpenMore = 0,
+                        PromoteDiamondCount = new Dictionary<string, int>()
+                        {
+                            {"mile",0},
+                            {"business",0 },
+                            {"volume",0 },
+                            {"speed",0 }
+                        }
                     });
                     this._Players[addItem.Key].initializeCars(addItem.CarsNames);
                     //System.Random rm = new System.Random(DateTime.Now.GetHashCode());

@@ -108,7 +108,7 @@ namespace HouseManager
                                     {
                                         if (car.purpose == Purpose.@null)
                                         {
-                                            if (car.ability.leftBussiness > 0)
+                                            if (car.ability.leftBusiness > 0)
                                             {
                                                 MileResultReason reason;
                                                 DoCollectTaxF(player, car, st, ref notifyMsg, out reason);
@@ -123,7 +123,7 @@ namespace HouseManager
                                             }
                                             else
                                             {
-                                                throw new Exception("从基地里出来，leftBussiness 就不为0！");
+                                                throw new Exception("从基地里出来，leftBusiness 就不为0！");
                                             }
 
                                         }
@@ -132,7 +132,7 @@ namespace HouseManager
                                     {
                                         if (car.purpose == Purpose.@null || car.purpose == Purpose.tax)
                                         {
-                                            if (car.ability.leftBussiness > 0)
+                                            if (car.ability.leftBusiness > 0)
                                             {
                                                 MileResultReason reason;
                                                 DoCollectTaxF(player, car, st, ref notifyMsg, out reason);
@@ -208,7 +208,7 @@ namespace HouseManager
         {
             if (car.state == CarState.waitForTaxOrAttack)
             {
-                //Console.Write($"现在剩余业务为{car.ability.leftBussiness}，总业务为{car.ability.Business}");
+                //Console.Write($"现在剩余业务为{car.ability.leftBusiness}，总业务为{car.ability.Business}");
                 //Console.Write($"你装不下了！");
                 Console.Write($"该汽车被安排回去了");
                 var from = getFromWhenDoCollectTax(this._Players[st.Key], car);

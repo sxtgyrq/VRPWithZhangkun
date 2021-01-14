@@ -24,11 +24,11 @@
     PromotePositions:
     {
         mile: null,
-        bussiness: null,
+        business: null,
         volume: null,
         speed: null
     },
-    PromoteList: ['mile', 'bussiness', 'volume', 'speed'],
+    PromoteList: ['mile', 'business', 'volume', 'speed'],
     CollectPosition: null,
     diamondGeometry: null,
     mirrorCubeCamera: null,
@@ -178,7 +178,7 @@
                         color = '#ff0000';
                         colorName = '红';
                     }; break;
-                case 'bussiness': {
+                case 'business': {
                     color = '#00ff00';
                     colorName = '绿';
                 }; break;
@@ -281,7 +281,7 @@
                             {
                                 color = 0xff0000;
                             }; break;
-                        case 'bussiness':
+                        case 'business':
                             {
                                 color = 0x00ff00;
                             }; break;
@@ -379,7 +379,7 @@
                 //        {
                 //            color = 0xff0000;
                 //        }; break;
-                //    case 'bussiness':
+                //    case 'business':
                 //        {
                 //            color = 0x00ff00;
                 //        }; break;
@@ -431,7 +431,7 @@
             //            color = '#ff0000';
             //            colorName = '红';
             //        }; break;
-            //    case 'bussiness': {
+            //    case 'business': {
             //        color = '#00ff00';
             //        colorName = '绿';
             //    }; break;
@@ -528,7 +528,7 @@
                 //            color = '#ff0000';
                 //            colorName = '红';
                 //        }; break;
-                //    case 'bussiness': {
+                //    case 'business': {
                 //        color = '#00ff00';
                 //        colorName = '绿';
                 //    }; break;
@@ -619,7 +619,7 @@
                 //            color = '#ff0000';
                 //            colorName = '红';
                 //        }; break;
-                //    case 'bussiness': {
+                //    case 'business': {
                 //        color = '#00ff00';
                 //        colorName = '绿';
                 //    }; break;
@@ -779,6 +779,7 @@ var startA = function () {
                                     objMain.GetPositionNotify.F(objMain.GetPositionNotify.data);
                                 }
                                 objMain.ws.send('SetOnLine');
+                                objMain.state = objMain.receivedState;
                             }; break;
                         case 'WaitingToStart':
                             {
@@ -1104,6 +1105,7 @@ function animate() {
             objMain.state = objMain.receivedState;
         }
         if (objMain.state == 'OnLine') {
+
             var lengthOfCC = objMain.mainF.getLength(objMain.camera.position, objMain.controls.target);
             //if (clothForRender.cloth != null) {
 
@@ -1996,7 +1998,7 @@ var drawPoint = function (color, fp, indexKey) {
     object.scale.set(0.0005, 0.0005, 0.0005);
     objMain.playerGroup.add(object);
 
-    var start = new THREE.Vector3(MercatorGetXbyLongitude(fp.Longitude), 0, -MercatorGetYbyLatitude(objMain.basePoint.Latitde))
+    var start = new THREE.Vector3(MercatorGetXbyLongitude(fp.Longitude), 0, -MercatorGetYbyLatitude(fp.Latitde))
     var end = new THREE.Vector3(MercatorGetXbyLongitude(objMain.basePoint.positionLongitudeOnRoad), 0, -MercatorGetYbyLatitude(objMain.basePoint.positionLatitudeOnRoad))
     var cc = new Complex(end.x - start.x, end.z - start.z);
     cc.toOne();
@@ -2465,7 +2467,7 @@ var drawCarBtns = function () {
             });
             addItemToTaskOperatingPanle('提升业务', function () {
                 showBtnEvent(true);
-                objMain.Task.state = 'bussiness'
+                objMain.Task.state = 'business'
                 // alert('提升续航');
                 console.log('点击', '提升业务');
                 objMain.Task.carSelect = '';

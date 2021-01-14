@@ -68,7 +68,7 @@ namespace CommonClass
     public class BradCastPromoteInfoDetail : CommandNotify
     {
         /// <summary>
-        /// "mile","bussiness","volume","speed"四种状态
+        /// "mile","business","volume","speed"四种状态
         /// </summary>
         public string resultType { get; set; }
         public Model.FastonPosition Fp { get; set; }

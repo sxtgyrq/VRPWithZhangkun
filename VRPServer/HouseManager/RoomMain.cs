@@ -11,6 +11,7 @@ namespace HouseManager
 {
     public partial class RoomMain
     {
+        bool debug = true;
         Dictionary<string, Player> _Players { get; set; }
         System.Random rm { get; set; }
         public RoomMain()
@@ -30,22 +31,22 @@ namespace HouseManager
             this.recordOfPromote = new Dictionary<string, List<DateTime>>()
             {
                 {  "mile" ,new List<DateTime>()},
-                {  "bussiness" ,new List<DateTime>() },
+                {  "business" ,new List<DateTime>() },
                 {  "volume" ,new List<DateTime>() },
                 {  "speed" ,new List<DateTime>() },
             };
             this.promotePrice = new Dictionary<string, long>()
             {
-                {  "mile" ,0},
-                {  "bussiness" ,0 },
-                {  "volume" ,0 },
-                {  "speed" ,0},
+                {  "mile" ,10 * 100},
+                {  "business" ,10 * 100 },
+                {  "volume" ,10 * 100 },
+                {  "speed" ,10 * 100},
             };
             // case "mile":
             //        {
             //    return 1;
             //}; break;
-            //    case "bussiness":
+            //    case "business":
             //        {
             //    return 1;
             //}; break;
@@ -231,7 +232,7 @@ namespace HouseManager
         /// <param name="notifyMsg"></param>
         private void collectFailedThenReturn(Car car, Player player, SetCollect sc, ref List<string> notifyMsg)
         {
-            if (car.state == CarState.waitForCollectOrAttack || car.state == CarState.waitForCollectOrAttack)
+            if (car.state == CarState.waitForCollectOrAttack || car.state == CarState.waitOnRoad)
             {
                 //Console.Write($"现在剩余容量为{car.ability.leftVolume}，总容量为{car.ability.Volume}");
                 //Console.Write($"你装不下了！");
@@ -285,7 +286,7 @@ namespace HouseManager
         /// </summary>
         /// <param name="target"></param>
         /// <param name="car"></param>
-        private void carParkOnRoad(int target, ref Car car)
+        private void carParkOnRoad(int target, ref Car car, Player player)
         {
             var fp = Program.dt.GetFpByIndex(target);
             double endX, endY;
@@ -306,6 +307,22 @@ namespace HouseManager
                         },
                 recordTime = DateTime.Now
             };
+
+            if (this.debug)
+            {
+                var goPath = Program.dt.GetAFromB(car.targetFpIndex, this.collectPosition);
+                var returnPath = Program.dt.GetAFromB(this.collectPosition, player.StartFPIndex);
+
+                var goMile = GetMile(goPath);
+                var returnMile = GetMile(returnPath);
+                if (goMile + returnMile > car.ability.leftMile) 
+                {
+                    for (int i = 0; i < 3; i++) 
+                    {
+                        Console.WriteLine($"现在回收是要返回的！");
+                    }
+                }
+            }
         }
 
         private int getCollectPositionTo()
@@ -318,7 +335,7 @@ namespace HouseManager
 
             var A = this._FpOwner.ContainsKey(fpIndex)
                   || fpIndex == this._promoteMilePosition
-                  || fpIndex == this._promoteBussinessPosition
+                  || fpIndex == this._promoteBusinessPosition
                   || fpIndex == this._promoteVolumePosition
                   || fpIndex == this._promoteSpeedPosition
                   || fpIndex == this._collectPosition;
@@ -342,7 +359,7 @@ namespace HouseManager
             switch (pType)
             {
                 case "mile": { return this.promoteMilePosition; }; ;
-                case "bussiness": { return this.promoteBussinessPosition; };
+                case "business": { return this.promoteBusinessPosition; };
                 case "volume": { return this.promoteVolumePosition; };
                 case "speed": { return this.promoteSpeedPosition; };
                 default:
@@ -538,7 +555,7 @@ namespace HouseManager
         internal async Task<GetPositionResult> GetPosition(GetPosition getPosition)
         {
             GetPositionResult result;
-            
+
             int OpenMore = -1;//第一次打开？
             var notifyMsgs = new List<string>();
             lock (this.PlayerLock)
@@ -741,9 +758,9 @@ namespace HouseManager
                     {
                         return this.promoteMilePosition;
                     }
-                case "bussiness":
+                case "business":
                     {
-                        return this.promoteBussinessPosition;
+                        return this.promoteBusinessPosition;
                     }; ;
                 case "volume":
                     {
@@ -764,7 +781,7 @@ namespace HouseManager
             lock (this.PlayerLock)
             {
                 this.promoteMilePosition = GetRandomPosition();
-                this.promoteBussinessPosition = GetRandomPosition();
+                this.promoteBusinessPosition = GetRandomPosition();
                 this.promoteVolumePosition = GetRandomPosition();
                 this.promoteSpeedPosition = GetRandomPosition();
 
@@ -850,14 +867,14 @@ namespace HouseManager
                         };
                         return obj;
                     }; break;
-                case "bussiness":
+                case "business":
                     {
                         var obj = new BradCastPromoteInfoDetail
                         {
                             c = "BradCastPromoteInfoDetail",
                             WebSocketID = webSocketID,
                             resultType = resultType,
-                            Fp = Program.dt.GetFpByIndex(this.promoteBussinessPosition),
+                            Fp = Program.dt.GetFpByIndex(this.promoteBusinessPosition),
                             Price = this.promotePrice[resultType]
                         };
                         return obj;
@@ -901,7 +918,7 @@ namespace HouseManager
 
         int _promoteMilePosition = -1;
         //   DateTime _TimeRecordMilePosition { get; set; }
-        int _promoteBussinessPosition = -1;
+        int _promoteBusinessPosition = -1;
         int _promoteVolumePosition = -1;
         int _promoteSpeedPosition = -1;
         int _collectPosition = -1;
@@ -919,14 +936,14 @@ namespace HouseManager
                 }
             }
         }
-        int promoteBussinessPosition
+        int promoteBusinessPosition
         {
-            get { return this._promoteBussinessPosition; }
+            get { return this._promoteBusinessPosition; }
             set
             {
                 lock (this.PlayerLock)
                 {
-                    this._promoteBussinessPosition = value;
+                    this._promoteBusinessPosition = value;
                 }
             }
         }
@@ -952,6 +969,9 @@ namespace HouseManager
                 }
             }
         }
+        /// <summary>
+        /// 挣钱的地点index
+        /// </summary>
         int collectPosition
         {
             get { return this._collectPosition; }

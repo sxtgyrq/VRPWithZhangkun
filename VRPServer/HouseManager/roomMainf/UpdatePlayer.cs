@@ -24,7 +24,7 @@ namespace HouseManager
                     BaseInfomation.rm._Players[checkItem.Key].PromoteState = new Dictionary<string, int>()
                         {
                             {"mile",-1},
-                            {"bussiness",-1 },
+                            {"business",-1 },
                             {"volume",-1 },
                             {"speed",-1 }
                         };

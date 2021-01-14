@@ -334,6 +334,11 @@ namespace HouseManager
         /// 用于表征，玩家是第一次打开还是第二次打开。
         /// </summary>
         public int OpenMore { get; set; }
+
+        /// <summary>
+        /// 当小车执行完宝石获取任务，回到基地后。用相应增加。
+        /// </summary>
+        public Dictionary<string, int> PromoteDiamondCount { get; set; }
     }
     public class OtherPlayers
     {
@@ -480,8 +485,7 @@ namespace HouseManager
 
         internal void Refresh()
         {
-            this.state = CarState.waitAtBaseStation;
-            Console.WriteLine("执行了归位");
+            this.state = CarState.waitAtBaseStation; 
             this.targetFpIndex = -1;
             this.purpose = Purpose.@null;
         }
@@ -583,6 +587,9 @@ namespace HouseManager
             this.diamondInCar = "";
             this.subsidize = 0;
         }
+        /// <summary>
+        /// 刷新时，会更新宝石状况（diamondInCar=""）。
+        /// </summary>
         public void Refresh()
         {
 
@@ -597,18 +604,7 @@ namespace HouseManager
             this.diamondInCar = "";
             this.subsidize = 0;
         }
-        /// <summary>
-        /// 必须是在基地的时候引用
-        /// </summary>
-        /// <param name="pType"></param>
-        public void AddAbility(string pType)
-        {
-            if (this.Data.ContainsKey(pType))
-            {
-                this.Data[pType].Add(DateTime.Now);
-            }
-            this.Refresh();
-        }
+        
 
         /// <summary>
         /// 小车使用来自玩家的钱
@@ -622,7 +618,7 @@ namespace HouseManager
         }
 
         /// <summary>
-        /// 依次用辅助、bussiness、volume来支付。
+        /// 依次用辅助、business、volume来支付。
         /// </summary>
         /// <param name="needMoney"></param>
         internal void payForPromote(long needMoney)
@@ -646,13 +642,13 @@ namespace HouseManager
         }
 
         /// <summary>
-        /// 小车能跑的最大距离，最小值为160km！
+        /// 小车能跑的最大距离，最小值为350km！确保地图中的最长路径有个来回！
         /// </summary>
         public decimal mile
         {
             get
             {
-                return this.Data["mile"].Count + 200;
+                return this.Data["mile"].Count + 350;
             }
         }
         public decimal leftMile
@@ -665,7 +661,7 @@ namespace HouseManager
         /// <summary>
         /// 通过税收、携带，还能带多少钱。单位为分，即1/100元
         /// </summary>
-        public long leftBussiness
+        public long leftBusiness
         {
             get
             {

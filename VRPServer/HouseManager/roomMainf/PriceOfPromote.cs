@@ -9,7 +9,7 @@ namespace HouseManager
         Dictionary<string, long> promotePrice = new Dictionary<string, long>();
         Dictionary<string, List<DateTime>> recordOfPromote = new Dictionary<string, List<DateTime>>();
         //List<DateTime> recordOfMile = new List<DateTime>();
-        //List<DateTime> recordOfBussiness = new List<DateTime>();
+        //List<DateTime> recordOfBusiness = new List<DateTime>();
         //List<DateTime> recordOfVolume = new List<DateTime>();
         //List<DateTime> recordOfSpeed = new List<DateTime>();
 
@@ -20,17 +20,25 @@ namespace HouseManager
         /// <returns>返回结果为分，即1/100元</returns>
         long GetPriceOfPromotePosition(string resultType)
         {
-            if (resultType == "mile" || resultType == "business" || resultType == "volume" || resultType == "speed") { }
+            if (resultType == "mile" || resultType == "business" || resultType == "volume" || resultType == "speed")
+            {
+                this.recordOfPromote[resultType].Add(DateTime.Now);
+            }
             else
             {
-                throw new Exception("错误地调用");
+                throw new Exception($"错误地调用{resultType}");
             }
             if (this.recordOfPromote[resultType].Count < 10)
             {
+                //  this.recordOfPromote[resultType].Add(DateTime.Now);
                 return 10 * 100;
             }
             else
             {
+                if (this.recordOfPromote[resultType].Count > 10)
+                {
+                    this.recordOfPromote[resultType].RemoveAt(0);
+                }
                 double sumHz = 0;
                 for (var i = 1; i < this.recordOfPromote[resultType].Count; i++)
                 {

@@ -27,17 +27,25 @@ namespace HouseManager
                 var player = this._Players[cmp.key];
                 var car = this._Players[cmp.key].getCar(cmp.car);
                 car.targetFpIndex = this._Players[cmp.key].StartFPIndex;
-                if ((cmp.changeType == "mile" || cmp.changeType == "bussiness" || cmp.changeType == "volume" || cmp.changeType == "speed")
+                if ((cmp.changeType == "mile" || cmp.changeType == "business" || cmp.changeType == "volume" || cmp.changeType == "speed")
                     && car.state == CarState.buying)
                 {
                     ReturnThenSetComeBack(car, cmp, ref notifyMsg);
                 }
-                else if (cmp.changeType == "collect-return" && car.state == CarState.waitForCollectOrAttack)
+                else if ((cmp.changeType == "mile" || cmp.changeType == "business" || cmp.changeType == "volume" || cmp.changeType == "speed")
+                  && car.state == CarState.waitOnRoad)
                 {
-
+                    /*
+                     * 此项对应的条件是在找能力提升宝石过程中，里程不够然后安排返回。
+                     * 
+                     */
                     ReturnThenSetComeBack(car, cmp, ref notifyMsg);
                 }
-                else if (cmp.changeType == "tax-return" && car.state == CarState.waitForTaxOrAttack)
+                else if (cmp.changeType == "collect-return" && (car.state == CarState.waitForCollectOrAttack || car.state == CarState.waitOnRoad))
+                {
+                    ReturnThenSetComeBack(car, cmp, ref notifyMsg);
+                }
+                else if (cmp.changeType == "tax-return" && (car.state == CarState.waitForTaxOrAttack || car.state == CarState.waitOnRoad))
                 {
                     ReturnThenSetComeBack(car, cmp, ref notifyMsg);
                 }
@@ -55,9 +63,12 @@ namespace HouseManager
                         ReturnThenSetComeBack(car, cmp, ref notifyMsg);
                     }
                 }
+
                 else
                 {
+
                     var json = Newtonsoft.Json.JsonConvert.SerializeObject(car);
+                    Console.WriteLine(json);
                     throw new Exception($"遇到未注册的情况--{json}！！！");
                 }
             }
@@ -114,7 +125,7 @@ namespace HouseManager
 
                         for (var j = 0; j < keysOfAll.Count; j++)
                         {
-                            if (this._Players[keysOfAll[j]].others.ContainsKey(keysNeedToClear[i])) 
+                            if (this._Players[keysOfAll[j]].others.ContainsKey(keysNeedToClear[i]))
                             {
                                 this._Players[keysOfAll[j]].others.Remove(keysNeedToClear[i]);
                             }
@@ -208,8 +219,13 @@ namespace HouseManager
                     {
                         player.SupportToPlay.Money += car.ability.subsidize;
                     }
+                    if (!string.IsNullOrEmpty(car.ability.diamondInCar))
+                    {
+                        player.PromoteDiamondCount[car.ability.diamondInCar]++;
+                    }
                     car.ability.Refresh();
                     car.Refresh();
+                    printState(player, car, "执行了归位");
                 }
                 else
                 {

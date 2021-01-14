@@ -51,11 +51,15 @@ namespace HouseManager
                 {
                     var notifyJson = getBodyStr(context);
 
-                    var t = Convert.ToInt64((DateTime.Now - Program.startTime).TotalMilliseconds);
-                    File.AppendAllText("debugLog.txt", Newtonsoft.Json.JsonConvert.SerializeObject
-                        (
-                        new { t = t, notifyJson = notifyJson }
-                        ));
+                    var t = Convert.ToInt32((DateTime.Now - Program.startTime).TotalMilliseconds);
+                    //File.AppendAllText("debugLog.txt", Newtonsoft.Json.JsonConvert.SerializeObject
+                    //    (
+                    //    new { t = t, notifyJson = notifyJson }
+                    //    ));
+                    File.AppendAllText("debugLog.txt", $"Common.awaitF({t}, startTime);" + Environment.NewLine);
+                    File.AppendAllText("debugLog.txt", $"await Common.SendInfomation(url, \"{notifyJson.Replace("\"", "\\\"")}\");" + Environment.NewLine);
+                    File.AppendAllText("debugLog.txt", "" + Environment.NewLine);
+
                     Console.WriteLine($"notify receive:{notifyJson}");
                     CommonClass.Command c = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.Command>(notifyJson);
 
@@ -156,95 +160,35 @@ namespace HouseManager
                     var notifyJson = getBodyStr(context);
 
                     // var t = Convert.ToInt64((DateTime.Now - Program.startTime).TotalMilliseconds);
-                    File.AppendAllText("debugLog.txt", Newtonsoft.Json.JsonConvert.SerializeObject
-                        (
-                        new { t = t, notifyJson = notifyJson }
-                        ));
-                    Console.WriteLine($"notify receive:{notifyJson}");
-                    CommonClass.Command c = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.Command>(notifyJson);
 
-                    switch (c.c)
+                    Console.WriteLine($"monitor receive:{notifyJson}");
+                    CommonClass.Monitor m = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.Monitor>(notifyJson);
+
+                    switch (m.c)
                     {
-                        case "PlayerAdd":
+                        case "CheckPlayersCarState":
                             {
-                                CommonClass.PlayerAdd addItem = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.PlayerAdd>(notifyJson);
-                                var result = BaseInfomation.rm.AddPlayer(addItem);
+                                CommonClass.CheckPlayersCarState cpcs = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.CheckPlayersCarState>(notifyJson);
+                                var result = BaseInfomation.rm.Monitor(cpcs);
                                 await context.Response.WriteAsync(result);
                             }; break;
-                        case "PlayerCheck":
+                        case "CheckPlayersMoney":
                             {
-                                CommonClass.PlayerCheck checkItem = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.PlayerCheck>(notifyJson);
-                                var result = BaseInfomation.rm.UpdatePlayer(checkItem);
+                                CommonClass.CheckPlayersMoney cpcs = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.CheckPlayersMoney>(notifyJson);
+                                var result = BaseInfomation.rm.Monitor(cpcs);
                                 await context.Response.WriteAsync(result);
                             }; break;
-                        case "Map":
+                        case "CheckPlayerCostBusiness":
                             {
-                                CommonClass.Map map = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.Map>(notifyJson);
-                                switch (map.DataType)
-                                {
-                                    case "All":
-                                        {
-                                            //    public void getAll(out List<double[]> meshPoints, out List<object> listOfCrosses)
-                                            List<double[]> meshPoints;
-                                            List<object> listOfCrosses;
-                                            Program.dt.getAll(out meshPoints, out listOfCrosses);
-                                            var json = Newtonsoft.Json.JsonConvert.SerializeObject(new { meshPoints = meshPoints, listOfCrosses = listOfCrosses });
-                                            await context.Response.WriteAsync(json);
-                                        }; break;
-                                }
+                                CommonClass.CheckPlayerCostBusiness cpcs = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.CheckPlayerCostBusiness>(notifyJson);
+                                var result = BaseInfomation.rm.Monitor(cpcs);
+                                await context.Response.WriteAsync(result);
                             }; break;
-                        case "GetPosition":
+                        case "CheckPromoteDiamondCount":
                             {
-                                CommonClass.GetPosition getPosition = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.GetPosition>(notifyJson);
-                                //string fromUrl; 
-                                var GPResult = await BaseInfomation.rm.GetPosition(getPosition);
-                                if (GPResult.Success)
-                                {
-                                    CommonClass.GetPositionNotify notify = new CommonClass.GetPositionNotify()
-                                    {
-                                        c = "GetPositionNotify",
-                                        fp = GPResult.Fp,
-                                        WebSocketID = GPResult.WebSocketID,
-                                        carsNames = GPResult.CarsNames,
-                                        key = getPosition.Key
-                                    };
-
-                                    await sendMsg(GPResult.FromUrl, Newtonsoft.Json.JsonConvert.SerializeObject(notify));
-                                    var notifyMsgs = GPResult.NotifyMsgs;
-                                    for (var i = 0; i < notifyMsgs.Count; i += 2)
-                                    {
-                                        await sendMsg(notifyMsgs[i], notifyMsgs[i + 1]);
-                                    }
-                                }
-                                await context.Response.WriteAsync("ok");
-                            }; break;
-                        case "FinishTask":
-                            {
-
-                            }; break;
-                        case "SetPromote":
-                            {
-                                CommonClass.SetPromote sp = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.SetPromote>(notifyJson);
-                                var result = await BaseInfomation.rm.updatePromote(sp);
-                                await context.Response.WriteAsync("ok");
-                            }; break;
-                        case "SetCollect":
-                            {
-                                CommonClass.SetCollect sc = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.SetCollect>(notifyJson);
-                                var result = await BaseInfomation.rm.updateCollect(sc);
-                                await context.Response.WriteAsync("ok");
-                            }; break;
-                        case "SetAttack":
-                            {
-                                CommonClass.SetAttack sa = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.SetAttack>(notifyJson);
-                                var result = await BaseInfomation.rm.updateAttack(sa);
-                                await context.Response.WriteAsync("ok");
-                            }; break;
-                        case "SetTax":
-                            {
-                                CommonClass.SetTax st = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.SetTax>(notifyJson);
-                                var result = await BaseInfomation.rm.updateTax(st);
-                                await context.Response.WriteAsync("ok");
+                                CommonClass.CheckPromoteDiamondCount cpcs = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.CheckPromoteDiamondCount>(notifyJson);
+                                var result = BaseInfomation.rm.Monitor(cpcs);
+                                await context.Response.WriteAsync(result);
                             }; break;
                     }
                 }

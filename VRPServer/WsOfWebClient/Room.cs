@@ -689,7 +689,7 @@ namespace WsOfWebClient
 
         internal static async Task<string> setPromote(State s, Promote promote)
         {
-            if (promote.pType == "mile" || promote.pType == "bussiness" || promote.pType == "volume" || promote.pType == "speed")
+            if (promote.pType == "mile" || promote.pType == "business" || promote.pType == "volume" || promote.pType == "speed")
             {
                 // string A = "carA_bb6a1ef1cb8c5193bec80b7752c6d54c";
                 // A = Console.ReadLine();
