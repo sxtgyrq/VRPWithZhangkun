@@ -24,6 +24,17 @@ namespace CommonClass
         public string Car { get; set; }
     }
 
+    public class CheckPlayerCostVolume : Monitor
+    {
+        public string Key { get; set; }
+        public string Car { get; set; }
+    }
+    public class CheckPlayerCarPuporse : Monitor
+    {
+        public string Key { get; set; }
+        public string Car { get; set; }
+    }
+
     public class CheckPromoteDiamondCount : Monitor
     {
         public string Key { get; set; }

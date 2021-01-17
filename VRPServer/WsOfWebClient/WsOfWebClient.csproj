@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CommonClass\CommonClass.csproj" />
+    <ProjectReference Include="..\TcpFunction\TcpFunction.csproj" />
   </ItemGroup>
 
   <ItemGroup>

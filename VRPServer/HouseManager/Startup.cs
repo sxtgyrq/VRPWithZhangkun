@@ -8,9 +8,11 @@ using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Net.WebSockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HouseManager
@@ -34,17 +36,38 @@ namespace HouseManager
             });
         }
 
-        const int size = 1024 * 3;
+     
         public void Configure(IApplicationBuilder app, Microsoft.AspNetCore.Hosting.IWebHostEnvironment env)
         {
             //app.Map("/websocket", WebSocket);
 
-            app.Map("/notify", notify);
+            //var webSocketOptions = new WebSocketOptions()
+            //{
+            //    KeepAliveInterval = TimeSpan.FromSeconds(60),
+            //    ReceiveBufferSize = 1024 * 3
+            //};
+            //app.UseWebSockets(webSocketOptions);
 
-            app.Map("/monitor", monitor);
+            //app.Map("/notify", notify);
+
+            //app.Map("/monitor", monitor);
+
+            // Console.WriteLine($"启动TCP连接！{  env.po}");
         }
         private static void notify(IApplicationBuilder app)
         {
+            throw new Exception("调用了已作废的方法！");
+            //app.Run(async context =>
+            //{
+            //    if (context.WebSockets.IsWebSocketRequest)
+            //    {
+
+            //        var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+            //        await dealWithNotify(webSocket);
+            //    }
+            //});
+            //return;
+
             app.Run(async context =>
             {
                 if (context.Request.Method.ToLower() == "post")
@@ -151,8 +174,60 @@ namespace HouseManager
             });
         }
 
+      
+        public class ReceiveObj
+        {
+            public WebSocketReceiveResult wr { get; set; }
+            public string result { get; set; }
+        }
+        public static async Task<ReceiveObj> ReceiveStringAsync(System.Net.WebSockets.WebSocket socket, int size, CancellationToken ct = default(CancellationToken))
+        {
+            var buffer = new ArraySegment<byte>(new byte[size]);
+            WebSocketReceiveResult result;
+            using (var ms = new MemoryStream())
+            {
+                do
+                {
+                    ct.ThrowIfCancellationRequested();
+
+                    result = await socket.ReceiveAsync(buffer, ct);
+                    ms.Write(buffer.Array, buffer.Offset, result.Count);
+                }
+                while (!result.EndOfMessage);
+
+                ms.Seek(0, SeekOrigin.Begin);
+                if (result.MessageType != WebSocketMessageType.Text)
+                {
+                    return new ReceiveObj()
+                    {
+                        result = null,
+                        wr = result
+                    };
+                }
+                using (var reader = new StreamReader(ms, Encoding.UTF8))
+                {
+                    var strValue = await reader.ReadToEndAsync();
+                    return new ReceiveObj()
+                    {
+                        result = strValue,
+                        wr = result
+                    };
+                }
+            }
+        }
+
         private static void monitor(IApplicationBuilder app)
         {
+            app.Run(async context =>
+            {
+                if (context.WebSockets.IsWebSocketRequest)
+                {
+
+                    var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                    await dealWithMonitor(webSocket);
+                }
+            });
+            return;
             app.Run(async context =>
             {
                 if (context.Request.Method.ToLower() == "post")
@@ -190,11 +265,90 @@ namespace HouseManager
                                 var result = BaseInfomation.rm.Monitor(cpcs);
                                 await context.Response.WriteAsync(result);
                             }; break;
+                        case "CheckPlayerCarPuporse":
+                            {
+                                CommonClass.CheckPlayerCarPuporse cpcs = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.CheckPlayerCarPuporse>(notifyJson);
+                                var result = BaseInfomation.rm.Monitor(cpcs);
+                                await context.Response.WriteAsync(result);
+                            }; break;
+                        case "CheckPlayerCostVolume":
+                            {
+                                CommonClass.CheckPlayerCostVolume cpcs = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.CheckPlayerCostVolume>(notifyJson);
+                                var result = BaseInfomation.rm.Monitor(cpcs);
+                                await context.Response.WriteAsync(result);
+                            }; break;
                     }
                 }
             });
         }
 
+        private static async Task dealWithMonitor(WebSocket webSocketFromGameHandler)
+        {
+            //WebSocketReceiveResult Wrr;
+            ////   do
+            //{
+            //    var returnResult = await ReceiveStringAsync(webSocketFromGameHandler, 1024 * 1024 * 10);
+
+            //    Wrr = returnResult.wr;
+            //    //returnResult.wr;
+            //    string outPut = "haveNothingToReturn";
+            //    {
+            //        var notifyJson = returnResult.result;
+
+            //        Console.WriteLine($"json:{notifyJson}");
+
+
+            //        Console.WriteLine($"monitor receive:{notifyJson}");
+            //        CommonClass.Monitor m = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.Monitor>(notifyJson);
+
+            //        switch (m.c)
+            //        {
+            //            case "CheckPlayersCarState":
+            //                {
+            //                    CommonClass.CheckPlayersCarState cpcs = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.CheckPlayersCarState>(notifyJson);
+            //                    var result = BaseInfomation.rm.Monitor(cpcs);
+            //                    outPut = result;
+            //                }; break;
+            //            case "CheckPlayersMoney":
+            //                {
+            //                    CommonClass.CheckPlayersMoney cpcs = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.CheckPlayersMoney>(notifyJson);
+            //                    var result = BaseInfomation.rm.Monitor(cpcs);
+            //                    outPut = result;
+            //                }; break;
+            //            case "CheckPlayerCostBusiness":
+            //                {
+            //                    CommonClass.CheckPlayerCostBusiness cpcs = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.CheckPlayerCostBusiness>(notifyJson);
+            //                    var result = BaseInfomation.rm.Monitor(cpcs);
+            //                    outPut = result;
+            //                }; break;
+            //            case "CheckPromoteDiamondCount":
+            //                {
+            //                    CommonClass.CheckPromoteDiamondCount cpcs = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.CheckPromoteDiamondCount>(notifyJson);
+            //                    var result = BaseInfomation.rm.Monitor(cpcs);
+            //                    outPut = result;
+            //                }; break;
+            //            case "CheckPlayerCarPuporse":
+            //                {
+            //                    CommonClass.CheckPlayerCarPuporse cpcs = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.CheckPlayerCarPuporse>(notifyJson);
+            //                    var result = BaseInfomation.rm.Monitor(cpcs);
+            //                    outPut = result;
+            //                }; break;
+            //            case "CheckPlayerCostVolume":
+            //                {
+            //                    CommonClass.CheckPlayerCostVolume cpcs = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.CheckPlayerCostVolume>(notifyJson);
+            //                    var result = BaseInfomation.rm.Monitor(cpcs);
+            //                    outPut = result;
+            //                }; break;
+            //        }
+            //    }
+            //    {
+            //        var sendData = Encoding.UTF8.GetBytes(outPut);
+            //        await webSocketFromGameHandler.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+            //    }
+            //}
+            ////while (!Wrr.CloseStatus.HasValue);
+            //// return "doNothing";
+        }
         public static string getBodyStr(HttpContext context)
         {
             string requestContent;
@@ -215,31 +369,14 @@ namespace HouseManager
         //    await BaseInfomation.Client.PostAsync(roomUrl, byteContent);
         //}
 
-        public static async Task sendMsg(Microsoft.Extensions.Primitives.StringValues fromUrl, string json)
-        {
+        //  public readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
 
-            using (HttpClient client = new HttpClient())
-            {
-                Uri u = new Uri(fromUrl);
-                HttpContent c = new StringContent(json, Encoding.UTF8, "application/json");
-                HttpRequestMessage request = new HttpRequestMessage
-                {
-                    Method = HttpMethod.Post,
-                    RequestUri = u,
-                    Content = c
-                };
-                HttpResponseMessage result = await client.SendAsync(request);
-                //   BaseInfomation.Client.
-                if (result.IsSuccessStatusCode)
-                {
-                    //    response = result.StatusCode.ToString();
-                }
-                else
-                {
-                    Console.WriteLine($"{fromUrl}推送失败！");
-                }
-                client.Dispose();
-            }
+        //  private static Dictionary<string, HttpClient> _httpClients = new Dictionary<string, HttpClient>();
+
+
+        public static async Task sendMsg(string controllerUrl, string json)
+        {
+            await TcpFunction.WithoutResponse.SendInmationToUrl(controllerUrl, json);
         }
 
 

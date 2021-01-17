@@ -8,7 +8,7 @@ namespace WsOfWebClient
 {
     public static class ConnectInfo
     {
-        public static string ConnectedInfo { get; set; }
+        public static string HostIP { get; set; }
         public static int webSocketID = 0;
         public static object connectedWs_LockObj = new object();
         public static Dictionary<int, WebSocket> connectedWs = new Dictionary<int, WebSocket>();
@@ -50,5 +50,7 @@ namespace WsOfWebClient
         public static string[] RMB20 = new string[] { };
         public static string[] RMB10 = new string[] { };
         public static string[] RMB5 = new string[] { };
+        internal static int webSocketPort;
+        internal static int tcpServerPort;
     }
 }

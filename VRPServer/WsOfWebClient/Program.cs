@@ -12,16 +12,33 @@ namespace WsOfWebClient
         static void Main(string[] args)
         {
             Console.WriteLine("你好！此服务为网页端的webSocket服务！");
-            var ip = "http://127.0.0.1:11001";
-            Console.WriteLine($"输入ip和端口如“{ip}”");
+            var ip = "127.0.0.1";
+            int websocketPort = 11001;
+
+            Console.WriteLine($"输入ip,如“{ip}”");
             var inputIp = Console.ReadLine();
             if (string.IsNullOrEmpty(inputIp)) { }
             else
             {
                 ip = inputIp;
             }
-            ConnectInfo.ConnectedInfo = ip;
-            CreateWebHostBuilder(new string[] { ip }).Build().Run();
+
+            Console.WriteLine($"输入端口≠15000,如“{websocketPort}”");
+            var inputWebsocketPort = Console.ReadLine();
+            if (string.IsNullOrEmpty(inputWebsocketPort)) { }
+            else
+            {
+                int num;
+                if (int.TryParse(inputWebsocketPort, out num))
+                {
+                    websocketPort = num;
+                }
+            }
+            int tcpServerPort = 30000 - websocketPort;
+            ConnectInfo.HostIP = ip;
+            ConnectInfo.webSocketPort = websocketPort;
+            ConnectInfo.tcpServerPort = tcpServerPort;
+            CreateWebHostBuilder(new string[] { $"http://{ip}:{ConnectInfo.webSocketPort}" }).Build().Run();
 
             Console.WriteLine("Hello World!");
         }

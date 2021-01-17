@@ -15,20 +15,20 @@ namespace WsOfWebClient
     {
         public static List<string> roomUrls = new List<string>()
         {
-            "http://127.0.0.1:11100" + "/notify"
+            "127.0.0.1:11100"
         };
 
         internal static PlayerAdd getRoomNum(int websocketID, string playerName, string[] carsNames, out int roomIndex)
         {
             roomIndex = 0;
             // var  
-            var key = CommonClass.Random.GetMD5HashFromStr(ConnectInfo.ConnectedInfo + websocketID + DateTime.Now.ToString());
+            var key = CommonClass.Random.GetMD5HashFromStr(ConnectInfo.HostIP + websocketID + DateTime.Now.ToString());
             var roomUrl = roomUrls[roomIndex];
             return new PlayerAdd()
             {
                 Key = key,
                 c = "PlayerAdd",
-                FromUrl = ConnectInfo.ConnectedInfo + "/notify",
+                FromUrl = $"{ConnectInfo.HostIP}:{ConnectInfo.tcpServerPort}",// ConnectInfo.ConnectedInfo + "/notify",
                 RoomIndex = 0,
                 WebSocketID = websocketID,
                 Check = CommonClass.Random.GetMD5HashFromStr(key + roomUrl + CheckParameter),
@@ -39,13 +39,13 @@ namespace WsOfWebClient
         }
         private static PlayerAdd getRoomNumByRoom(int websocketID, int roomIndex, string playerName, string[] carsNames)
         {
-            var key = CommonClass.Random.GetMD5HashFromStr(ConnectInfo.ConnectedInfo + websocketID + DateTime.Now.ToString());
+            var key = CommonClass.Random.GetMD5HashFromStr(ConnectInfo.HostIP + websocketID + DateTime.Now.ToString());
             var roomUrl = roomUrls[roomIndex];
             return new PlayerAdd()
             {
                 Key = key,
                 c = "PlayerAdd",
-                FromUrl = ConnectInfo.ConnectedInfo + "/notify",
+                FromUrl = $"{ConnectInfo.HostIP}:{ConnectInfo.tcpServerPort}",// ConnectInfo.ConnectedInfo + "/notify",
                 RoomIndex = 0,
                 WebSocketID = websocketID,
                 Check = CommonClass.Random.GetMD5HashFromStr(key + roomUrl + CheckParameter),
@@ -507,7 +507,7 @@ namespace WsOfWebClient
         private async static Task initializeOperation(State s)
         {
             // var key = CommonClass.Random.GetMD5HashFromStr(ConnectInfo.ConnectedInfo + websocketID + DateTime.Now.ToString());
-            //   var roomUrl = roomUrls[s.roomIndex];
+            // var roomUrl = roomUrls[s.roomIndex];
             var getPosition = new GetPosition()
             {
                 c = "GetPosition",
@@ -535,14 +535,14 @@ namespace WsOfWebClient
                     {
                         c = "SetTax",
                         Key = s.Key,
-                        car = "car" + m.Groups["car"].Value, 
+                        car = "car" + m.Groups["car"].Value,
                         target = tax.Target
                     };
                     var msg = Newtonsoft.Json.JsonConvert.SerializeObject(getPosition);
                     await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[s.roomIndex], msg);
                 }
             }
-            return ""; 
+            return "";
         }
 
         internal static async Task<string> setAttack(State s, Attack attack)
@@ -754,14 +754,14 @@ namespace WsOfWebClient
     public class Team
     {
         //  "http://127.0.0.1:11100" + "/notify"
-        static string teamUrl = "http://127.0.0.1:11200";
+        static string teamUrl = "127.0.0.1:11200";
         internal static async Task<TeamResult> createTeam2(int websocketID, string playerName, string command_start)
         {
             var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new CommonClass.TeamCreate()
             {
                 WebSocketID = websocketID,
                 c = "TeamCreate",
-                FromUrl = ConnectInfo.ConnectedInfo + "/notify",
+                FromUrl = $"{ConnectInfo.HostIP}:{ConnectInfo.tcpServerPort}",//ConnectInfo.ConnectedInfo + "/notify",
                 CommandStart = command_start,
                 PlayerName = playerName
             });
@@ -790,7 +790,7 @@ namespace WsOfWebClient
             {
                 WebSocketID = websocketID,
                 c = "TeamJoin",
-                FromUrl = ConnectInfo.ConnectedInfo + "/notify",
+                FromUrl = $"{ConnectInfo.HostIP}:{ConnectInfo.tcpServerPort}",// ConnectInfo.ConnectedInfo + "/notify",
                 CommandStart = command_start,
                 PlayerName = playerName,
                 TeamIndex = teamIndex

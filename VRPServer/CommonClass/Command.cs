@@ -8,7 +8,10 @@ namespace CommonClass
     {
         public string c { get; set; }
     }
-
+    public class Register : Command
+    {
+        public string ControllerUrl { get; set; }
+    }
     public class Map : Command
     {
         public string DataType { get; set; }
@@ -129,7 +132,7 @@ namespace CommonClass
     public class SetTax : Command
     {
         public string Key { get; set; }
-        public string car { get; set; } 
+        public string car { get; set; }
         public int target { get; set; }
     }
     public class GetTax : Command

@@ -195,6 +195,7 @@ namespace HouseManager
             //return json;
         }
 
+        static string rootPath = "F:\\MyProject\\VRPWithZhangkun\\MainApp\\DBPublish\\";
         public List<OssModel.MapGo.nyrqPosition> GetAFromB(int start, int end)
         {
             if (start == end)
@@ -273,7 +274,7 @@ namespace HouseManager
 
         private static byte[] GetDataOfPath(int dataIndex, int startPositionInDB, int length)
         {
-            using (var fileStream = new FileStream($"bigData{dataIndex}.rqdt", FileMode.OpenOrCreate))
+            using (var fileStream = new FileStream($"{rootPath}bigData{dataIndex}.rqdt", FileMode.OpenOrCreate))
             {
                 var data = new byte[length];
                 fileStream.Seek(startPositionInDB, SeekOrigin.Begin);
@@ -284,7 +285,7 @@ namespace HouseManager
 
         private static bool Read(ref int startPosition, out byte[] data)
         {
-            using (var fileStream = new FileStream($"contentofdata", FileMode.OpenOrCreate))
+            using (var fileStream = new FileStream($"{rootPath}contentofdata", FileMode.OpenOrCreate))
             {
                 data = new byte[8];
                 if (startPosition < fileStream.Length)

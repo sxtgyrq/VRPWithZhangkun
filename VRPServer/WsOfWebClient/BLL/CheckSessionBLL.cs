@@ -26,7 +26,7 @@ namespace WsOfWebClient.BLL
             {
                 var playerCheck = Newtonsoft.Json.JsonConvert.DeserializeObject<PlayerCheck>(checkSession.session);
                 playerCheck.c = "PlayerCheck";
-                playerCheck.FromUrl = ConnectInfo.ConnectedInfo + "/notify";
+                playerCheck.FromUrl = $"{ConnectInfo.HostIP}:{ConnectInfo.tcpServerPort}";//ConnectInfo.ConnectedInfo + "/notify";
                 // pl
                 playerCheck.WebSocketID = s.WebsocketID;
 
