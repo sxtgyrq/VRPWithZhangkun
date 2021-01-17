@@ -20,17 +20,17 @@ namespace ConsoleTestAPP.TestTag
             Console.WriteLine("按任意键开始检测！");
             Console.ReadKey();
 
-            var url = "http://127.0.0.1:11100" + "/notify";
-            var checkUrl = "http://127.0.0.1:11100" + "/monitor";
+            var url = "127.0.0.1:11100";
+            var checkUrl= "127.0.0.1:18900";
             var startTime = DateTime.Now;
 
 
 
             Common.awaitF(0, startTime);
-            await Common.SendInfomation(url, "{\"Key\":\"33957cbff3b0ae1e24a6576f218044d8\",\"FromUrl\":\"http://127.0.0.1:11001/notify\",\"RoomIndex\":0,\"Check\":\"bce78a07f4ebcfa74ed59ab47f9dc1fe\",\"WebSocketID\":30,\"PlayerName\":\"测试玩家1\",\"CarsNames\":[\"车1,\",\"车2,\",\"车3,\",\"车4,\",\"车5,\"],\"c\":\"PlayerAdd\"}");
+            await Common.SendInfomation(url, "{\"Key\":\"33957cbff3b0ae1e24a6576f218044d8\",\"FromUrl\":\"127.0.0.1:18999\",\"RoomIndex\":0,\"Check\":\"bce78a07f4ebcfa74ed59ab47f9dc1fe\",\"WebSocketID\":30,\"PlayerName\":\"测试玩家1\",\"CarsNames\":[\"车1,\",\"车2,\",\"车3,\",\"车4,\",\"车5,\"],\"c\":\"PlayerAdd\"}");
 
             Common.awaitF(3735, startTime);
-            await Common.SendInfomation(url, "{\"Key\":\"8e8092f61e69c07a8699001cc85c270a\",\"FromUrl\":\"http://127.0.0.1:11001/notify\",\"RoomIndex\":0,\"Check\":\"c8eb80950b82f8e7242fa3cd0b13aa46\",\"WebSocketID\":40,\"PlayerName\":\"测试玩家2\",\"CarsNames\":[\"车1,\",\"车2,\",\"车3,\",\"车4,\",\"车5,\"],\"c\":\"PlayerAdd\"}");
+            await Common.SendInfomation(url, "{\"Key\":\"8e8092f61e69c07a8699001cc85c270a\",\"FromUrl\":\"127.0.0.1:18999\",\"RoomIndex\":0,\"Check\":\"c8eb80950b82f8e7242fa3cd0b13aa46\",\"WebSocketID\":40,\"PlayerName\":\"测试玩家2\",\"CarsNames\":[\"车1,\",\"车2,\",\"车3,\",\"车4,\",\"车5,\"],\"c\":\"PlayerAdd\"}");
 
             Common.awaitF(5544, startTime);
             await Common.SendInfomation(url, "{\"Key\":\"33957cbff3b0ae1e24a6576f218044d8\",\"c\":\"GetPosition\"}");
@@ -99,7 +99,7 @@ namespace ConsoleTestAPP.TestTag
 
         private static async void CheckF(DateTime startTime)
         {
-            var checkUrl = "http://127.0.0.1:11100" + "/monitor";
+            var checkUrl= "127.0.0.1:18900";
             for (var i = 0; i < 300000; i += 1000)
             {
 

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.WebSockets;
 using System.Runtime.CompilerServices;
@@ -33,7 +34,7 @@ namespace WsOfWebClient
             });
         }
 
-        const int size = 1024 * 3;
+        const int webWsSize = 1024 * 3;
         public void Configure(IApplicationBuilder app, Microsoft.AspNetCore.Hosting.IWebHostEnvironment env)
         {
 
@@ -55,16 +56,60 @@ namespace WsOfWebClient
             //app.Map("/postinfo", HandleMapdownload);
             var webSocketOptions = new WebSocketOptions()
             {
-                KeepAliveInterval = TimeSpan.FromSeconds(60000 * 1000),
-                ReceiveBufferSize = 1024 * 1000
+                KeepAliveInterval = TimeSpan.FromSeconds(3600 * 24),
+                ReceiveBufferSize = webWsSize
             };
             app.UseWebSockets(webSocketOptions);
 
             app.Map("/websocket", WebSocketF);
 
-            app.Map("/notify", notify);
-        }
+            // app.Map("/notify", notify);
 
+            Console.WriteLine($"启动TCP连接！{ ConnectInfo.tcpServerPort}");
+            Thread th = new Thread(() => startTcp());
+            th.Start();
+        }
+        private void startTcp()
+        {
+            var dealWithF = new TcpFunction.WithoutResponse.DealWith(StartTcpDealWithF);
+            TcpFunction.WithoutResponse.startTcp(ConnectInfo.HostIP, ConnectInfo.tcpServerPort, dealWithF);
+        }
+        //private async void startTcp()
+        async Task StartTcpDealWithF(string notifyJson)
+        {
+            CommonClass.CommandNotify c = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.CommandNotify>(notifyJson);
+            WebSocket ws = null;
+            lock (ConnectInfo.connectedWs_LockObj)
+            {
+                if (ConnectInfo.connectedWs.ContainsKey(c.WebSocketID))
+                {
+                    if (ConnectInfo.connectedWs[c.WebSocketID].State == WebSocketState.Open)
+                    {
+                        ws = ConnectInfo.connectedWs[c.WebSocketID];
+                    }
+                    else
+                    {
+                        ConnectInfo.connectedWs.Remove(c.WebSocketID);
+                    }
+                }
+            }
+            // await context.Response.WriteAsync("ok");
+            if (ws != null)
+            {
+                if (ws.State == WebSocketState.Open)
+                {
+                    try
+                    {
+                        var sendData = Encoding.UTF8.GetBytes(notifyJson);
+                        await ws.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+                    }
+                    catch
+                    {
+
+                    }
+                }
+            }
+        }
         private static void WebSocketF(IApplicationBuilder app)
         {
             app.Run(async context =>
@@ -101,10 +146,10 @@ namespace WsOfWebClient
                     try
                     {
 
-                        var returnResult = await ReceiveStringAsync(webSocket);
+                        var returnResult = await ReceiveStringAsync(webSocket, webWsSize);
 
                         wResult = returnResult.wr;
-                        Console.WriteLine($"receive:{returnResult.result}");
+                        Console.WriteLine($"receive from web:{returnResult.result}");
                         CommonClass.Command c = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.Command>(returnResult.result);
                         switch (c.c)
                         {
@@ -161,7 +206,7 @@ namespace WsOfWebClient
                                             }
                                             {
                                                 //var command_start = CommonClass.Random.GetMD5HashFromStr(s.WebsocketID.ToString() + s.WebsocketID); 
-                                                returnResult = await ReceiveStringAsync(webSocket);
+                                                returnResult = await ReceiveStringAsync(webSocket, webWsSize);
 
                                                 wResult = returnResult.wr;
                                                 if (returnResult.result == command_start)
@@ -188,7 +233,7 @@ namespace WsOfWebClient
                                                 s = await Room.setState(s, webSocket, LoginState.WaitingToGetTeam);
                                             }
                                             {
-                                                returnResult = await ReceiveStringAsync(webSocket);
+                                                returnResult = await ReceiveStringAsync(webSocket, webWsSize);
 
                                                 wResult = returnResult.wr;
                                                 var teamID = returnResult.result;
@@ -197,7 +242,7 @@ namespace WsOfWebClient
 
                                                 if (result == "ok")
                                                 {
-                                                    returnResult = await ReceiveStringAsync(webSocket);
+                                                    returnResult = await ReceiveStringAsync(webSocket, webWsSize);
 
                                                     wResult = returnResult.wr;
 
@@ -304,8 +349,9 @@ namespace WsOfWebClient
 
                         }
                     }
-                    catch
+                    catch (Exception e)
                     {
+                        Console.WriteLine($"{ Newtonsoft.Json.JsonConvert.SerializeObject(e)}");
                         // Console.WriteLine($"step2：webSockets数量：{   BufferImage.webSockets.Count}");
                         return;
                     }
@@ -313,29 +359,25 @@ namespace WsOfWebClient
                 while (!wResult.CloseStatus.HasValue);
                 try
                 {
-                    await webSocket.CloseAsync(wResult.CloseStatus.Value, wResult.CloseStatusDescription, CancellationToken.None);
+                    // await webSocket.CloseAsync(wResult.CloseStatus.Value, wResult.CloseStatusDescription, CancellationToken.None);
 
 
                 }
                 catch
                 {
-                    return;
+                    //  return;
                 }
             };
         }
 
+        //private static List<WebsocketClient> _clients = new List<WebsocketClient>();
+        //static Dictionary<string, ClientWebSocket> _sockets = new Dictionary<string, ClientWebSocket>();
         public static async Task<string> sendInmationToUrlAndGetRes(string roomUrl, string sendMsg)
         {
-            // ConnectInfo.Client.PostAsync(roomUrl,)
-            using (HttpClient Client = new HttpClient())
-            {
-
-                var buffer = Encoding.UTF8.GetBytes(sendMsg);
-                var byteContent = new ByteArrayContent(buffer);
-                var response = await Client.PostAsync(roomUrl, byteContent);
-                return await response.Content.ReadAsStringAsync();
-            }
+            return await TcpFunction.WithResponse.SendInmationToUrlAndGetRes(roomUrl, sendMsg);
         }
+
+
 
         private static void addWs(System.Net.WebSockets.WebSocket webSocket, int websocketID)
         {
@@ -371,7 +413,12 @@ namespace WsOfWebClient
             public string result { get; set; }
         }
 
+
         public static async Task<ReceiveObj> ReceiveStringAsync(System.Net.WebSockets.WebSocket socket, CancellationToken ct = default(CancellationToken))
+        {
+            return await ReceiveStringAsync(socket, webWsSize);
+        }
+        public static async Task<ReceiveObj> ReceiveStringAsync(System.Net.WebSockets.WebSocket socket, int size, CancellationToken ct = default(CancellationToken))
         {
             var buffer = new ArraySegment<byte>(new byte[size]);
             WebSocketReceiveResult result;
@@ -424,26 +471,37 @@ namespace WsOfWebClient
             return new double[] { vec[0] / l, vec[1] / l };
         }
 
-        private static string getStrFromByte(ref byte[] buffer)
-        {
-            string str = "";
+        //private static string getStrFromByte(ref byte[] buffer)
+        //{
+        //    string str = "";
 
-            for (var i = buffer.Length - 1; i >= 0; i--)
-            {
-                if (buffer[i] != 0)
-                {
-                    str = Encoding.UTF8.GetString(buffer.Take(i + 1).ToArray()).Trim();
-                    break;
-                }
+        //    for (var i = buffer.Length - 1; i >= 0; i--)
+        //    {
+        //        if (buffer[i] != 0)
+        //        {
+        //            str = Encoding.UTF8.GetString(buffer.Take(i + 1).ToArray()).Trim();
+        //            break;
+        //        }
 
-            }
-            buffer = new byte[size];
-            return str;
+        //    }
+        //    buffer = new byte[size];
+        //    return str;
 
-        }
+        //}
 
         private static void notify(IApplicationBuilder app)
         {
+            app.Run(async context =>
+            {
+                if (context.WebSockets.IsWebSocketRequest)
+                {
+
+                    var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                    await dealWithNotify(webSocket);
+                }
+            });
+            return;
+
             app.Run(async context =>
             {
                 if (context.Request.Method.ToLower() == "post")
@@ -491,6 +549,85 @@ namespace WsOfWebClient
                     }
                 }
             });
+        }
+
+        //private static Task dealWithNotify(WebSocket webSocket)
+        //{
+        //    throw new NotImplementedException();
+        //}
+        private static async Task dealWithNotify(System.Net.WebSockets.WebSocket webSocketFromGameRoom)
+        {
+            throw new Exception("");
+            WebSocketReceiveResult wResult;
+            {
+
+                //  do
+                {
+                    try
+                    {
+
+                        var returnResult = await ReceiveStringAsync(webSocketFromGameRoom, webWsSize);
+
+                        wResult = returnResult.wr;
+                        // Console.WriteLine($"receive:{returnResult.result}");
+
+                        var notifyJson = returnResult.result;
+                        Console.WriteLine($"notify receive:{notifyJson}");
+                        CommonClass.CommandNotify c = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.CommandNotify>(notifyJson);
+
+                        // CommonClass.TeamCreateFinish teamCreateFinish = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.TeamCreateFinish>(notifyJson);
+
+                        WebSocket ws = null;
+                        lock (ConnectInfo.connectedWs_LockObj)
+                        {
+                            if (ConnectInfo.connectedWs.ContainsKey(c.WebSocketID))
+                            {
+                                if (ConnectInfo.connectedWs[c.WebSocketID].State == WebSocketState.Open)
+                                {
+                                    ws = ConnectInfo.connectedWs[c.WebSocketID];
+                                }
+                                else
+                                {
+                                    ConnectInfo.connectedWs.Remove(c.WebSocketID);
+                                }
+                            }
+                        }
+                        // await context.Response.WriteAsync("ok");
+                        if (ws != null)
+                        {
+                            if (ws.State == WebSocketState.Open)
+                            {
+                                try
+                                {
+                                    var sendData = Encoding.UTF8.GetBytes(notifyJson);
+                                    await ws.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+                                    await ws.CloseAsync(WebSocketCloseStatus.Empty, null, CancellationToken.None);
+                                }
+                                catch
+                                {
+
+                                }
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        // Console.WriteLine($"step2：webSockets数量：{   BufferImage.webSockets.Count}");
+                        return;
+                    }
+                }
+                //while (!wResult.CloseStatus.HasValue);
+                //try
+                //{
+                //    await webSocketFromGameRoom.CloseAsync(wResult.CloseStatus.Value, wResult.CloseStatusDescription, CancellationToken.None);
+
+
+                //}
+                //catch
+                //{
+                //    return;
+                //}
+            };
         }
 
         public static string getBodyStr(HttpContext context)

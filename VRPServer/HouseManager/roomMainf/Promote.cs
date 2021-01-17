@@ -16,19 +16,19 @@ namespace HouseManager
             //return "";
             if (string.IsNullOrEmpty(sp.car))
             {
-                return "";
+                return "wrong car";
             }
             else if (!(sp.car == "carA" || sp.car == "carB" || sp.car == "carC" || sp.car == "carD" || sp.car == "carE"))
             {
-                return "";
+                return $"wrong car:{sp.car}";
             }
             else if (string.IsNullOrEmpty(sp.pType))
             {
-                return "";
+                return $"wrong pType:{sp.pType}";
             }
             else if (!(sp.pType == "mile" || sp.pType == "business" || sp.pType == "volume" || sp.pType == "speed"))
             {
-                return "";
+                return $"wrong pType:{sp.pType}"; ;
             }
             else
             {
@@ -39,6 +39,7 @@ namespace HouseManager
                 if (player.Bust)
                 {
                     WebNotify(player, "您已破产");
+                    return $"{player.Key} go bust!";
 #warning 这里要提示前台，已经进行破产清算了。
                 }
                 else
@@ -55,96 +56,109 @@ namespace HouseManager
                                 case "volume":
                                 case "speed":
                                     {
-                                        // var car = this._Players[sp.Key].getCar(carIndex);
-                                        switch (car.state)
+                                        switch (car.purpose)
                                         {
-                                            case CarState.waitAtBaseStation:
+                                            case Purpose.@null:
                                                 {
-                                                    // if(player.Money<)
-                                                    var moneyIsEnoughToStart = giveMoneyFromPlayerToCarForPromoting(player, car, sp.pType);
-                                                    if (moneyIsEnoughToStart)
+                                                    switch (car.state)
                                                     {
-                                                        MileResultReason reason;
-                                                        var hasBeginToPromote = promote(player, car, sp, ref notifyMsg, out reason);
-                                                        if (hasBeginToPromote)
-                                                        {
-                                                            WebNotify(player, $"{car.name}在路上寻找能力宝石的路上了！！！");
-                                                            printState(player, car, "开始在路上寻找能力宝石的路上了！！！");
-                                                        }
-                                                        else
-                                                        {
-                                                            if (reason == MileResultReason.CanNotReach)
+                                                        case CarState.waitAtBaseStation:
                                                             {
-                                                                WebNotify(player, $"{car.name}的剩余里程不足以支持到达目的地！");
-                                                                //WebNotify(player, $"资金不够,{car.name}未能上路！！！");
-                                                            }
-                                                            else if (reason == MileResultReason.CanNotReturn)
-                                                            {
-                                                                WebNotify(player, $"到达目的地后，{car.name}的剩余里程不足以支持返回！");
-                                                            }
-                                                            printState(player, car, "各种原因，不能开始！");
-                                                            giveMoneyFromCarToPlayer(player, car);
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        WebNotify(player, $"钱不够了,由于本身待在基地，不用返回");
-                                                        printState(player, car, "钱不够了,由于本身待在基地，不用返回。");
-                                                    }
-                                                }; break;
-                                            case CarState.waitOnRoad:
-                                                {
-                                                    if (car.ability.diamondInCar == "")
-                                                    {
-                                                        if (car.ability.SumMoneyCanForPromote >= this.promotePrice[sp.pType])
-                                                        {
-                                                            MileResultReason reason;
-                                                            var hasBeginToPromote = promote(player, car, sp, ref notifyMsg, out reason);
-                                                            if (hasBeginToPromote)
-                                                            {
-                                                                WebNotify(player, $"{car.name}在路上寻找能力宝石的路上了！！！");
-                                                                printState(player, car, $"已经在收集{sp.pType}宝石的路上了！");
-                                                            }
-                                                            else
-                                                            {
-                                                                if (reason == MileResultReason.CanNotReach)
+                                                                // if(player.Money<)
+                                                                var moneyIsEnoughToStart = giveMoneyFromPlayerToCarForPromoting(player, car, sp.pType);
+                                                                if (moneyIsEnoughToStart)
                                                                 {
-                                                                    WebNotify(player, $"{car.name}的剩余里程不足以支持到达目的地！");
-                                                                    //WebNotify(player, $"资金不够,{car.name}未能上路！！！");
+                                                                    MileResultReason reason;
+                                                                    var hasBeginToPromote = promote(player, car, sp, ref notifyMsg, out reason);
+                                                                    if (hasBeginToPromote)
+                                                                    {
+                                                                        WebNotify(player, $"{car.name}在路上寻找能力宝石的路上了！！！");
+                                                                        printState(player, car, "开始在路上寻找能力宝石的路上了！！！");
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        if (reason == MileResultReason.CanNotReach)
+                                                                        {
+                                                                            WebNotify(player, $"{car.name}的剩余里程不足以支持到达目的地！");
+                                                                            //WebNotify(player, $"资金不够,{car.name}未能上路！！！");
+                                                                        }
+                                                                        else if (reason == MileResultReason.CanNotReturn)
+                                                                        {
+                                                                            WebNotify(player, $"到达目的地后，{car.name}的剩余里程不足以支持返回！");
+                                                                        }
+                                                                        printState(player, car, "各种原因，不能开始！");
+                                                                        giveMoneyFromCarToPlayer(player, car);
+                                                                    }
                                                                 }
-                                                                else if (reason == MileResultReason.CanNotReturn)
+                                                                else
                                                                 {
-                                                                    WebNotify(player, $"到达目的地后，{car.name}的剩余里程不足以支持返回！");
+                                                                    WebNotify(player, $"钱不够了,由于本身待在基地，不用返回");
+                                                                    printState(player, car, "钱不够了,由于本身待在基地，不用返回。");
                                                                 }
-                                                                printState(player, car, "收集宝石剩余里程不足，必须立即返回！");
-                                                                setReturnWhenPromoteFailed(sp, car);
-                                                            }
-                                                        }
-                                                        else
-                                                        {
-                                                            WebNotify(player, $"资金不够,{car.name}被安排返航！！！");
-                                                            printState(player, car, "在路上走的车，想找宝石，钱不够啊，必须立即返回！");
-                                                            Console.WriteLine($"宝石的价格{this.promotePrice[sp.pType]}，钱不够啊， {car.ability.subsidize},{car.ability.costBusiness},{car.ability.costVolume}！");
+                                                            }; break;
+                                                        case CarState.waitOnRoad:
+                                                            {
+                                                                if (car.ability.diamondInCar == "")
+                                                                {
+                                                                    if (car.ability.SumMoneyCanForPromote >= this.promotePrice[sp.pType])
+                                                                    {
+                                                                        MileResultReason reason;
+                                                                        var hasBeginToPromote = promote(player, car, sp, ref notifyMsg, out reason);
+                                                                        if (hasBeginToPromote)
+                                                                        {
+                                                                            WebNotify(player, $"{car.name}在路上寻找能力宝石的路上了！！！");
+                                                                            printState(player, car, $"已经在收集{sp.pType}宝石的路上了！");
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            if (reason == MileResultReason.CanNotReach)
+                                                                            {
+                                                                                WebNotify(player, $"{car.name}的剩余里程不足以支持到达目的地！");
+                                                                                //WebNotify(player, $"资金不够,{car.name}未能上路！！！");
+                                                                            }
+                                                                            else if (reason == MileResultReason.CanNotReturn)
+                                                                            {
+                                                                                WebNotify(player, $"到达目的地后，{car.name}的剩余里程不足以支持返回！");
+                                                                            }
+                                                                            printState(player, car, "收集宝石剩余里程不足，必须立即返回！");
+                                                                            setReturnWhenPromoteFailed(sp, car);
+                                                                        }
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        WebNotify(player, $"资金不够,{car.name}被安排返航！！！");
+                                                                        printState(player, car, "在路上走的车，想找宝石，钱不够啊，必须立即返回！");
+                                                                        Console.WriteLine($"宝石的价格{this.promotePrice[sp.pType]}，钱不够啊， {car.ability.subsidize},{car.ability.costBusiness},{car.ability.costVolume}！");
 #warning 在路上，由于资金不够，这里没有能测到。
-                                                            setReturnWhenPromoteFailed(sp, car);
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        Console.WriteLine("在路上走的车，有了宝石，居然没返回！");
-                                                        //throw new Exception();
+                                                                        setReturnWhenPromoteFailed(sp, car);
+                                                                    }
+                                                                }
+                                                                else
+                                                                {
+                                                                    Console.WriteLine("在路上走的车，有了宝石，居然没返回！");
+                                                                    //throw new Exception();
+                                                                }
+                                                            }; break;
+                                                        default:
+                                                            {
+                                                                var msg = $"{car.state.ToString()}状态下不能提升能力！";
+                                                                Console.WriteLine(msg);
+                                                            }; break;
+
                                                     }
                                                 }; break;
                                             default:
                                                 {
-                                                    var msg = $"{car.state.ToString()}状态下不能提升能力！";
-                                                    Console.WriteLine(msg);
+                                                    Console.WriteLine($"{car.purpose}状态下不能获取提升能力宝石了！");
+                                                    return $"{car.purpose}-state can not do action ！";
                                                 }; break;
-
                                         }
-                                        //this._Players[sp.Key].PromoteState[sp.pType]
                                     }; break;
                             }
+                        }
+                        else
+                        {
+                            return $"not has player-{sp.Key}!";
                         }
                     }
                 }
@@ -156,7 +170,7 @@ namespace HouseManager
 
                     await Startup.sendMsg(url, sendMsg);
                 }
-                return "";
+                return "ok";
             }
         }
 
@@ -358,7 +372,7 @@ namespace HouseManager
 
                             }
 
-                            if ((car.purpose == Purpose.collect || car.purpose == Purpose.@null || car.purpose == Purpose.tax) && car.state == CarState.buying)
+                            if (car.purpose == Purpose.@null && car.state == CarState.buying)
                             {
                                 car.state = CarState.waitOnRoad;
 

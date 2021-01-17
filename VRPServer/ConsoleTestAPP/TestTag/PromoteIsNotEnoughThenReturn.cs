@@ -18,14 +18,14 @@ namespace ConsoleTestAPP.TestTag
             Console.WriteLine("按任意键开始检测！");
             Console.ReadKey();
 
-            var url = "http://127.0.0.1:11100" + "/notify";
-            var checkUrl = "http://127.0.0.1:11100" + "/monitor";
+            var url = "127.0.0.1:11100";
+            var checkUrl= "127.0.0.1:18900";
             var startTime = DateTime.Now;
 
             //主角是 378f53292e97bf6383f01bbbceb7b50a carA
 
             Common.awaitF(114151, startTime);
-            await Common.SendInfomation(url, "{\"Key\":\"378f53292e97bf6383f01bbbceb7b50a\",\"FromUrl\":\"http://127.0.0.1:11001/notify\",\"RoomIndex\":0,\"Check\":\"b64d3ba6aa518d71c779888694b01ee4\",\"WebSocketID\":1,\"PlayerName\":\"测试玩家A\",\"CarsNames\":[\"A车1,\",\"A车2,\",\"A车3,\",\"A车4,\",\"A车5,\"],\"c\":\"PlayerAdd\"}");
+            await Common.SendInfomation(url, "{\"Key\":\"378f53292e97bf6383f01bbbceb7b50a\",\"FromUrl\":\"127.0.0.1:18999\",\"RoomIndex\":0,\"Check\":\"b64d3ba6aa518d71c779888694b01ee4\",\"WebSocketID\":10000,\"PlayerName\":\"测试玩家A\",\"CarsNames\":[\"A车1,\",\"A车2,\",\"A车3,\",\"A车4,\",\"A车5,\"],\"c\":\"PlayerAdd\"}");
 
             //Thread th = new Thread(() => CheckF(startTime));
             //th.Start();
@@ -34,7 +34,7 @@ namespace ConsoleTestAPP.TestTag
             await Common.SendInfomation(url, "{\"Key\":\"378f53292e97bf6383f01bbbceb7b50a\",\"c\":\"GetPosition\"}");
 
             Common.awaitF(121590, startTime);
-            await Common.SendInfomation(url, "{\"Key\":\"0bf1af6f9daa94cc8f87adb2a76284e5\",\"FromUrl\":\"http://127.0.0.1:11001/notify\",\"RoomIndex\":0,\"Check\":\"074079b9038c5ffc9eff963115c59590\",\"WebSocketID\":2,\"PlayerName\":\"测试玩家B\",\"CarsNames\":[\"B车1,\",\"B车2,\",\"B车3,\",\"B车4,\",\"B车5,\"],\"c\":\"PlayerAdd\"}");
+            await Common.SendInfomation(url, "{\"Key\":\"0bf1af6f9daa94cc8f87adb2a76284e5\",\"FromUrl\":\"127.0.0.1:18999\",\"RoomIndex\":0,\"Check\":\"074079b9038c5ffc9eff963115c59590\",\"WebSocketID\":200000,\"PlayerName\":\"测试玩家B\",\"CarsNames\":[\"B车1,\",\"B车2,\",\"B车3,\",\"B车4,\",\"B车5,\"],\"c\":\"PlayerAdd\"}");
 
             Common.awaitF(126563, startTime);
             await Common.SendInfomation(url, "{\"Key\":\"0bf1af6f9daa94cc8f87adb2a76284e5\",\"c\":\"GetPosition\"}");
@@ -128,12 +128,12 @@ namespace ConsoleTestAPP.TestTag
             Console.WriteLine("按任意键开始检测！");
             Console.ReadKey();
 
-            var url = "http://127.0.0.1:11100" + "/notify";
-            var checkUrl = "http://127.0.0.1:11100" + "/monitor";
+            var url = "127.0.0.1:11100";
+            var checkUrl= "127.0.0.1:18900";
             var startTime = DateTime.Now;
 
             Common.awaitF(42877, startTime);
-            await Common.SendInfomation(url, "{\"Key\":\"7588fe8ba09a16188052b39f200cfd77\",\"FromUrl\":\"http://127.0.0.1:11001/notify\",\"RoomIndex\":0,\"Check\":\"cd40e1bd64f735fea9c703516844a0d7\",\"WebSocketID\":100,\"PlayerName\":\"玩家测试\",\"CarsNames\":[\"车1,\",\"车2,\",\"车3,\",\"车4,\",\"车5,\"],\"c\":\"PlayerAdd\"}");
+            await Common.SendInfomation(url, "{\"Key\":\"7588fe8ba09a16188052b39f200cfd77\",\"FromUrl\":\"127.0.0.1:18999\",\"RoomIndex\":0,\"Check\":\"cd40e1bd64f735fea9c703516844a0d7\",\"WebSocketID\":100,\"PlayerName\":\"玩家测试\",\"CarsNames\":[\"车1,\",\"车2,\",\"车3,\",\"车4,\",\"车5,\"],\"c\":\"PlayerAdd\"}");
 
             Common.awaitF(47866, startTime);
             await Common.SendInfomation(url, "{\"Key\":\"7588fe8ba09a16188052b39f200cfd77\",\"c\":\"GetPosition\"}");
@@ -216,7 +216,7 @@ namespace ConsoleTestAPP.TestTag
         private static async void CheckF(DateTime startTime)
         {
             return;
-            var checkUrl = "http://127.0.0.1:11100" + "/monitor";
+            var checkUrl= "127.0.0.1:18900";
             for (var i = 0; i < 30000000; i += 1000)
             {
 

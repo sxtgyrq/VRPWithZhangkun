@@ -6,7 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using System.Net.WebSockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MateWsAndHouse
@@ -33,6 +35,13 @@ namespace MateWsAndHouse
         }
         public void Configure(IApplicationBuilder app, Microsoft.AspNetCore.Hosting.IWebHostEnvironment env)
         {
+            var webSocketOptions = new WebSocketOptions()
+            {
+                KeepAliveInterval = TimeSpan.FromSeconds(3600 * 24),
+                ReceiveBufferSize = 1024 * 1024 * 20
+            };
+            app.UseWebSockets(webSocketOptions);
+
             app.Map("/createteam", createTeam);
             app.Map("/teambegain", teambegain);
             app.Map("/findTeam", findTeam);
@@ -121,6 +130,28 @@ namespace MateWsAndHouse
             //});
             app.Run(async context =>
             {
+                if (context.WebSockets.IsWebSocketRequest)
+                {
+
+                    var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                    await dealWithCreateTeam(webSocket);
+                }
+            });
+            return;
+
+            app.Run(async context =>
+            {
+                if (context.WebSockets.IsWebSocketRequest)
+                {
+
+                    var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                    await dealWithCreateTeam(webSocket);
+                }
+            });
+            return;
+
+            app.Run(async context =>
+            {
                 if (context.Request.Method.ToLower() == "post")
                 {
                     var notifyJson = getBodyStr(context);
@@ -180,12 +211,139 @@ namespace MateWsAndHouse
             });
         }
 
+        private async Task dealWithCreateTeam(System.Net.WebSockets.WebSocket webSocketFromGameHandler)
+        {
+            WebSocketReceiveResult Wrr;
+            do
+            {
+                var returnResult = await ReceiveStringAsync(webSocketFromGameHandler, 1024 * 1024 * 10);
+
+                Wrr = returnResult.wr;
+                //returnResult.wr;
+                string outPut = "haveNothingToReturn";
+                {
+                    var notifyJson = returnResult.result;
+
+                    // var notifyJson = getBodyStr(context);
+
+                    Console.WriteLine($"createTeam receive:{notifyJson}");
+                    CommonClass.Command c = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.Command>(notifyJson);
+
+                    switch (c.c)
+                    {
+                        case "TeamCreate":
+                            {
+                                CommonClass.TeamCreate teamCreate = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.TeamCreate>(notifyJson);
+                                int indexV;
+                                lock (Program.teamLock)
+                                {
+                                    int maxValue = 10;
+                                    //int indexV;
+                                    do
+                                    {
+                                        indexV = Program.rm.Next(0, maxValue);
+                                        maxValue *= 2;
+                                    } while (Program.allTeams.ContainsKey(indexV));
+
+                                    Program.allTeams.Add(indexV, new Team()
+                                    {
+                                        captain = teamCreate,
+                                        CreateTime = DateTime.Now,
+                                        TeamID = indexV,
+                                        member = new List<CommonClass.TeamJoin>(),
+                                        IsBegun = false
+                                    });
+
+                                    //Program.allTeams.Add()
+                                }
+                                var teamCreateFinish = new CommonClass.TeamCreateFinish()
+                                {
+                                    c = "TeamCreateFinish",
+                                    CommandStart = teamCreate.CommandStart,
+                                    TeamNum = indexV,
+                                    WebSocketID = teamCreate.WebSocketID,
+                                    PlayerName = teamCreate.PlayerName
+                                };
+                                await sendMsg(teamCreate.FromUrl, Newtonsoft.Json.JsonConvert.SerializeObject(teamCreateFinish));
+                                //await (prot)
+                                // await sendInmationToUrl(addItem.FromUrl, notifyJson);
+                                CommonClass.TeamResult t = new CommonClass.TeamResult()
+                                {
+                                    c = "TeamResult",
+                                    FromUrl = teamCreate.FromUrl,
+                                    TeamNumber = indexV,
+                                    WebSocketID = teamCreate.WebSocketID
+                                };
+                                outPut = Newtonsoft.Json.JsonConvert.SerializeObject(t);
+                            }; break;
+                    }
+                }
+                {
+                    var sendData = Encoding.UTF8.GetBytes(outPut);
+                    await webSocketFromGameHandler.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+                }
+            } while (!Wrr.CloseStatus.HasValue);
+        }
+
+        public class ReceiveObj
+        {
+            public WebSocketReceiveResult wr { get; set; }
+            public string result { get; set; }
+        }
+        public static async Task<ReceiveObj> ReceiveStringAsync(System.Net.WebSockets.WebSocket socket, int size, CancellationToken ct = default(CancellationToken))
+        {
+            var buffer = new ArraySegment<byte>(new byte[size]);
+            WebSocketReceiveResult result;
+            using (var ms = new MemoryStream())
+            {
+                do
+                {
+                    ct.ThrowIfCancellationRequested();
+
+                    result = await socket.ReceiveAsync(buffer, ct);
+                    ms.Write(buffer.Array, buffer.Offset, result.Count);
+                }
+                while (!result.EndOfMessage);
+
+                ms.Seek(0, SeekOrigin.Begin);
+                if (result.MessageType != WebSocketMessageType.Text)
+                {
+                    return new ReceiveObj()
+                    {
+                        result = null,
+                        wr = result
+                    };
+                }
+                using (var reader = new StreamReader(ms, Encoding.UTF8))
+                {
+                    var strValue = await reader.ReadToEndAsync();
+                    return new ReceiveObj()
+                    {
+                        result = strValue,
+                        wr = result
+                    };
+                }
+            }
+        }
+
+
         private void teambegain(IApplicationBuilder app)
         {
             //app.Run(async context =>
             //{
 
             //});
+            app.Run(async context =>
+            {
+                if (context.WebSockets.IsWebSocketRequest)
+                {
+
+                    var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                    await dealWithTeamBegain(webSocket);
+                }
+            });
+            return;
+
             app.Run(async context =>
             {
                 if (context.Request.Method.ToLower() == "post")
@@ -239,12 +397,88 @@ namespace MateWsAndHouse
             });
         }
 
+        private async Task dealWithTeamBegain(WebSocket webSocketFromGameHandler)
+        {
+            WebSocketReceiveResult Wrr;
+            do
+            {
+                var returnResult = await ReceiveStringAsync(webSocketFromGameHandler, 1024 * 1024 * 10);
+
+                Wrr = returnResult.wr;
+                //returnResult.wr;
+                string outPut = "haveNothingToReturn";
+                {
+                    var notifyJson = returnResult.result;
+
+                    // var notifyJson = getBodyStr(context);
+
+                    Console.WriteLine($"createTeam receive:{notifyJson}");
+                    CommonClass.Command c = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.Command>(notifyJson);
+
+                    switch (c.c)
+                    {
+                        case "TeamBegain":
+                            {
+                                CommonClass.TeamBegain teamBegain = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.TeamBegain>(notifyJson);
+
+                                Team t = null;
+                                lock (Program.teamLock)
+                                {
+
+                                    if (Program.allTeams.ContainsKey(teamBegain.TeamNum))
+                                    {
+                                        t = Program.allTeams[teamBegain.TeamNum];
+                                    }
+                                    //Program.allTeams.Add()
+                                }
+                                if (t == null)
+                                {
+                                    outPut = "ng";
+                                }
+                                else
+                                {
+                                    for (var i = 0; i < t.member.Count; i++)
+                                    {
+                                        var secret = CommonClass.AES.AesEncrypt("team:" + teamBegain.RoomIndex.ToString(), t.member[i].CommandStart);
+                                        CommonClass.TeamNumWithSecret teamNumWithSecret = new CommonClass.TeamNumWithSecret()
+                                        {
+                                            c = "TeamNumWithSecret",
+                                            WebSocketID = t.member[i].WebSocketID,
+                                            Secret = secret
+                                        };
+                                        var json = Newtonsoft.Json.JsonConvert.SerializeObject(teamNumWithSecret);
+                                        await sendMsg(t.captain.FromUrl, json);
+                                    }
+                                    t.IsBegun = true;
+                                    outPut = "ok";
+                                }
+                            }; break;
+                    }
+                }
+                {
+                    var sendData = Encoding.UTF8.GetBytes(outPut);
+                    await webSocketFromGameHandler.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+                }
+            } while (!Wrr.CloseStatus.HasValue);
+        }
+
         private void findTeam(IApplicationBuilder app)
         {
             //app.Run(async context =>
             //{
 
             //});
+            app.Run(async context =>
+            {
+                if (context.WebSockets.IsWebSocketRequest)
+                {
+
+                    var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                    await dealWithFindTeam(webSocket);
+                }
+            });
+            return;
+
             app.Run(async context =>
             {
                 if (context.Request.Method.ToLower() == "post")
@@ -408,6 +642,141 @@ namespace MateWsAndHouse
                 }
             });
         }
+
+        private async Task dealWithFindTeam(WebSocket webSocketFromGameHandler)
+        {
+            WebSocketReceiveResult Wrr;
+            do
+            {
+                var returnResult = await ReceiveStringAsync(webSocketFromGameHandler, 1024 * 1024 * 10);
+
+                Wrr = returnResult.wr;
+                //returnResult.wr;
+                string outPut = "haveNothingToReturn";
+                {
+                    var notifyJson = returnResult.result;
+
+                    // var notifyJson = getBodyStr(context);
+
+                    Console.WriteLine($"createTeam receive:{notifyJson}");
+                    CommonClass.Command c = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.Command>(notifyJson);
+
+                    switch (c.c)
+                    {
+                        case "TeamJoin":
+                            {
+                                /*
+                                 * TeamJoin,如果传入的字段不是数字，返回 is not number
+                                 * TeamJoin,如果传入的字段如果是数字，不存在这个队伍 返回not has the team
+                                 * TeamJoin,如果队伍中人数已满，不存在这个队伍 返回team is full
+                                 *  
+                                 */
+                                CommonClass.TeamJoin teamJoin = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.TeamJoin>(notifyJson);
+                                int teamIndex;
+                                if (int.TryParse(teamJoin.TeamIndex, out teamIndex))
+                                {
+                                    bool memberIsFull = false;
+                                    bool notHasTheTeam = false;
+                                    Team t = null;
+                                    lock (Program.teamLock)
+                                    {
+                                        if (Program.allTeams.ContainsKey(teamIndex))
+                                        {
+                                            if (Program.allTeams[teamIndex].member.Count >= 4)
+                                            {
+                                                memberIsFull = true;
+                                            }
+                                            else
+                                            {
+                                                Program.allTeams[teamIndex].member.Add(teamJoin);
+                                                t = Program.allTeams[teamIndex];
+                                            }
+
+                                        }
+                                        else
+                                        {
+                                            notHasTheTeam = true;
+                                        }
+                                    }
+                                    if (memberIsFull)
+                                    {
+                                        outPut = "team is full";
+                                        // await context.Response.WriteAsync("");
+                                    }
+                                    else if (notHasTheTeam)
+                                    {
+                                        outPut = "not has the team";
+                                        //await context.Response.WriteAsync("");
+                                    }
+                                    else if (t.IsBegun)
+                                    {
+                                        outPut = "game has begun";
+                                        //t.IsBegun 必须在判断 notHasTheTeam 之后。否则t可能为null
+                                        //  await context.Response.WriteAsync("");
+                                    }
+                                    else
+                                    {
+
+                                        var PlayerNames = new List<string>();
+                                        CommonClass.TeamJoinFinish teamJoinFinish = new CommonClass.TeamJoinFinish()
+                                        {
+                                            c = "TeamJoinFinish",
+                                            PlayerNames = new List<string>(),
+                                            TeamNum = t.TeamID,
+                                            WebSocketID = teamJoin.WebSocketID
+                                            //  PlayerNames = 
+                                        };
+                                        {
+                                            CommonClass.TeamJoinBroadInfo addInfomation = new CommonClass.TeamJoinBroadInfo()
+                                            {
+                                                c = "TeamJoinBroadInfo",
+                                                PlayerName = teamJoin.PlayerName,
+                                                WebSocketID = t.captain.WebSocketID
+                                            };
+                                            await sendMsg(t.captain.FromUrl, Newtonsoft.Json.JsonConvert.SerializeObject(addInfomation));
+                                        }
+                                        teamJoinFinish.PlayerNames.Add(t.captain.PlayerName);
+                                        for (var i = 0; i < t.member.Count; i++)
+                                        {
+                                            teamJoinFinish.PlayerNames.Add(t.member[i].PlayerName);
+                                            if (t.member[i].FromUrl == teamJoin.FromUrl && t.member[i].WebSocketID == teamJoin.WebSocketID)
+                                            {
+
+                                            }
+                                            else
+                                            {
+                                                CommonClass.TeamJoinBroadInfo addInfomation = new CommonClass.TeamJoinBroadInfo()
+                                                {
+                                                    c = "TeamJoinBroadInfo",
+                                                    PlayerName = teamJoin.PlayerName,
+                                                    WebSocketID = t.member[i].WebSocketID
+                                                };
+                                                await sendMsg(t.member[i].FromUrl, Newtonsoft.Json.JsonConvert.SerializeObject(addInfomation));
+                                            }
+                                        }
+
+                                        await sendMsg(teamJoin.FromUrl, Newtonsoft.Json.JsonConvert.SerializeObject(teamJoinFinish));
+                                        outPut = "ok";
+                                        //  await context.Response.WriteAsync("ok");
+                                        // t.captain.
+                                        //await context.Response.WriteAsync("not has the team");
+                                    }
+                                }
+                                else
+                                {
+                                    outPut = "is not number";
+                                    // await context.Response.WriteAsync("");
+                                }
+                            }; break;
+                    }
+                }
+                {
+                    var sendData = Encoding.UTF8.GetBytes(outPut);
+                    await webSocketFromGameHandler.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+                }
+            } while (!Wrr.CloseStatus.HasValue);
+        }
+
         public static string getBodyStr(HttpContext context)
         {
             string requestContent;
@@ -419,27 +788,69 @@ namespace MateWsAndHouse
             return requestContent;
 
         }
+        static Dictionary<string, ClientWebSocket> _sockets = new Dictionary<string, ClientWebSocket>();
 
-        private static async Task sendMsg(Microsoft.Extensions.Primitives.StringValues fromUrl, string json)
+        private static async Task sendMsg(string fromUrl, string json)
         {
-            // using (HttpClient client = new HttpClient())
+
+#warning 这里必须要处理，防止 websocket服务挂了，导致此处退不出报错！
+            for (var i = 0; i < 3; i++)
             {
-                Uri u = new Uri(fromUrl);
-                HttpContent c = new StringContent(json, Encoding.UTF8, "application/json");
-                HttpRequestMessage request = new HttpRequestMessage
                 {
-                    Method = HttpMethod.Post,
-                    RequestUri = u,
-                    Content = c
-                };
-                HttpResponseMessage result = await HttpContentClass.client.SendAsync(request);
-                if (result.IsSuccessStatusCode)
+                    if (_sockets.ContainsKey(fromUrl))
+                    {
+                        if ((!_sockets[fromUrl].CloseStatus.HasValue) && _sockets[fromUrl].State == WebSocketState.Open)
+                        {
+                        }
+                        else
+                        {
+                            _sockets[fromUrl] = null;
+                            _sockets[fromUrl] = new ClientWebSocket();
+
+
+                            await _sockets[fromUrl].ConnectAsync(new Uri(fromUrl), CancellationToken.None);
+                        }
+                    }
+                    else
+                    {
+                        _sockets.Add(fromUrl, new ClientWebSocket());
+                        await _sockets[fromUrl].ConnectAsync(new Uri(fromUrl), CancellationToken.None);
+
+                        //if (result)
+                        //{ }
+                        //else
+                        //{
+                        //    _sockets.Remove(roomUrl);
+                        //}
+                        // await _sockets[roomUrl].ConnectAsync(new Uri(roomUrl), CancellationToken.None);
+
+                    }
+                }
+                //  while (!_sockets[roomUrl].CloseStatus.HasValue);
+                try
                 {
-                    //    response = result.StatusCode.ToString();
+                    var sendData = Encoding.UTF8.GetBytes(json);
+                    await _sockets[fromUrl].SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+                    break;
+                }
+                catch (Exception e)
+                {
+                    _sockets.Remove(fromUrl);
+                    Console.WriteLine($"{fromUrl}连接失败！");
+                    continue;
+                }
+                return;
+            }
+            if (_sockets.ContainsKey(fromUrl))
+            {
+                if (_sockets[fromUrl].State == WebSocketState.Open)
+                {
                 }
                 else
                 {
-                    Console.WriteLine($"{fromUrl}推送失败！");
+                    _sockets[fromUrl] = null;
+                    _sockets[fromUrl] = new ClientWebSocket();
+                    await _sockets[fromUrl].ConnectAsync(new Uri(fromUrl), CancellationToken.None);
                 }
             }
         }

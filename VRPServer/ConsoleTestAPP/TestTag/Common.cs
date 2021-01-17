@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Net;
 using System.Net.Http;
+using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,6 +17,11 @@ namespace ConsoleTestAPP.TestTag
             var t1 = await sendInfomation(checkUrl, $"{{\"Key\":\"{key}\",\"c\":\"CheckPlayersMoney\"}}");
             return t1;
         }
+        public static async Task<string> CheckPlayerCarPurpose(string checkUrl, string key, string car)
+        {
+            var t1 = await sendInfomation(checkUrl, $"{{\"Key\":\"{key}\",\"c\":\"CheckPlayerCarPuporse\",\"car\":\"{car}\"}}");
+            return t1;
+        }
         public static async Task<string> CheckPlayersCarState(string checkUrl, string key, string car)
         {
             var t1 = await sendInfomation(checkUrl, $"{{\"Key\":\"{key}\",\"c\":\"CheckPlayersCarState\",\"car\":\"{car}\"}}");
@@ -24,7 +32,11 @@ namespace ConsoleTestAPP.TestTag
             var t1 = await sendInfomation(checkUrl, $"{{\"Key\":\"{key}\",\"c\":\"CheckPlayerCostBusiness\",\"Car\":\"{car}\"}}");
             return t1;
         }
-
+        public static async Task<string> CheckPlayerCostVolume(string checkUrl, string key, string car)
+        {
+            var t1 = await sendInfomation(checkUrl, $"{{\"Key\":\"{key}\",\"c\":\"CheckPlayerCostVolume\",\"Car\":\"{car}\"}}");
+            return t1;
+        }
         internal static void awaitF(int stopMs)
         {
             stopMs = Math.Max(1, stopMs);
@@ -78,22 +90,13 @@ namespace ConsoleTestAPP.TestTag
                     Thread.Sleep(24 * 3600 * 1000);
             }
         }
-
+        const int serverWsSize = 1024 * 1024 * 20;
+        // static Dictionary<string, ClientWebSocket> _sockets = new Dictionary<string, ClientWebSocket>();
         static async Task<string> sendInmationToUrlAndGetRes(string roomUrl, string sendMsg)
         {
-            // ConnectInfo.Client.PostAsync(roomUrl,)
-            using (HttpClient Client = new HttpClient())
-            {
-
-                var buffer = Encoding.UTF8.GetBytes(sendMsg);
-                var byteContent = new ByteArrayContent(buffer);
-                var response = await Client.PostAsync(roomUrl, byteContent);
-                var result = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"接收到结果--{result}");
-                return result;
-            }
+            return await TcpFunction.WithResponse.SendInmationToUrlAndGetRes(roomUrl, sendMsg);
+            // await  
         }
-
         internal static async Task<string> PromoteDiamondCount(string checkUrl, string key, string pType)
         {
             var t1 = await sendInfomation(checkUrl, $"{{\"Key\":\"{key}\",\"c\":\"CheckPromoteDiamondCount\",\"pType\":\"{pType}\"}}");

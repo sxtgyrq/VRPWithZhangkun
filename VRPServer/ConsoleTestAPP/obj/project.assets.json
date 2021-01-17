@@ -1,11 +1,30 @@
 {
   "version": 3,
   "targets": {
-    ".NETCoreApp,Version=v3.1": {}
+    ".NETCoreApp,Version=v3.1": {
+      "TcpFunction/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v3.1",
+        "compile": {
+          "bin/placeholder/TcpFunction.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/TcpFunction.dll": {}
+        }
+      }
+    }
   },
-  "libraries": {},
+  "libraries": {
+    "TcpFunction/1.0.0": {
+      "type": "project",
+      "path": "../TcpFunction/TcpFunction.csproj",
+      "msbuildProject": "../TcpFunction/TcpFunction.csproj"
+    }
+  },
   "projectFileDependencyGroups": {
-    ".NETCoreApp,Version=v3.1": []
+    ".NETCoreApp,Version=v3.1": [
+      "TcpFunction >= 1.0.0"
+    ]
   },
   "packageFolders": {
     "C:\\Users\\sxtgy\\.nuget\\packages\\": {},
@@ -36,7 +55,12 @@
       },
       "frameworks": {
         "netcoreapp3.1": {
-          "projectReferences": {}
+          "targetAlias": "netcoreapp3.1",
+          "projectReferences": {
+            "F:\\MyProject\\VRPWithZhangkun\\MainApp\\VRPWithZhangkun\\VRPServer\\TcpFunction\\TcpFunction.csproj": {
+              "projectPath": "F:\\MyProject\\VRPWithZhangkun\\MainApp\\VRPWithZhangkun\\VRPServer\\TcpFunction\\TcpFunction.csproj"
+            }
+          }
         }
       },
       "warningProperties": {
@@ -47,6 +71,7 @@
     },
     "frameworks": {
       "netcoreapp3.1": {
+        "targetAlias": "netcoreapp3.1",
         "imports": [
           "net461",
           "net462",
@@ -62,7 +87,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.401\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.102\\RuntimeIdentifierGraph.json"
       }
     }
   }

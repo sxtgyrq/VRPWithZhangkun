@@ -216,35 +216,35 @@ namespace HouseManager
         /// 用于计算破产相关参数
         /// </summary>
         const long brokenParameterT1 = 120;
-        /// <summary>
-        /// 返回使玩家破产需要的资金！
-        /// </summary>
-        /// <param name="victim">玩家</param>
-        /// <returns>返回使玩家破产需要的资金！</returns>
-        public long LastDebt
-        {
-            /*
-             * a asset资产
-             * d debt债务
-             * a+x=(d+x)*t
-             * t=t1/t2
-             * t1=120
-             * t2-100
-             */
-            get
-            {
-                long debt = 0;
-                foreach (var item in this.Debts)
-                {
-                    debt += item.Value;
-                }
-                long asset = this.Money;
-                //const long t2 = 100;
-                //const long t1 = 120;
-                return Math.Max(1, (asset * brokenParameterT2 - debt * brokenParameterT1) / (brokenParameterT1 - brokenParameterT2));
-            }
+        ///// <summary>
+        ///// 返回使玩家破产需要的资金！
+        ///// </summary>
+        ///// <param name="victim">玩家</param>
+        ///// <returns>返回使玩家破产需要的资金！</returns>
+        //public long LastDebt
+        //{
+        //    /*
+        //     * a asset资产
+        //     * d debt债务
+        //     * a+x=(d+x)*t
+        //     * t=t1/t2
+        //     * t1=120
+        //     * t2-100
+        //     */
+        //    get
+        //    {
+        //        long debt = 0;
+        //        foreach (var item in this.Debts)
+        //        {
+        //            debt += item.Value;
+        //        }
+        //        long asset = this.Money;
+        //        //const long t2 = 100;
+        //        //const long t1 = 120;
+        //        return Math.Max(1, (asset * brokenParameterT2 - debt * brokenParameterT1) / (brokenParameterT1 - brokenParameterT2));
+        //    }
 
-        }
+        //}
 
         long LastMoneyCanUseForAttack
         {

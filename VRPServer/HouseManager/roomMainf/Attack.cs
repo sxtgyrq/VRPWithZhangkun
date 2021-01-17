@@ -10,8 +10,8 @@ namespace HouseManager
     {
         /*
          * 攻击的目的是为了增加股份。
-         * A玩家，拿100块钱攻击B玩家，B玩家的债务和使用金额都增加100
-         * 当债务比例大于某个值时，宣布破产。
+         * A玩家，拿100块钱攻击B玩家，B玩家的债务增加100，使用金额都增加90
+         * 当第一股东不是B玩家时，是A玩家时。A玩家有权对B进行破产清算。
          */
         internal async Task<string> updateAttack(SetAttack sa)
         {
@@ -62,7 +62,33 @@ namespace HouseManager
                                                 var moneyIsEnoughToStart = giveMoneyFromPlayerToCarForAttack(player, car);
                                                 if (moneyIsEnoughToStart)
                                                 {
-                                                    doAttack(player, car, sa, ref notifyMsg);
+                                                    var state = CheckTargetState(sa.targetOwner);
+                                                    if (state == CarStateForBeAttacked.CanBeAttacked)
+                                                    {
+                                                        MileResultReason mrr;
+                                                        attack(player, car, sa, ref notifyMsg, out mrr);
+                                                        if (mrr == MileResultReason.Abundant) { }
+                                                        else if (mrr == MileResultReason.CanNotReach)
+                                                        {
+
+                                                        }
+                                                        else if (mrr == MileResultReason.CanNotReturn)
+                                                        {
+                                                        }
+                                                        // doAttack(player, car, sa, ref notifyMsg);
+                                                    }
+                                                    else if (state == CarStateForBeAttacked.HasBeenBust)
+                                                    {
+                                                        Console.WriteLine($"攻击对象已经破产！");
+                                                    }
+                                                    else if (state == CarStateForBeAttacked.NotExisted)
+                                                    {
+                                                        Console.WriteLine($"攻击对象已经退出了游戏！");
+                                                    }
+                                                    else
+                                                    {
+                                                        throw new Exception($"{state.ToString()}未注册！");
+                                                    }
                                                 }
                                                 else
                                                 {
@@ -77,35 +103,102 @@ namespace HouseManager
                                             /*
                                              * 在接收到攻击指令时，如果小车在路上，说明，
                                              * 其上一个任务是抢能力宝石，结果是没抢到。其
-                                             * 目的应该应该为purpose=null
-                                             * 或者目的应该是collect 或者 tax
+                                             * 目的应该应该为purpose=null 
                                              */
-                                            if (car.purpose == Purpose.@null || car.purpose == Purpose.attack || car.purpose == Purpose.tax)
+                                            if (car.purpose == Purpose.@null)
                                             {
-                                                if (car.ability.costVolume + car.ability.costBusiness > 0)
+                                                var state = CheckTargetState(sa.targetOwner);
+                                                if (state == CarStateForBeAttacked.CanBeAttacked)
                                                 {
-                                                    doAttack(player, car, sa, ref notifyMsg);
+                                                    MileResultReason mrr;
+                                                    attack(player, car, sa, ref notifyMsg, out mrr);
+                                                    if (mrr == MileResultReason.Abundant) { }
+                                                    else if (mrr == MileResultReason.CanNotReach)
+                                                    {
+
+                                                    }
+                                                    else if (mrr == MileResultReason.CanNotReturn)
+                                                    {
+                                                    }
+                                                    // doAttack(player, car, sa, ref notifyMsg);
+                                                }
+                                                else if (state == CarStateForBeAttacked.HasBeenBust)
+                                                {
+                                                    Console.WriteLine($"攻击对象已经破产！");
+                                                }
+                                                else if (state == CarStateForBeAttacked.NotExisted)
+                                                {
+                                                    Console.WriteLine($"攻击对象已经退出了游戏！");
                                                 }
                                                 else
                                                 {
-                                                    Console.WriteLine($"金钱不足以展开攻击！");
-                                                    carsAttackFailedThenMustReturn(car, player, sa, ref notifyMsg);
+                                                    throw new Exception($"{state.ToString()}未注册！");
                                                 }
                                             }
+
                                         }; break;
                                     case CarState.waitForTaxOrAttack:
-                                    case CarState.waitForCollectOrAttack:
                                         {
                                             if (car.purpose == Purpose.collect)
                                             {
-                                                if (car.ability.costVolume + car.ability.costBusiness > 0)
+                                                var state = CheckTargetState(sa.targetOwner);
+                                                if (state == CarStateForBeAttacked.CanBeAttacked)
                                                 {
-                                                    doAttack(player, car, sa, ref notifyMsg);
+                                                    MileResultReason mrr;
+                                                    attack(player, car, sa, ref notifyMsg, out mrr);
+                                                    if (mrr == MileResultReason.Abundant) { }
+                                                    else if (mrr == MileResultReason.CanNotReach)
+                                                    {
+
+                                                    }
+                                                    else if (mrr == MileResultReason.CanNotReturn)
+                                                    {
+                                                    }
+                                                    // doAttack(player, car, sa, ref notifyMsg);
+                                                }
+                                                else if (state == CarStateForBeAttacked.HasBeenBust)
+                                                {
+                                                    Console.WriteLine($"攻击对象已经破产！");
+                                                }
+                                                else if (state == CarStateForBeAttacked.NotExisted)
+                                                {
+                                                    Console.WriteLine($"攻击对象已经退出了游戏！");
                                                 }
                                                 else
                                                 {
-                                                    printState(player, car, "金钱不足");
-                                                    carsAttackFailedThenMustReturn(car, player, sa, ref notifyMsg);
+                                                    throw new Exception($"{state.ToString()}未注册！");
+                                                }
+                                            }
+                                        }; break;
+                                    case CarState.waitForCollectOrAttack:
+                                        {
+                                            if (car.purpose == Purpose.tax)
+                                            {
+                                                var state = CheckTargetState(sa.targetOwner);
+                                                if (state == CarStateForBeAttacked.CanBeAttacked)
+                                                {
+                                                    MileResultReason mrr;
+                                                    attack(player, car, sa, ref notifyMsg, out mrr);
+                                                    if (mrr == MileResultReason.Abundant) { }
+                                                    else if (mrr == MileResultReason.CanNotReach)
+                                                    {
+
+                                                    }
+                                                    else if (mrr == MileResultReason.CanNotReturn)
+                                                    {
+                                                    } 
+                                                }
+                                                else if (state == CarStateForBeAttacked.HasBeenBust)
+                                                {
+                                                    Console.WriteLine($"攻击对象已经破产！");
+                                                }
+                                                else if (state == CarStateForBeAttacked.NotExisted)
+                                                {
+                                                    Console.WriteLine($"攻击对象已经退出了游戏！");
+                                                }
+                                                else
+                                                {
+                                                    throw new Exception($"{state.ToString()}未注册！");
                                                 }
                                             }
                                         }; break;
@@ -131,29 +224,61 @@ namespace HouseManager
             throw new NotImplementedException();
         }
 
-        private void doAttack(Player player, Car car, SetAttack sa, ref List<string> notifyMsg)
+        enum CarStateForBeAttacked
         {
-            VictimState victimState;
-            var attackSuccess = attack(player, car, sa, ref notifyMsg, out victimState);
-            if (attackSuccess)
+            CanBeAttacked,
+            NotExisted,
+            HasBeenBust,
+        }
+        private CarStateForBeAttacked CheckTargetState(string targetOwner)
+        {
+            if (this._Players.ContainsKey(targetOwner))
             {
-                printState(player, car, $"执行了攻击任务！攻击{this._Players[sa.targetOwner].PlayerName},即攻击{Program.dt.GetFpByIndex(sa.target).FastenPositionName}");
+                if (this._Players[targetOwner].Bust)
+                {
+                    return CarStateForBeAttacked.HasBeenBust;
+                }
+                else
+                {
+                    return CarStateForBeAttacked.CanBeAttacked;
+                }
             }
             else
             {
-                giveMoneyFromCarToPlayer(player, car);
-#warning 这里要对前台进行提示
-                switch (victimState)
-                {
-                    case 0:
-                        {
-                            /*
-                             * 
-                             */
-                        }; break;
-                }
+                return CarStateForBeAttacked.NotExisted;
             }
         }
+
+        //        private void doAttack(Player player, Car car, SetAttack sa, ref List<string> notifyMsg)
+        //        {
+
+
+        //            AttackState aState;
+        //            attack(player, car, sa, ref notifyMsg, out aState);
+
+        //            if (aState == AttackState.Abundant)
+        //            {
+        //                printState(player, car, $"执行了攻击任务！攻击{this._Players[sa.targetOwner].PlayerName},即攻击{Program.dt.GetFpByIndex(sa.target).FastenPositionName}");
+        //            }
+        //            else
+        //            {
+        //                if (car.state == CarState.waitAtBaseStation)
+        //                {
+        //                    giveMoneyFromCarToPlayer(player, car);
+        //                }
+
+        //#warning 这里要对前台进行提示
+        //                switch (aState)
+        //                {
+        //                    case 0:
+        //                        {
+        //                            /*
+        //                             * 
+        //                             */
+        //                        }; break;
+        //                }
+        //            }
+        //        }
 
 
 
@@ -185,32 +310,33 @@ namespace HouseManager
                 return true;
             }
         }
-        public enum VictimState
-        {
-            victimNotExist,
-            victimHasBroken,
-            victimStateNormal
-        }
+
+
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="player">玩家</param>
+        ///// <param name="car">小车</param>
+        ///// <param name="sa"></param>
+        ///// <param name="notifyMsg"></param>
+        ///// <param name="victimState">0，代表用户不存在了。1代表已经破产，2代表正常</param>
 
         /// <summary>
-        /// 
+        /// 此函数，必须在this._Players.ContainsKey(sa.targetOwner)=true且this._Players[sa.targetOwner].Bust=false情况下运行。请提前进行判断！
         /// </summary>
         /// <param name="player">玩家</param>
-        /// <param name="car">小车</param>
+        /// <param name="car"></param>
         /// <param name="sa"></param>
         /// <param name="notifyMsg"></param>
-        /// <param name="victimState">0，代表用户不存在了。1代表已经破产，2代表正常</param>
-        /// <returns>true：表示已执行；false，表示各种原因(去不了、去了回不来)未执行。</returns>
-        public bool attack(Player player, Car car, SetAttack sa, ref List<string> notifyMsg, out VictimState victimState)
+        /// <param name="victimState"></param>
+        /// <param name="reason"></param>
+        void attack(Player player, Car car, SetAttack sa, ref List<string> notifyMsg, out MileResultReason Mrr)
         {
-            if (this._Players.ContainsKey(sa.targetOwner))
+            //   if (this._Players.ContainsKey(sa.targetOwner))
             {
-                if (this._Players[sa.targetOwner].Bust)
-                {
-                    victimState = VictimState.victimHasBroken;
-                    return false;
-                }
-                else
+                //if (this._Players[sa.targetOwner].Bust)
+
+
                 {
                     var from = this.getFromWhenAttack(player, car);
                     var to = sa.target;
@@ -230,51 +356,11 @@ namespace HouseManager
                     //第一步，计算去程和回程。
                     if (car.ability.leftMile >= goMile + returnMile)
                     {
-                        car.targetFpIndex = to;
-                        Console.WriteLine($"{car.name}的目标设置成了{Program.dt.GetFpByIndex(to).FastenPositionName}");
-                        var speed = car.ability.Speed;
-                        int startT = 0;
-                        List<Data.PathResult> result;
-                        if (car.state == CarState.waitAtBaseStation)
-                        {
-                            result = getStartPositon(fp1, sa.car, ref startT);
-                        }
-                        else
-                        {
-                            throw new Exception("错误的汽车类型！！！");
-                        }
-                        Program.dt.GetAFromBPoint(goPath, fp1, speed, ref result, ref startT);
-                        result.RemoveAll(item => item.t0 == item.t1);
-                        car.animateData = new AnimateData()
-                        {
-                            animateData = result,
-                            recordTime = DateTime.Now
-                        };
-                        Thread th = new Thread(() => setDebt(startT, new commandWithTime.debtOwner()
-                        {
-                            c = "debtOwner",
-                            key = sa.Key,
-                            car = sa.car,
-                            returnPath = returnPath,
-                            target = to,//新的起点
-                            changeType = "Attack",
-                            victim = sa.targetOwner
-                        }));
-                        th.Start();
-
-                        if (car.purpose == Purpose.@null || car.purpose == Purpose.collect)
-                        {
-
-                        }
-                        else
-                        {
-                            throw new Exception("错误的car.purpose");
-                        }
-                        car.state = CarState.roadForAttack;
-                        car.changeState++;//更改状态
+                        int startT;
+                        EditCarStateWhenAttackStartOK(ref car, to, fp1, sa, goPath, out startT);
+                        SetAttackArrivalThread(startT, car, sa, returnPath);
                         getAllCarInfomations(sa.Key, ref notifyMsg);
-                        victimState = VictimState.victimStateNormal;
-                        return true;
+                        Mrr = MileResultReason.Abundant;
                     }
 
                     else if (car.ability.leftMile >= goMile)
@@ -282,10 +368,7 @@ namespace HouseManager
                         //当攻击失败，必须返回
                         Console.Write($"去程{goMile}，回程{returnMile}");
                         Console.Write($"你去了回不来");
-
-#warning 这里要在前台进行提示
-                        victimState = VictimState.victimStateNormal;
-                        return false;
+                        Mrr = MileResultReason.CanNotReturn;
                     }
                     else
                     {
@@ -293,18 +376,75 @@ namespace HouseManager
                         //当攻击失败，必须返回
                         Console.Write($"去程{goMile}，回程{returnMile}");
                         Console.Write($"你去不了");
-                        victimState = VictimState.victimStateNormal;
-                        return false;
+                        Mrr = MileResultReason.CanNotReach;
                     }
                 }
 
             }
+            //else
+            //{
+            //    throw new Exception("此方法，不该在此条件下运行");
+            //}
+
+        }
+
+        private void SetAttackArrivalThread(int startT, Car car, SetAttack sa, List<Model.MapGo.nyrqPosition> returnPath)
+        {
+            Thread th = new Thread(() => setDebt(startT, new commandWithTime.debtOwner()
+            {
+                c = "debtOwner",
+                key = sa.Key,
+                car = sa.car,
+                returnPath = returnPath,
+                target = car.targetFpIndex,//新的起点
+                changeType = "Attack",
+                victim = sa.targetOwner
+            }));
+            th.Start();
+        }
+
+        private void EditCarStateWhenAttackStartOK(ref Car car, int to, Model.FastonPosition fp1, SetAttack sa, List<Model.MapGo.nyrqPosition> goPath, out int startT)
+        {
+            car.targetFpIndex = to;//A.更改小车目标，在其他地方引用。
+            car.purpose = Purpose.attack;//B.更改小车目的，小车变为攻击状态！
+            car.changeState++;//C.更改状态用去前台更新动画  
+
+            /*
+            * D.更新小车动画参数
+            */
+            var speed = car.ability.Speed;
+            startT = 0;
+            List<Data.PathResult> result;
+            if (car.state == CarState.waitAtBaseStation)
+            {
+                result = getStartPositon(fp1, sa.car, ref startT);
+            }
+            else if (car.state == CarState.waitForCollectOrAttack)
+            {
+                result = new List<Data.PathResult>();
+            }
+            else if (car.state == CarState.waitForTaxOrAttack)
+            {
+                result = new List<Data.PathResult>();
+            }
+            else if (car.state == CarState.waitOnRoad)
+            {
+                result = new List<Data.PathResult>();
+            }
             else
             {
-                victimState = VictimState.victimNotExist;
-                return false;
+                throw new Exception("错误的汽车类型！！！");
             }
 
+            car.state = CarState.roadForAttack;
+
+            Program.dt.GetAFromBPoint(goPath, fp1, speed, ref result, ref startT);
+            result.RemoveAll(item => item.t0 == item.t1);
+            car.animateData = new AnimateData()
+            {
+                animateData = result,
+                recordTime = DateTime.Now
+            };
         }
 
         private int getFromWhenAttack(Player player, Car car)
@@ -441,10 +581,10 @@ namespace HouseManager
             {
                 var player = this._Players[dOwner.key];
                 var car = this._Players[dOwner.key].getCar(dOwner.car);
-                if (
-                    car.purpose == Purpose.@null
-                    || car.purpose == Purpose.collect)
-                    car.purpose = Purpose.attack;
+                if (car.purpose == Purpose.attack)
+                {
+
+                }
                 else
                 {
                     Console.WriteLine($"{Newtonsoft.Json.JsonConvert.SerializeObject(car)}");
@@ -484,11 +624,17 @@ namespace HouseManager
                     }
                     else
                     {
+                        /*
+                         * 当到达地点时，有可能攻击对象不存在。
+                         * 也有可能攻击对象已破产。
+                         * 还有正常情况。
+                         * 这三种情况都要考虑到。
+                         */
+
                         var attackMoney = car.ability.costBusiness + car.ability.costVolume;
                         Console.WriteLine($"player:{player.Key},car{dOwner.car},attackMoney:{attackMoney}");
                         if (this._Players.ContainsKey(dOwner.victim))
                         {
-
                             var victim = this._Players[dOwner.victim];
                             if (!victim.Bust)
                             {
@@ -522,30 +668,28 @@ namespace HouseManager
 
                                 }
 #warning 这里乱得很！！！
-                                var lastDebt = victim.LastDebt;
-                                if (attackMoney >= lastDebt)
-                                {
-                                    victim.Bust = true;
+                                //var lastDebt = victim.LastDebt;
+                                //if (attackMoney >= lastDebt)
+                                //{
+                                //    victim.Bust = true;
 
-                                }
-                                else
-                                {
+                                //}
+                                //else
+                                //{
 
-                                }
+                                //}
                                 {
                                     //执行 攻击动作！ 
                                     if (attackMoney > 0)
                                     {
-                                        var attack = Math.Min(car.ability.costBusiness, lastDebt);
+                                        var attack = car.ability.costBusiness;
                                         victim.AddDebts(player.Key, attack);
                                         car.ability.costBusiness -= attack;
-                                        lastDebt -= attack;
                                     }
                                     {
-                                        var attack = Math.Min(car.ability.costVolume, lastDebt);
+                                        var attack = car.ability.costVolume;
                                         victim.AddDebts(player.Key, attack);
                                         car.ability.costVolume -= attack;
-                                        lastDebt -= attack;
                                     }
                                 }
                             }
@@ -553,37 +697,37 @@ namespace HouseManager
                             {
                                 //这种情况也有可能存在。
                             }
-                            if (victim.Bust)
-                            {
-#warning 这里要开始系统帮助玩家自动还债进程！
-                                /*
-                                 * 1期工程，直接偿还账务。
-                                 * 2期工程，做执行动画。
-                                 */
-                                victim.BustTime = DateTime.Now;
-                                var keys = new List<string>();
-                                foreach (var item in victim.Debts)
-                                {
-                                    keys.Add(item.Key);
-                                    //if(this._Players.ContainsKey(item))
-                                }
-                                for (var i = 0; i < keys.Count; i++)
-                                {
-                                    if (this._Players.ContainsKey(keys[i]))
-                                    {
-                                        if (!this._Players[keys[i]].Bust)
-                                            this._Players[keys[i]].Money += Math.Max(0, victim.Debts[keys[i]]);
-                                        victim.Debts[keys[i]] = 0;
+                            //                            if (victim.Bust)
+                            //                            {
+                            //#warning 这里要开始系统帮助玩家自动还债进程！
+                            //                                /*
+                            //                                 * 1期工程，直接偿还账务。
+                            //                                 * 2期工程，做执行动画。
+                            //                                 */
+                            //                                victim.BustTime = DateTime.Now;
+                            //                                var keys = new List<string>();
+                            //                                foreach (var item in victim.Debts)
+                            //                                {
+                            //                                    keys.Add(item.Key);
+                            //                                    //if(this._Players.ContainsKey(item))
+                            //                                }
+                            //                                for (var i = 0; i < keys.Count; i++)
+                            //                                {
+                            //                                    if (this._Players.ContainsKey(keys[i]))
+                            //                                    {
+                            //                                        if (!this._Players[keys[i]].Bust)
+                            //                                            this._Players[keys[i]].Money += Math.Max(0, victim.Debts[keys[i]]);
+                            //                                        victim.Debts[keys[i]] = 0;
 
-#warning 这里要提示。破产，你获取了多少资金。
-                                    }
-                                }
-                                victim.Debts = new Dictionary<string, long>();
-                                //for (var i = 0; i < victim.Debts.Count; i++)
-                                //{
-                                //    victim.Debts
-                                //}
-                            }
+                            //#warning 这里要提示。破产，你获取了多少资金。
+                            //                                    }
+                            //                                }
+                            //                                victim.Debts = new Dictionary<string, long>();
+                            //                                //for (var i = 0; i < victim.Debts.Count; i++)
+                            //                                //{
+                            //                                //    victim.Debts
+                            //                                //}
+                            //                            }
                         }
                         else
                         {

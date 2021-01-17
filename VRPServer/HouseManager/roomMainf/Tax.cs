@@ -49,7 +49,7 @@ namespace HouseManager
 
 
         /// <summary>
-        /// 
+        /// 用于向税收受益者传送收益消息。
         /// </summary>
         /// <param name="key">一般是税收受益者的key</param>
         /// <param name="placeIndex">地点ID</param>
@@ -157,23 +157,23 @@ namespace HouseManager
                                     {
                                         if (car.purpose == Purpose.tax)
                                         {
-                                            if (car.ability.leftVolume > 0)
+                                            if (car.ability.leftBusiness > 0)
                                             {
                                                 MileResultReason reason;
                                                 DoCollectTaxF(player, car, st, ref notifyMsg, out reason);
                                                 if (reason == MileResultReason.Abundant)
                                                 {
-                                                    printState(player, car, "已经在收集金钱的路上了");
+                                                    printState(player, car, "已经在税收的路上了");
                                                 }
                                                 else
                                                 {
-                                                    printState(player, car, "里程问题，被安排返回");
+                                                    printState(player, car, $"里程问题，被安排回去");
                                                     getTaxFailedThenReturn(car, player, st, ref notifyMsg);
                                                 }
                                             }
                                             else
                                             {
-                                                printState(player, car, "剩余业务量问题，被安排返回");
+                                                printState(player, car, $"业务已满，被安排回去");
                                                 getTaxFailedThenReturn(car, player, st, ref notifyMsg);
                                             }
                                         }
@@ -206,7 +206,7 @@ namespace HouseManager
 
         private void getTaxFailedThenReturn(Car car, Player player, SetTax st, ref List<string> notifyMsg)
         {
-            if (car.state == CarState.waitForTaxOrAttack)
+            if (car.state == CarState.waitForTaxOrAttack || car.state == CarState.waitOnRoad)
             {
                 //Console.Write($"现在剩余业务为{car.ability.leftBusiness}，总业务为{car.ability.Business}");
                 //Console.Write($"你装不下了！");
@@ -309,6 +309,43 @@ namespace HouseManager
                 Console.Write($"去程{goMile}，回程{returnMile}");
                 Console.Write($"你去不了");
                 reason = MileResultReason.CanNotReach;
+            }
+        }
+        private void arriveThenGetTax(ref Player player, ref Car car, commandWithTime.placeArriving pa, ref List<string> notifyMsg)
+        {
+            if (car.targetFpIndex == -1)
+            {
+                throw new Exception("这个地点应该是执行税收和即将要等待的地点！");
+            }
+            if (player.TaxInPosition.ContainsKey(car.targetFpIndex)) { }
+            else
+            {
+                throw new Exception("没有判断是否包含地点");
+            }
+            if (player.TaxInPosition[car.targetFpIndex] > 0)
+            {
+                //确定税收的值
+                var tax = Math.Min(car.ability.leftBusiness, player.TaxInPosition[car.targetFpIndex]);
+                car.ability.costBusiness += tax;
+                player.TaxInPosition[car.targetFpIndex] -= tax;
+
+                if (player.TaxInPosition[car.targetFpIndex] == 0)
+                {
+                    player.TaxInPosition.Remove(car.targetFpIndex);
+                }
+                printState(player, car, $"{Program.dt.GetFpByIndex(car.targetFpIndex).FastenPositionName}收取{tax}");
+                car.ability.costMiles += pa.costMile;//
+                carParkOnRoad(pa.target, ref car, player);
+                SendSingleTax(player.Key, car.targetFpIndex, ref notifyMsg);
+                if (car.purpose == Purpose.tax && car.state == CarState.roadForTax)
+                {
+                    car.state = CarState.waitForTaxOrAttack;
+                    this._Players[pa.key].returningRecord[pa.car] = pa.returnPath;
+
+                    //第二步，更改状态
+                    car.changeState++;
+                    getAllCarInfomations(pa.key, ref notifyMsg);
+                }
             }
         }
 

@@ -15,6 +15,7 @@ namespace ConsoleTestAPP
                 "businessawaitreturn","测试能力提升点等待返回",
                 "promotemilenotenoughreturn","能提提升时，剩余里程不足，返回",
                 "promoteawaitcollectfailreturn","能提提升-等待-回收-里程不够-返回",
+                "PromoteToCollect","能提提升-回收的转变"
             };
 
             for (var i = 0; i < commands.Count; i += 2)
@@ -77,10 +78,14 @@ namespace ConsoleTestAPP
                         {
                             TestTag.PromoteIsNotEnoughThenReturn.Test(command);
                         }; break;
-                    case "promoteawaitcollectfailreturn": 
+                    case "promoteawaitcollectfailreturn":
                         {
                             TestTag.PromoteIsNotEnoughThenReturn.Test2(command);
-                        };break;
+                        }; break;
+                    case "PromoteToCollect":
+                        {
+                            TestTag.PromoteCollectOK.Test(command);
+                        }; break;
                 }
             Console.ReadLine();
         }

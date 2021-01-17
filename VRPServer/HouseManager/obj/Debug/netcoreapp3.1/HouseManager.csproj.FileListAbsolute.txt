@@ -28,3 +28,5 @@ F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\HouseManager\obj\
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\HouseManager\obj\Debug\netcoreapp3.1\HouseManager.dll
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\HouseManager\obj\Debug\netcoreapp3.1\HouseManager.pdb
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\HouseManager\obj\Debug\netcoreapp3.1\HouseManager.genruntimeconfig.cache
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\HouseManager\bin\Debug\netcoreapp3.1\TcpFunction.dll
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\HouseManager\bin\Debug\netcoreapp3.1\TcpFunction.pdb

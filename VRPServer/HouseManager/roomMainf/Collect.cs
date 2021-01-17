@@ -39,20 +39,58 @@ namespace HouseManager
                     {
                         if (this._Players[sc.Key].Bust) { }
                         else
-                            //if(sp.pType=="mi")
                             switch (sc.cType)
                             {
                                 case "findWork":
                                     {
                                         var player = this._Players[sc.Key];
                                         var car = this._Players[sc.Key].getCar(carIndex);
-                                        switch (car.state)
+                                        if (car.purpose == Purpose.@null || car.purpose == Purpose.collect)
                                         {
-                                            case CarState.waitForCollectOrAttack:
-                                                {
-                                                    if (car.purpose == Purpose.collect)
+                                            switch (car.state)
+                                            {
+                                                case CarState.waitForCollectOrAttack:
                                                     {
-                                                        if (car.ability.leftVolume > 0)
+                                                        if (car.purpose == Purpose.collect)
+                                                        {
+                                                            if (car.ability.leftVolume > 0)
+                                                            {
+                                                                MileResultReason result;
+                                                                CollectF(car, player, sc, ref notifyMsg, out result);
+                                                                if (result == MileResultReason.Abundant)
+                                                                {
+                                                                    printState(player, car, "已经在收集金钱的路上了");
+                                                                }
+                                                                else
+                                                                {
+                                                                    printState(player, car, $"里程问题，被安排回去");
+                                                                    //Console.Write($"现在剩余容量为{car.ability.leftVolume}，总容量为{car.ability.Volume}");
+                                                                    //Console.Write($"你装不下了！");
+                                                                    collectFailedThenReturn(car, player, sc, ref notifyMsg);
+                                                                    if (result == MileResultReason.CanNotReach)
+                                                                    {
+                                                                        WebNotify(player, "您的剩余里程不足以支持您到达目的地！");
+                                                                    }
+                                                                    else if (result == MileResultReason.CanNotReturn)
+                                                                    {
+                                                                        WebNotify(player, "到达目的地后，您的剩余里程不足以支持您返回！");
+                                                                    }
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                printState(player, car, $"收集仓已满，被安排回去");
+                                                                collectFailedThenReturn(car, player, sc, ref notifyMsg);
+                                                                WebNotify(player, $"收集仓已满，被安排回去");
+                                                            }
+                                                        }
+                                                    }; break;
+                                                case CarState.waitAtBaseStation:
+                                                    {
+                                                        /*
+                                                         * 在基地进行等待。收集不需要volume 或者business
+                                                         */
+                                                        if (car.purpose == Purpose.@null)
                                                         {
                                                             MileResultReason result;
                                                             CollectF(car, player, sc, ref notifyMsg, out result);
@@ -62,79 +100,44 @@ namespace HouseManager
                                                             }
                                                             else
                                                             {
-                                                                printState(player, car, $"里程问题，被安排回去");
-                                                                //Console.Write($"现在剩余容量为{car.ability.leftVolume}，总容量为{car.ability.Volume}");
-                                                                //Console.Write($"你装不下了！");
-                                                                collectFailedThenReturn(car, player, sc, ref notifyMsg);
-                                                                if (result == MileResultReason.CanNotReach)
-                                                                {
-                                                                    WebNotify(player, "您的剩余里程不足以支持您到达目的地！");
-                                                                }
-                                                                else if (result == MileResultReason.CanNotReturn)
-                                                                {
-                                                                    WebNotify(player, "到达目的地后，您的剩余里程不足以支持您返回！");
-                                                                }
+                                                                printState(player, car, $"里程问题，未能启动！");
                                                             }
                                                         }
-                                                        else
-                                                        {
-                                                            printState(player, car, $"收集仓已满，被安排回去");
-                                                            collectFailedThenReturn(car, player, sc, ref notifyMsg);
-                                                            WebNotify(player, $"收集仓已满，被安排回去");
-                                                        }
-                                                    }
-                                                }; break;
-                                            case CarState.waitAtBaseStation:
-                                                {
-                                                    /*
-                                                     * 在基地进行等待。收集不需要volume 或者business
-                                                     */
-                                                    //  if (car.purpose != Purpose.tax)
+                                                    }; break;
+                                                case CarState.waitOnRoad:
                                                     {
-                                                        MileResultReason result;
-                                                        CollectF(car, player, sc, ref notifyMsg, out result);
-                                                        if (result == MileResultReason.Abundant)
+                                                        if (car.purpose != Purpose.tax && car.purpose != Purpose.attack)
                                                         {
-                                                            printState(player, car, "已经在收集金钱的路上了");
-                                                        }
-                                                        else
-                                                        {
-                                                            printState(player, car, $"里程问题，未能启动！");
-                                                        }
-                                                    }
-                                                }; break;
-                                            case CarState.waitOnRoad:
-                                                {
-                                                    if (car.purpose != Purpose.tax && car.purpose != Purpose.attack)
-                                                    {
-                                                        if (car.ability.leftVolume > 0)
-                                                        {
-                                                            MileResultReason result;
-                                                            CollectF(car, player, sc, ref notifyMsg, out result);
-                                                            if (result == MileResultReason.Abundant)
+                                                            if (car.ability.leftVolume > 0)
                                                             {
-                                                                printState(player, car, "已经在收集金钱的路上了");
+                                                                MileResultReason result;
+                                                                CollectF(car, player, sc, ref notifyMsg, out result);
+                                                                if (result == MileResultReason.Abundant)
+                                                                {
+                                                                    printState(player, car, "已经在收集金钱的路上了");
+                                                                }
+                                                                else
+                                                                {
+                                                                    printState(player, car, $"里程问题，被安排回去");
+                                                                    collectFailedThenReturn(car, player, sc, ref notifyMsg);
+                                                                }
                                                             }
                                                             else
                                                             {
-                                                                printState(player, car, $"里程问题，被安排回去");
+                                                                printState(player, car, $"收集仓已满，被安排回去");
                                                                 collectFailedThenReturn(car, player, sc, ref notifyMsg);
                                                             }
                                                         }
                                                         else
                                                         {
-                                                            printState(player, car, $"收集仓已满，被安排回去");
-                                                            collectFailedThenReturn(car, player, sc, ref notifyMsg);
+                                                            Console.WriteLine("CarState.waitOnRoad car.purpose= Purpose.tax");
+                                                            //throw new Exception();
                                                         }
-                                                    }
-                                                    else
-                                                    {
-                                                        Console.WriteLine("CarState.waitOnRoad car.purpose= Purpose.tax");
-                                                        //throw new Exception();
-                                                    }
-                                                }; break;
+                                                    }; break;
 
+                                            }
                                         }
+
                                     }; break;
                             }
                     }
@@ -188,7 +191,7 @@ namespace HouseManager
             if (car.ability.leftMile >= goMile + returnMile)
             {
                 int startT;
-                EditCarStateWhenCollectStartOK(ref car, to, fp1, to, sc, goPath, out startT);
+                EditCarStateWhenCollectStartOK(ref car, to, fp1, sc, goPath, out startT);
                 StartArriavalThread(startT, car, sc, returnPath, goMile);
                 getAllCarInfomations(sc.Key, ref notifyMsg);
                 reason = MileResultReason.Abundant;//返回原因
@@ -219,7 +222,7 @@ namespace HouseManager
         /// <param name="car">执行任务小车</param> 
         /// <param name="sc">传参对象</param>
         /// <param name="returnPath">计划的返还路径</param>
-        /// <param name="goMile">去里程</param>
+        /// <param name="goMile">去里程,主要用于里程统计！</param>
         private void StartArriavalThread(int startT, Car car, SetCollect sc, List<Model.MapGo.nyrqPosition> returnPath, int goMile)
         {
             Thread th = new Thread(() => setArrive(startT, new commandWithTime.placeArriving()
@@ -242,7 +245,7 @@ namespace HouseManager
         /// <param name="fp1"></param>
         /// <param name="sc"></param>
         /// <param name="goPath"></param>
-        private void EditCarStateWhenCollectStartOK(ref Car car, int to, Model.FastonPosition fp1, int to1, SetCollect sc, List<Model.MapGo.nyrqPosition> goPath, out int startT)
+        private void EditCarStateWhenCollectStartOK(ref Car car, int to, Model.FastonPosition fp1, SetCollect sc, List<Model.MapGo.nyrqPosition> goPath, out int startT)
         {
 
             car.targetFpIndex = to;//A.更改小车目标，在其他地方引用。
@@ -298,6 +301,8 @@ namespace HouseManager
             {
                 var player = this._Players[pa.key];
                 var car = this._Players[pa.key].getCar(pa.car);
+
+
                 if (car.state == CarState.roadForCollect)
                 {
                     arriveThenDoCollect(ref player, ref car, pa, ref notifyMsg, out needUpdateCollectState);
@@ -327,43 +332,18 @@ namespace HouseManager
             }
         }
 
-        private void arriveThenGetTax(ref Player player, ref Car car, commandWithTime.placeArriving pa, ref List<string> notifyMsg)
+       
+        /// <summary>
+        /// 此方法，用于债务放大权益（包括收益、债务重组）
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        private long Magnify(long value)
         {
-            if (car.targetFpIndex == -1)
-            {
-                throw new Exception("这个地点应该是执行税收和即将要等待的地点！");
-            }
-            if (player.TaxInPosition.ContainsKey(car.targetFpIndex)) { }
-            else
-            {
-                throw new Exception("没有判断是否包含地点");
-            }
-            if (player.TaxInPosition[car.targetFpIndex] > 0)
-            {
-                var tax = Math.Min(car.ability.leftBusiness, player.TaxInPosition[car.targetFpIndex]);
-                car.ability.costBusiness += tax;
-                player.TaxInPosition[car.targetFpIndex] -= tax;
-
-                if (player.TaxInPosition[car.targetFpIndex] == 0)
-                {
-                    player.TaxInPosition.Remove(car.targetFpIndex);
-                }
-                printState(player, car, $"{Program.dt.GetFpByIndex(car.targetFpIndex).FastenPositionName}收取{tax}");
-                car.ability.costMiles += pa.costMile;//
-                carParkOnRoad(pa.target, ref car, player);
-                SendSingleTax(player.Key, car.targetFpIndex, ref notifyMsg);
-                if (car.purpose == Purpose.tax && car.state == CarState.roadForTax)
-                {
-                    car.state = CarState.waitForTaxOrAttack;
-                    this._Players[pa.key].returningRecord[pa.car] = pa.returnPath;
-
-                    //第二步，更改状态
-                    car.changeState++;
-                    getAllCarInfomations(pa.key, ref notifyMsg);
-                }
-            }
+            const long t1 = 105;
+            const long t2 = 100;
+            return value * t1 / t2;
         }
-
         private void arriveThenDoCollect(ref Player player, ref Car car, commandWithTime.placeArriving pa, ref List<string> notifyMsg, out bool needUpdateCollectState)
         {
             needUpdateCollectState = false;
@@ -375,6 +355,7 @@ namespace HouseManager
             {
                 int taxPostion = this.getCollectPositionTo();
                 long sumCollect = this.CollectReWard;
+                var selfGet = sumCollect;
                 long sumDebet = 0;
                 foreach (var item in player.Debts)
                 {
@@ -383,17 +364,24 @@ namespace HouseManager
                 if (sumDebet > 0)
                 {
                     Dictionary<string, long> profiles = new Dictionary<string, long>();
+
+                    long sumDebts = 0;
+                    foreach (var item in player.Debts)
+                    {
+                        sumDebts += Magnify(item.Value);
+                    }
+                    sumDebts += player.Money;
+                    sumDebet = Math.Max(1, sumDebet);
+
                     foreach (var item in player.Debts)
                     {
                         if (item.Value > 0)
                         {
-#warning 这里强调债务的放大作用。现行肯定要报错！
-                            var profileOfOther = item.Value * sumCollect / player.Money;
+                            var profileOfOther = Magnify(item.Value) * sumCollect / sumDebts;
                             profileOfOther = Math.Max(profileOfOther, 1);
                             profiles.Add(item.Key, profileOfOther);
-                            Console.WriteLine("");
-                            printState(player, car, $"{player.PlayerName}({player.Key})通过收集，在{Program.dt.GetFpByIndex(taxPostion).FastenPositionName}，给{this._Players[item.Key].PlayerName}创造税收");
-
+                            printState(player, car, $"{player.PlayerName}({player.Key})通过收集，在{Program.dt.GetFpByIndex(taxPostion).FastenPositionName}，给{this._Players[item.Key].PlayerName}创造利润");
+                            selfGet -= profileOfOther;
                         }
                         else
                         {
@@ -405,19 +393,23 @@ namespace HouseManager
                         if (this._Players.ContainsKey(item.Key))
                         {
                             this._Players[item.Key].AddTax(taxPostion, item.Value);
-                            sumCollect -= item.Value;
                             SendSingleTax(item.Key, taxPostion, ref notifyMsg);
-
                         }
                         else
                         {
+#warning 这里要确保删除player单个对象时，把其他player中的关于本player的记录进行删除
+                            //↑↑↑这个需要安排模拟测试↑↑↑
                             throw new Exception("系统错误！");
                         }
                     }
                 }
                 {
-                    sumCollect = Math.Max(1, sumCollect);
-                    car.ability.costVolume += sumCollect;
+                    /*
+                     * Collect 用 costVolume
+                     * GetTax 用 costBussiness
+                     */
+                    selfGet = Math.Max(1, selfGet);
+                    car.ability.costVolume += selfGet;
                 }
                 this.collectPosition = this.GetRandomPosition();
                 needUpdateCollectState = true;
@@ -443,8 +435,14 @@ namespace HouseManager
                 car.changeState++;
                 getAllCarInfomations(pa.key, ref notifyMsg);
             }
-
+            else
+            {
+#warning 如果代码运行至此处，是要报错，并记录的！
+                throw new Exception("");
+            }
         }
+
+
 
         /// <summary>
         /// 获取出发地点

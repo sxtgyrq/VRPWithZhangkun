@@ -215,7 +215,8 @@
           "Microsoft.AspNetCore.Mvc.NewtonsoftJson": "3.1.3",
           "Microsoft.Extensions.Configuration": "3.1.3",
           "Microsoft.Extensions.Configuration.Json": "3.1.3",
-          "Model": "1.0.0"
+          "Model": "1.0.0",
+          "TcpFunction": "1.0.0"
         },
         "compile": {
           "bin/placeholder/HouseManager.dll": {}
@@ -235,6 +236,16 @@
         },
         "runtime": {
           "bin/placeholder/Model.dll": {}
+        }
+      },
+      "TcpFunction/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v3.1",
+        "compile": {
+          "bin/placeholder/TcpFunction.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/TcpFunction.dll": {}
         }
       }
     }
@@ -714,6 +725,11 @@
       "type": "project",
       "path": "../Model/Model.csproj",
       "msbuildProject": "../Model/Model.csproj"
+    },
+    "TcpFunction/1.0.0": {
+      "type": "project",
+      "path": "../TcpFunction/TcpFunction.csproj",
+      "msbuildProject": "../TcpFunction/TcpFunction.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -751,6 +767,7 @@
       },
       "frameworks": {
         "netcoreapp3.1": {
+          "targetAlias": "netcoreapp3.1",
           "projectReferences": {
             "F:\\MyProject\\VRPWithZhangkun\\MainApp\\VRPWithZhangkun\\VRPServer\\HouseManager\\HouseManager.csproj": {
               "projectPath": "F:\\MyProject\\VRPWithZhangkun\\MainApp\\VRPWithZhangkun\\VRPServer\\HouseManager\\HouseManager.csproj"
@@ -766,6 +783,7 @@
     },
     "frameworks": {
       "netcoreapp3.1": {
+        "targetAlias": "netcoreapp3.1",
         "dependencies": {
           "System.Collections": {
             "target": "Package",
@@ -790,7 +808,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.401\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.102\\RuntimeIdentifierGraph.json"
       }
     }
   }

@@ -51,10 +51,7 @@ namespace HouseManager
                 }
                 else if (cmp.changeType == "Attack" && car.state == CarState.roadForAttack && car.purpose == Purpose.attack)
                 {
-                    if (car.state == CarState.roadForAttack)
-                    {
-                        ReturnThenSetComeBack(car, cmp, ref notifyMsg);
-                    }
+                    ReturnThenSetComeBack(car, cmp, ref notifyMsg);
                 }
                 else if (cmp.changeType == "sys-return")
                 {
@@ -68,8 +65,15 @@ namespace HouseManager
                 {
 
                     var json = Newtonsoft.Json.JsonConvert.SerializeObject(car);
+
+                    for (var i = 0; i < 100; i++)
+                    {
+                        Console.WriteLine("↓↓↓↓↓出现异常↓↓↓↓↓");
+                    }
                     Console.WriteLine(json);
-                    throw new Exception($"遇到未注册的情况--{json}！！！");
+                    DebugRecord.FileRecord($@"-----setReturn 以下情况未注册-----
+{json}
+-----setReturn 以下情况未注册-----");
                 }
             }
             for (var i = 0; i < notifyMsg.Count; i += 2)
@@ -215,6 +219,7 @@ namespace HouseManager
                 if (car.state == CarState.returning)
                 {
                     player.Money += car.ability.costBusiness;
+                    player.Money += car.ability.costVolume;
                     if (car.ability.subsidize > 0)
                     {
                         player.SupportToPlay.Money += car.ability.subsidize;

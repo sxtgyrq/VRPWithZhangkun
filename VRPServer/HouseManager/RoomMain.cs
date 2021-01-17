@@ -310,18 +310,18 @@ namespace HouseManager
 
             if (this.debug)
             {
-                var goPath = Program.dt.GetAFromB(car.targetFpIndex, this.collectPosition);
-                var returnPath = Program.dt.GetAFromB(this.collectPosition, player.StartFPIndex);
+                //var goPath = Program.dt.GetAFromB(car.targetFpIndex, this.collectPosition);
+                //var returnPath = Program.dt.GetAFromB(this.collectPosition, player.StartFPIndex);
 
-                var goMile = GetMile(goPath);
-                var returnMile = GetMile(returnPath);
-                if (goMile + returnMile > car.ability.leftMile) 
-                {
-                    for (int i = 0; i < 3; i++) 
-                    {
-                        Console.WriteLine($"现在回收是要返回的！");
-                    }
-                }
+                //var goMile = GetMile(goPath);
+                //var returnMile = GetMile(returnPath);
+                //if (goMile + returnMile > car.ability.leftMile) 
+                //{
+                //    for (int i = 0; i < 3; i++) 
+                //    {
+                //        Console.WriteLine($"现在回收是要返回的！");
+                //    }
+                //}
             }
         }
 
