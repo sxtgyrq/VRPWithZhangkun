@@ -497,6 +497,21 @@ namespace WsOfWebClient
             #endregion
         }
 
+        internal static async Task<string> passMsg(State s, Msg msg)
+        {
+            var dialogMsg = new DialogMsg()
+            {
+                c = "DialogMsg",
+                Key = s.Key,
+                Msg = msg.MsgPass
+            };
+            var msgString = Newtonsoft.Json.JsonConvert.SerializeObject(dialogMsg);
+            //Room.roomUrls[s.roomIndex]
+            var result = await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[s.roomIndex], msgString);
+            return result;
+            //var result = await Startup.sendInmationToUrlAndGetRes(s.roomIndex, msg);
+        }
+
 
 
         /// <summary>

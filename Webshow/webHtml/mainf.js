@@ -2609,7 +2609,11 @@ var dialogSys =
         if (document.getElementById('friendsList') != null) {
             document.getElementById('friendsList').remove();
         }
+        while (document.getElementById('msgDialog') != null) {
+            document.getElementById('msgDialog').remove();
+        }
         var dialog = document.createElement('div');
+        dialog.id = 'msgDialog';
         //  dialog.classList.add
         dialog.classList.add('dialog');
         dialog.classList.add('show');
@@ -2630,6 +2634,12 @@ var dialogSys =
             span.className = 'dialogBtn_text';
             span.innerText = '返回';
             btn.appendChild(span);
+            btn.onclick = function ()
+            {
+                while (document.getElementById('msgDialog') != null) {
+                    document.getElementById('msgDialog').remove();
+                }
+            };
 
             var h1 = document.createElement('h1');
             h1.id = 'panelTitleDialogTo';
@@ -2655,13 +2665,60 @@ var dialogSys =
             panelFooter.className = 'dialogChat_toolbar_footer';
 
             var ul = document.createElement('ul');
+            {
+                var li1 = document.createElement('li');
+                li1.classList.add('dialogSession');
+                li1.classList.add('left');
+                var a = document.createElement('a');
+                a.style.marginTop = '5px';
+                var span = document.createElement('span');
+                span.style.display = 'block';
+                span.style.bottom = '4px';
+                span.style.width = '100%';
+                span.style.fontSize = '28px';
+                span.innerText = '✚';
+                a.appendChild(span);
+                li1.append(a);
+                ul.appendChild(li1);
+            }
+            {
+                var li2 = document.createElement('li');
+                li2.classList.add('dialogSession');
+                li2.classList.add('input');
 
-            var li1 = document.createElement('li');
-            
+                var textarea = document.createElement('textarea');
+                textarea.className = 'dialogChat_textareaStyle';
+                textarea.maxLength = '120';
+                li2.append(textarea);
+                ul.append(li2);
+            }
+
+            {
+                var li3 = document.createElement('li');
+                li3.classList.add('dialogSession');
+                li3.classList.add('right');
+
+                var a = document.createElement('a');
+                a.style.marginTop = '5px';
+
+                var span = document.createElement('span');
+                span.style.display = 'block';
+                span.style.bottom = '4px';
+                span.style.width = '100%';
+                span.style.fontSize = '28px';
+                span.innerText = '发送';
+                a.appendChild(span);
+                li3.append(a);
+                ul.appendChild(li3);
+            }
+
+            panelFooter.appendChild(ul);
+            dialogPanel1.appendChild(panelFooter);
         }
 
         dialog.appendChild(dialogPanel1);
         document.body.appendChild(dialog);
+
     }
 };
 

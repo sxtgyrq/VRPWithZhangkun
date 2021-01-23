@@ -232,6 +232,12 @@ namespace CommonClass
 
     }
 
+    public class DialogMsg : Command 
+    {
+        public string Key { get; set; }
+        public string To { get; set; }
+        public string Msg { get; set; }
+    }
     public class PassRoomMd5Check
     {
         public int RoomIndex { get; set; }

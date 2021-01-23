@@ -199,6 +199,12 @@ namespace HouseManager
                                 outPut = "ok";
                                 //await context.Response.WriteAsync("ok");
                             }; break;
+                        case "DialogMsg":
+                            {
+                                CommonClass.DialogMsg dm = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.DialogMsg>(notifyJson);
+                                await BaseInfomation.rm.SendMsg(dm);
+                                outPut = "ok";
+                            }; break;
                     }
                 }
             }
