@@ -542,6 +542,7 @@ namespace HouseManager
             public Model.FastonPosition Fp { get; set; }
             public string[] CarsNames { get; set; }
             public List<string> NotifyMsgs { get; set; }
+            public string PlayerName { get; set; }
         }
         /// <summary>
         /// 用于自己位置的初始化，实际上这个才是真正的初始化！在AddNewPlayer或者update以前，需要将self的others初始化
@@ -566,7 +567,7 @@ namespace HouseManager
                     var fromUrl = this._Players[getPosition.Key].FromUrl;
                     var webSocketID = this._Players[getPosition.Key].WebSocketID;
                     var carsNames = this._Players[getPosition.Key].CarsNames;
-
+                    var playerName = this._Players[getPosition.Key].PlayerName;
                     /*
                      * 这已经走查过，在AddNewPlayer、UpdatePlayer时，others都进行了初始化
                      */
@@ -581,7 +582,8 @@ namespace HouseManager
                         Fp = fp,
                         FromUrl = fromUrl,
                         NotifyMsgs = notifyMsgs,
-                        WebSocketID = webSocketID
+                        WebSocketID = webSocketID,
+                        PlayerName = playerName
                     };
                 }
                 else

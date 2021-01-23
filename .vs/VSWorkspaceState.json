@@ -1,8 +1,8 @@
 {
   "ExpandedNodes": [
     "",
-    "\\VRPServer\\WebApp",
-    "\\WebFileOnly",
+    "\\VRPServer",
+    "\\VRPServer\\Server",
     "\\Webshow",
     "\\Webshow\\WebApplication1"
   ],

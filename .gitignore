@@ -1,6 +1,7 @@
 *.txt
 *.dll
 *.pdb
+*.exe
 /VRPServer/HouseManager/bin/
 /VRPServer/TestAllPath/bin/
 /.vs

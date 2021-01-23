@@ -346,6 +346,17 @@ namespace WsOfWebClient
                                         await Room.setToCollectTax(s, tax);
                                     }
                                 }; break;
+                            case "Msg":
+                                {
+                                    if (s.Ls == LoginState.OnLine)
+                                    {
+                                        Msg msg = Newtonsoft.Json.JsonConvert.DeserializeObject<Msg>(returnResult.result);
+                                        if (msg.MsgPass.Length < 120)
+                                        {
+                                            await Room.passMsg(s, msg);
+                                        }
+                                    }
+                                }; break;
 
                         }
                     }

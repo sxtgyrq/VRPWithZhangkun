@@ -155,7 +155,8 @@ namespace HouseManager
                                         fp = GPResult.Fp,
                                         WebSocketID = GPResult.WebSocketID,
                                         carsNames = GPResult.CarsNames,
-                                        key = getPosition.Key
+                                        key = getPosition.Key,
+                                        PlayerName = GPResult.PlayerName
                                     };
 
                                     await sendMsg(GPResult.FromUrl, Newtonsoft.Json.JsonConvert.SerializeObject(notify));
@@ -198,6 +199,12 @@ namespace HouseManager
                                 var result = await BaseInfomation.rm.updateTax(st);
                                 outPut = "ok";
                                 //await context.Response.WriteAsync("ok");
+                            }; break;
+                        case "DialogMsg":
+                            {
+                                CommonClass.DialogMsg dm = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.DialogMsg>(notifyJson);
+                                await BaseInfomation.rm.SendMsg(dm);
+                                outPut = "ok";
                             }; break;
                     }
                 }

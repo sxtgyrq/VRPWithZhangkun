@@ -27,6 +27,7 @@ namespace CommonClass
         public Model.FastonPosition fp { get; set; }
         public string[] carsNames { get; set; }
         public string key { get; set; }
+        public string PlayerName { get; set; }
     }
     public class GetOthersPositionNotify : CommandNotify
     {
@@ -232,6 +233,12 @@ namespace CommonClass
 
     }
 
+    public class DialogMsg : CommandNotify
+    {
+        public string Key { get; set; }
+        public string To { get; set; }
+        public string Msg { get; set; }
+    }
     public class PassRoomMd5Check
     {
         public int RoomIndex { get; set; }
