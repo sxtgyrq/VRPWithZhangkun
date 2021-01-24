@@ -5,3 +5,5 @@
 /VRPServer/HouseManager/bin/
 /VRPServer/TestAllPath/bin/
 /.vs
+/VRPServer/WsOfWebClient/bin/
+/VRPServer/WsOfWebClient/obj/
