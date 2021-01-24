@@ -781,8 +781,9 @@ var startA = function () {
                         case 'OnLine':
                             {
                                 set3DHtml();
-                                objMain.ws.send('SetOnLine');
                                 objMain.state = objMain.receivedState;
+                                objMain.ws.send('SetOnLine');
+
                             }; break;
                         case 'WaitingToStart':
                             {
@@ -1095,7 +1096,7 @@ var startA = function () {
                 }; break;
             case 'DialogMsg':
                 {
-                    alert(received_obj.Msg);
+                    //  alert(received_obj.Msg);
                     dialogSys.dealWithMsg(received_obj);
                 }; break;
         }
@@ -2534,22 +2535,41 @@ var SysOperatePanel =
         divSysOperatePanel.style.zIndex = '7';
         divSysOperatePanel.style.top = 'calc(100% - 2.5em - 8px)';
         divSysOperatePanel.style.left = '8px';
+        {
+            var img = document.createElement('img');
+            img.id = 'msgToNotify'
+            img.src = 'Pic/chatPng.png';
+            img.classList.add('chatdialog');
+            img.style.border = 'solid 1px yellowgreen';
+            img.style.borderRadius = '5px';
+            img.style.height = 'calc(2.5em - 2px)';
+            img.style.width = 'auto';
 
-        var img = document.createElement('img');
-        img.id = 'msgToNotify'
-        img.src = 'Pic/chatPng.png';
-        img.classList.add('chatdialog');
-        img.style.border = 'solid 1px yellowgreen';
-        img.style.borderRadius = '5px';
-        img.style.height = 'calc(2.5em - 2px)';
-        img.style.width = 'auto';
+            img.onclick = function () {
+                // alert('打开聊天框');
+                dialogSys.show();
+            };
 
-        img.onclick = function () {
-            // alert('打开聊天框');
-            dialogSys.show();
-        };
+            divSysOperatePanel.appendChild(img);
+        }
+        {
+            var img = document.createElement('img');
+            img.id = 'moneyServe'
+            img.src = 'Pic/trade.png';
+            img.classList.add('chatdialog');
+            img.style.border = 'solid 1px yellowgreen';
+            img.style.borderRadius = '5px';
+            img.style.height = 'calc(2.5em - 2px)';
+            img.style.width = 'auto';
+            img.style.marginLeft = "0.5em";
+            img.onclick = function () {
+                // alert('打开聊天框');
+                //      dialogSys.show();
+                alert('弹出对话框');
+            };
 
-        divSysOperatePanel.appendChild(img);
+            divSysOperatePanel.appendChild(img);
+        }
         document.body.appendChild(divSysOperatePanel);
     },
     notifyMsg: function () {

@@ -1,5 +1,8 @@
 ﻿var dialogSys =
 {
+    /*
+     * 显示通信录；
+     */
     showFriendsList: function () {
 
         while (document.getElementById('msgDialog') != null) {
@@ -7,7 +10,8 @@
         }
         if (document.getElementById('friendsList') != null) {
             document.getElementById('friendsList').remove();
-        } else {
+        }
+        {
             var friendsList = document.createElement('friendsList');
 
             friendsList.id = 'friendsList';
@@ -48,9 +52,16 @@
                 //  console.log(key, objMain.othersBasePoint[key])
             }
             document.body.appendChild(friendsList);
+
+            this.iconAlart();
+            this.updatePanel();
         }
     },
     show: function () {
+        if (document.getElementById('friendsList') != null) {
+            document.getElementById('friendsList').remove();
+            return;
+        } 
         var count = 0;
         var selectKey = '';
         for (var item in this.msgs) {
@@ -66,14 +77,7 @@
         }
         if (count == 0) {
             //看情况打开!
-            if (document.getElementById('msgDialog') != null) {
-                //  this.showFriendsList();
-                alert('这种情况没有编写');
-            }
-            if (document.getElementById('friendsList') != null) {
-                this.showFriendsList();
-            }
-            else {
+            if (document.getElementById('friendsList') == null) {
                 this.showFriendsList();
             }
         }
@@ -83,6 +87,10 @@
 
                     this.showDialog(objMain.othersBasePoint[selectKey]);
                 }
+                else {
+                    this.showFriendsList();
+                }
+            else this.showFriendsList();
             //alert(selectData.notRead[0].Key);
             //if (objMain.othersBasePoint[selectData.notRead[0].Key] != undefined) {
 
@@ -128,10 +136,12 @@
             span.className = 'dialogBtn_text';
             span.innerText = '返回';
             btn.appendChild(span);
+            var that = this;
             btn.onclick = function () {
                 while (document.getElementById('msgDialog') != null) {
                     document.getElementById('msgDialog').remove();
                 }
+                that.iconAlart();
             };
 
             var h1 = document.createElement('h1');
@@ -166,6 +176,7 @@
                 var li1 = document.createElement('li');
                 li1.classList.add('dialogSession');
                 li1.classList.add('left');
+                li1.id = 'btnOfContactList';
                 var a = document.createElement('a');
                 a.style.marginTop = '5px';
                 var span = document.createElement('span');
@@ -177,6 +188,10 @@
                 a.appendChild(span);
                 li1.append(a);
                 ul.appendChild(li1);
+                var that = this;
+                li1.onclick = function () {
+                    that.showFriendsList();
+                }
             }
             {
                 var li2 = document.createElement('li');
@@ -238,7 +253,7 @@
         document.body.appendChild(dialog);
 
 
-        if (this.msgs[data.indexKey] != undefined)
+        if (this.msgs[data.indexKey] != undefined) {
             for (var i = 0; i < this.msgs[data.indexKey].read.length; i++) {
                 if (this.msgs[data.indexKey].read[i].Key == objMain.indexKey) {
                     this.addMsgOfSelf(this.msgs[data.indexKey].read[i]);
@@ -246,7 +261,12 @@
                 else if (this.msgs[data.indexKey].read[i].To == objMain.indexKey) {
                     this.addMsgOfBuddy(this.msgs[data.indexKey].read[i]);
                 }
+                // this.msgs[data.indexKey].readLength = i + 1;
             }
+            this.msgs[data.indexKey].readLength = this.msgs[data.indexKey].read.length;
+        }
+
+        this.iconAlart();
         //for (var i = 0; i < this.msgs[data.indexKey].read.length; i++) {
 
         //}
@@ -291,6 +311,7 @@
 
         var panelBodyShowMsg = document.getElementById('panelBodyShowMsg');
         panelBodyShowMsg.appendChild(selfMsgDiv);
+        panelBodyShowMsg.scrollTo(0, panelBodyShowMsg.scrollHeight);
     },
     addMsgOfBuddy: function (msg) {
         var buddyMsgDiv = document.createElement('div');
@@ -300,7 +321,7 @@
         var p1 = document.createElement('p');
         p1.classList.add('dialogChat_nick');
         var a = document.createElement('a');
-        a.innerText = objMain.displayName;
+        a.innerText = objMain.othersBasePoint[msg.Key].playerName;// objMain.displayName;
         p1.appendChild(a);
 
         var p2 = document.createElement('p');
@@ -318,15 +339,70 @@
         // var panelBodyShowMsg = document.getElementById('panelBodyShowMsg')
     },
     iconAlart: function () {
-        if (document.getElementById('msgDialog') != null) { }
-        else if (document.getElementById('friendsList') != null) { }
-        else {
-            if (document.getElementById('msgToNotify').classList.contains('msg')) {
+        if (document.getElementById('msgDialog') != null) {
+            var keyOperate = document.getElementById('msgDialog').indexKey;
 
+            for (var key in objMain.othersBasePoint) {
+                if (key == keyOperate) {
+                    continue;
+                }
+                else {
+                    if (this.msgs[key] != undefined) {
+                        if (this.msgs[key].read.length > this.msgs[key].readLength) {
+                            if (!document.getElementById('btnOfContactList').classList.contains('friendMsg')) {
+                                document.getElementById('btnOfContactList').classList.add('friendMsg');
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            // var panelBodyShowMsg = document.getElementById('panelBodyShowMsg');
+            //if (this.msgs[keyOperate] != undefined)
+            //    for (var i = panelBodyShowMsg.children.length; i < this.msgs[keyOperate].read.length; i++) {
+            //        if (this.msgs[keyOperate].read[i].Key == objMain.indexKey) {
+            //            this.addMsgOfSelf(this.msgs[keyOperate].read[i]);
+            //        }
+            //        else if (this.msgs[keyOperate].read[i].To == objMain.indexKey) {
+            //            this.addMsgOfBuddy(this.msgs[keyOperate].read[i]);
+            //        }
+            //        this.msgs[keyOperate].readLength = panelBodyShowMsg.children.length;
+            //    }
+        }
+        else {
+            var needToNotifyFunctionBtn = false;
+            for (var key in objMain.othersBasePoint) {
+                if (this.msgs[key] != undefined) {
+
+                    if (this.msgs[key].read.length > this.msgs[key].readLength) {
+                        // divItem.classList.add('friendMsg');
+                        needToNotifyFunctionBtn = true;
+                        var idNeedToUpdate = 'contact_' + key;
+                        if (document.getElementById(idNeedToUpdate) != null) {
+                            if (!document.getElementById(idNeedToUpdate).classList.contains('friendMsg')) {
+                                document.getElementById(idNeedToUpdate).classList.add('friendMsg');
+                            }
+                        }
+
+                    }
+                    else {
+                        var idNeedToUpdate = 'contact_' + key;
+                        if (document.getElementById(idNeedToUpdate) != null) {
+                            if (document.getElementById(idNeedToUpdate).classList.contains('friendMsg')) {
+                                document.getElementById(idNeedToUpdate).classList.remove('friendMsg');
+                            }
+                        }
+                    }
+
+                }
+            }
+            if (needToNotifyFunctionBtn) {
+                SysOperatePanel.notifyMsg();
             }
             else {
-                document.getElementById('msgToNotify').classList.add('msg');
+                SysOperatePanel.cancelNotifyMsg();
             }
+
         }
     },
     updatePanel: function () {
@@ -344,7 +420,22 @@
                     this.msgs[keyOperate].readLength = panelBodyShowMsg.children.length;
                 }
         }
-        else if (document.getElementById('') != null) { }
-        else { }
+        else if (document.getElementById('friendsList') != null) {
+            /*
+             * 这里好核对数据条数。
+             */
+        }
+
+        // document.body.appendChild(friendsList);
     }
+
 };
+
+/*
+ * 测试文档
+ * 有玩家A，玩家B，玩家C
+ * 测试需要玩家判断前端UI状态
+ * 有三种状态，这三种状态，分别是Null,FriendsList,MsgDialog
+ * 测试001: A.State=Null, B给A发送消息。A点击按钮，弹出对话框。B继续给A发送消息。增加消息。
+ *          C给A发送消息。提示。
+ */
