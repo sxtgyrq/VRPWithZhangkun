@@ -25,15 +25,28 @@ namespace TcpFunction
                         {
                             var sendData = Encoding.UTF8.GetBytes(sendMsg);
                             await Common.SendLength(sendData.Length, ns);
+                            var length = await Common.ReceiveLength(ns);
+                            if (sendData.Length == length) { }
+                            else
+                            {
+                                var msg = $"sendData.Length ({sendData.Length})!= length({length})";
+                                Console.WriteLine(msg);
+                                throw new Exception(msg);
+                            }
                             await ns.WriteAsync(sendData, 0, sendData.Length);
-                            int length = await Common.ReceiveLength(ns);
-                            byte[] bytes = new byte[length];
+
+                            var length2 = await Common.ReceiveLength(ns);
+                            await Common.SendLength(length2, ns);
+                            byte[] bytes = new byte[length2];
                             int bytesRead = await ns.ReadAsync(bytes);
-                            if (length != bytesRead)
+
+                            if (length2 != bytesRead)
                             {
                                 throw new Exception("");
                             }
                             result = Encoding.UTF8.GetString(bytes, 0, bytesRead);
+                            await Common.SendEnd(ns);
+
                             ns.Close();
                         }
                     }
@@ -82,6 +95,7 @@ namespace TcpFunction
                     {
 
                         var length = await Common.ReceiveLength(stream);
+                        await Common.SendLength(length, stream);
                         byte[] bytes = new byte[length];
                         int bytesRead = await stream.ReadAsync(bytes);
 
@@ -94,8 +108,15 @@ namespace TcpFunction
                         {
                             var sendData = Encoding.UTF8.GetBytes(outPut);
                             await Common.SendLength(sendData.Length, stream);
+                            var length2 = await Common.ReceiveLength(stream);
+                            if (length2 != sendData.Length)
+                            {
+                                var msg = $"length2({length2})!= sendData.Length({sendData.Length})";
+                                Console.WriteLine(msg);
+                                throw new Exception(msg);
+                            }
                             await stream.WriteAsync(sendData, 0, sendData.Length);
-
+                            await Common.ReveiveEnd(stream);
                         }
                         stream.Close();
                     }
@@ -115,7 +136,7 @@ namespace TcpFunction
             Console.WriteLine($"controllerUrl:{controllerUrl}");
             Console.WriteLine($"json:{json}");
 
-            string result;
+            //  string result;
             using (TcpClient tc = new TcpClient())
             {
                 IPAddress ipa;
@@ -129,7 +150,15 @@ namespace TcpFunction
                             {
                                 var sendData = Encoding.UTF8.GetBytes(json);
                                 await Common.SendLength(sendData.Length, ns);
+                                var length = await Common.ReceiveLength(ns);
+                                if (length == sendData.Length) { }
+                                else
+                                {
+                                    throw new Exception($"length:({length})!= sendData.Length({sendData.Length})");
+                                }
+
                                 await ns.WriteAsync(sendData, 0, sendData.Length);
+                                await Common.ReveiveEnd(ns);
                             }
                             ns.Close();
                         }
@@ -164,17 +193,43 @@ namespace TcpFunction
                 string notifyJson;
                 using (TcpClient client = server.AcceptTcpClient())
                 {
+
                     Console.WriteLine("Connected!");
 
 
                     using (NetworkStream stream = client.GetStream())
                     {
-                        var length = await Common.ReceiveLength(stream);
-                        byte[] bytes = new byte[length];
-                        int bytesRead = await stream.ReadAsync(bytes);
-                        // Console.WriteLine($"receive:{returnResult.result}");
+                        //  do
+                        {
+                            var length = await Common.ReceiveLength(stream);
+                            await Common.SendLength(length, stream);
 
-                        notifyJson = Encoding.UTF8.GetString(bytes, 0, bytesRead);
+                            byte[] bytes = new byte[length];
+                            int bytesRead = await stream.ReadAsync(bytes);
+                            // Console.WriteLine($"receive:{returnResult.result}");
+
+                            notifyJson = Encoding.UTF8.GetString(bytes, 0, bytesRead);
+
+                            await Common.SendEnd(stream);
+                            //  var md5Received = CommonClass.Random.GetMD5HashByteFromBytes(bytes);
+
+                            //   await stream.WriteAsync(byteMd5, 0, 1);
+                            //for (var i = 0; i < md5Received.Length; i++)
+                            //{
+                            //    byte[] byteMd5 = new byte[1]
+                            //    {
+                            //        md5Received[i]
+                            //    };
+                            //    await stream.WriteAsync(byteMd5, 0, 1);
+                            //    // stream.
+                            //}
+                            // byte[] bytes = new byte[length];
+                            //await Common.SendEnd(stream);
+                            //int k = 0;
+                            //k++;
+                        }
+                        //  while (!await Common.ReveiveEnd(stream));
+
                         stream.Close();
                     }
                     client.Client.Dispose();
@@ -199,6 +254,7 @@ namespace TcpFunction
             return length;
         }
 
+
         public static async Task SendLength(int length, NetworkStream ns)
         {
             var sendDataPreviw = new byte[]
@@ -209,6 +265,21 @@ namespace TcpFunction
                 Convert.ToByte((length>>0)%256),
             };
             await ns.WriteAsync(sendDataPreviw, 0, 4);
+        }
+
+        internal static async Task<bool> ReveiveEnd(NetworkStream ns)
+        {
+
+            byte[] bytes = new byte[0];
+            int bytesRead = await ns.ReadAsync(bytes);
+            return bytesRead == 0;
+        }
+
+        //     const byte endByte = 255;
+        internal static async Task SendEnd(NetworkStream stream)
+        {
+            var sendDataPreviw = new byte[] { };
+            await stream.WriteAsync(sendDataPreviw, 0, 0);
         }
     }
 }

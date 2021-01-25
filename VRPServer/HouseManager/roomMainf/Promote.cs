@@ -577,6 +577,30 @@ namespace HouseManager
             await CheckPromoteState(key, "volume");
             await CheckPromoteState(key, "speed");
         }
+
+
+        private void SendPromoteCountOfPlayer(string pType, Player player, ref List<string> notifyMsgs)
+        {
+            if (!(pType == "mile" || pType == "business" || pType == "volume" || pType == "speed"))
+            {
+
+            }
+            else
+            {
+                var count = player.PromoteDiamondCount[pType];
+                var obj = new BradCastPromoteDiamondCount
+                {
+                    c = "BradCastPromoteDiamondCount",
+                    count = count,
+                    WebSocketID = player.WebSocketID,
+                    pType = pType
+                };
+                var json = Newtonsoft.Json.JsonConvert.SerializeObject(obj);
+                notifyMsgs.Add(player.FromUrl);
+                notifyMsgs.Add(json);
+            }
+            //throw new NotImplementedException();
+        }
     }
 }
 

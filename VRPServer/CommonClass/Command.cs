@@ -65,6 +65,12 @@ namespace CommonClass
     {
         public long Money { get; set; }
     }
+    public class BradCastPromoteDiamondCount : CommandNotify
+    {
+        public int count { get; set; }
+        public string pType { get; set; }
+    }
+
     public class BradCastAnimateOfSelfCar : CommandNotify
     {
         public string carID;

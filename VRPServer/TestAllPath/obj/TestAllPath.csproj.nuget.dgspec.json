@@ -232,7 +232,11 @@
         "frameworks": {
           "netcoreapp3.1": {
             "targetAlias": "netcoreapp3.1",
-            "projectReferences": {}
+            "projectReferences": {
+              "F:\\MyProject\\VRPWithZhangkun\\MainApp\\VRPWithZhangkun\\VRPServer\\CommonClass\\CommonClass.csproj": {
+                "projectPath": "F:\\MyProject\\VRPWithZhangkun\\MainApp\\VRPWithZhangkun\\VRPServer\\CommonClass\\CommonClass.csproj"
+              }
+            }
           }
         },
         "warningProperties": {

@@ -575,6 +575,15 @@ namespace HouseManager
                     getAllCarInfomations(getPosition.Key, ref notifyMsgs);
                     OpenMore = this._Players[getPosition.Key].OpenMore;
 
+                    var player = this._Players[getPosition.Key];
+                    var m2 = player.GetMoneyCanSave();
+                    MoneyCanSaveChanged(player, m2, ref notifyMsgs);
+
+                    SendPromoteCountOfPlayer("mile", player, ref notifyMsgs);
+                    SendPromoteCountOfPlayer("business", player, ref notifyMsgs);
+                    SendPromoteCountOfPlayer("volume", player, ref notifyMsgs);
+                    SendPromoteCountOfPlayer("speed", player, ref notifyMsgs);
+
                     result = new GetPositionResult()
                     {
                         Success = true,
@@ -608,6 +617,8 @@ namespace HouseManager
             }
             return result;
         }
+
+        
 
         /// <summary>
         /// 广播小车状态

@@ -233,6 +233,7 @@ namespace HouseManager
                     if (!string.IsNullOrEmpty(car.ability.diamondInCar))
                     {
                         player.PromoteDiamondCount[car.ability.diamondInCar]++;
+                        SendPromoteCountOfPlayer(car.ability.diamondInCar, player, ref notifyMsg);
                     }
                     car.ability.Refresh();
                     car.Refresh();
@@ -264,7 +265,8 @@ namespace HouseManager
             var obj = new BradCastMoneyForSave
             {
                 c = "BradCastMoneyForSave",
-                Money = Money
+                Money = Money,
+                WebSocketID = player.WebSocketID
             };
             var json = Newtonsoft.Json.JsonConvert.SerializeObject(obj);
             msgsWithUrl.Add(player.FromUrl);

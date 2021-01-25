@@ -181,6 +181,9 @@
       "TcpFunction/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v3.1",
+        "dependencies": {
+          "CommonClass": "1.0.0"
+        },
         "compile": {
           "bin/placeholder/TcpFunction.dll": {}
         },
