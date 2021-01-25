@@ -65,7 +65,7 @@ namespace HouseManager
                                                         case CarState.waitAtBaseStation:
                                                             {
                                                                 // if(player.Money<)
-                                                                var moneyIsEnoughToStart = giveMoneyFromPlayerToCarForPromoting(player, car, sp.pType);
+                                                                var moneyIsEnoughToStart = giveMoneyFromPlayerToCarForPromoting(player, car, sp.pType, ref notifyMsg);
                                                                 if (moneyIsEnoughToStart)
                                                                 {
                                                                     MileResultReason reason;
@@ -87,7 +87,7 @@ namespace HouseManager
                                                                             WebNotify(player, $"到达目的地后，{car.name}的剩余里程不足以支持返回！");
                                                                         }
                                                                         printState(player, car, "各种原因，不能开始！");
-                                                                        giveMoneyFromCarToPlayer(player, car);
+                                                                        giveMoneyFromCarToPlayer(player, car, ref notifyMsg);
                                                                     }
                                                                 }
                                                                 else
@@ -200,8 +200,9 @@ namespace HouseManager
         /// </summary>
         /// <param name="player"></param>
         /// <param name="car"></param>
-        private void giveMoneyFromCarToPlayer(Player player, Car car)
+        private void giveMoneyFromCarToPlayer(Player player, Car car, ref List<string> notifyMsg)
         {
+            var m1 = player.GetMoneyCanSave();
             player.Money += car.ability.leftBusiness;
             player.Money += car.ability.leftVolume;
 
@@ -223,6 +224,11 @@ namespace HouseManager
                 player.PromoteDiamondCount[car.ability.diamondInCar]++;
             }
             car.ability.Refresh();
+            var m2 = player.GetMoneyCanSave();
+            if (m1 != m2)
+            {
+                MoneyCanSaveChanged(player, m2, ref notifyMsg);
+            }
         }
 
         /// <summary>
@@ -232,7 +238,7 @@ namespace HouseManager
         /// <param name="car"></param>
         /// <param name="pType"></param>
         /// <returns></returns>
-        private bool giveMoneyFromPlayerToCarForPromoting(Player player, Car car, string pType)
+        private bool giveMoneyFromPlayerToCarForPromoting(Player player, Car car, string pType, ref List<string> notifyMsg)
         {
             var needMoney = this.promotePrice[pType];
             if (player.MoneyToPromote < needMoney)
@@ -247,9 +253,15 @@ namespace HouseManager
             }
             else
             {
+                var m1 = player.GetMoneyCanSave();
                 long moneyFromSupport, moneyFromEarn;
                 player.PayWithSupport(needMoney, out moneyFromSupport, out moneyFromEarn);
                 car.ability.getMoneyWithSupport(moneyFromSupport, moneyFromEarn);
+                var m2 = player.GetMoneyCanSave();
+                if (m1 != m2)
+                {
+                    MoneyCanSaveChanged(player, m2, ref notifyMsg);
+                }
                 return true;
             }
         }

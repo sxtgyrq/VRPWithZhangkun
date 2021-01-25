@@ -328,6 +328,12 @@ namespace HouseManager
                 this.TaxInPosition.Add(taxPostion, taxValue);
             }
         }
+
+        internal long GetMoneyCanSave()
+        {
+            return Math.Max(0, this.Money - 500 - this.sumDebets * brokenParameterT1 / brokenParameterT2 * 2);
+        }
+
         internal Dictionary<string, List<Model.MapGo.nyrqPosition>> returningRecord { get; set; }
 
         /// <summary>
@@ -485,7 +491,7 @@ namespace HouseManager
 
         internal void Refresh()
         {
-            this.state = CarState.waitAtBaseStation; 
+            this.state = CarState.waitAtBaseStation;
             this.targetFpIndex = -1;
             this.purpose = Purpose.@null;
         }
@@ -604,7 +610,7 @@ namespace HouseManager
             this.diamondInCar = "";
             this.subsidize = 0;
         }
-        
+
 
         /// <summary>
         /// 小车使用来自玩家的钱

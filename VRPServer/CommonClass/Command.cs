@@ -60,6 +60,11 @@ namespace CommonClass
 
 
     }
+
+    public class BradCastMoneyForSave : CommandNotify
+    {
+        public long Money { get; set; }
+    }
     public class BradCastAnimateOfSelfCar : CommandNotify
     {
         public string carID;

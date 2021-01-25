@@ -249,7 +249,7 @@ namespace HouseManager
                     car = sc.car,
                     returnPath = returnPath_Record,
                     target = from,
-                    changeType = "collect-return",
+                    changeType = CollectReturn,
                 }));
                 th.Start();
                 car.changeState++;//更改状态   

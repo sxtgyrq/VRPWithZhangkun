@@ -174,7 +174,8 @@
           "Microsoft.AspNetCore.Mvc.NewtonsoftJson": "3.1.3",
           "Microsoft.Extensions.Configuration": "3.1.3",
           "Microsoft.Extensions.Configuration.Json": "3.1.3",
-          "Model": "1.0.0"
+          "Model": "1.0.0",
+          "TcpFunction": "1.0.0"
         },
         "runtime": {
           "HouseManager.dll": {}
@@ -183,6 +184,11 @@
       "Model/1.0.0": {
         "runtime": {
           "Model.dll": {}
+        }
+      },
+      "TcpFunction/1.0.0": {
+        "runtime": {
+          "TcpFunction.dll": {}
         }
       }
     }
@@ -323,6 +329,11 @@
       "sha512": ""
     },
     "Model/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "TcpFunction/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

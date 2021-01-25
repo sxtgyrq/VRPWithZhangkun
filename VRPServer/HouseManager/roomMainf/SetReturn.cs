@@ -41,7 +41,7 @@ namespace HouseManager
                      */
                     ReturnThenSetComeBack(car, cmp, ref notifyMsg);
                 }
-                else if (cmp.changeType == "collect-return" && (car.state == CarState.waitForCollectOrAttack || car.state == CarState.waitOnRoad))
+                else if (cmp.changeType == CollectReturn && (car.state == CarState.waitForCollectOrAttack || car.state == CarState.waitOnRoad))
                 {
                     ReturnThenSetComeBack(car, cmp, ref notifyMsg);
                 }
@@ -50,6 +50,10 @@ namespace HouseManager
                     ReturnThenSetComeBack(car, cmp, ref notifyMsg);
                 }
                 else if (cmp.changeType == "Attack" && car.state == CarState.roadForAttack && car.purpose == Purpose.attack)
+                {
+                    ReturnThenSetComeBack(car, cmp, ref notifyMsg);
+                }
+                else if (cmp.changeType == AttackFailedReturn)
                 {
                     ReturnThenSetComeBack(car, cmp, ref notifyMsg);
                 }
@@ -209,15 +213,17 @@ namespace HouseManager
             car.changeState++;
             getAllCarInfomations(cmp.key, ref notifyMsg);
         }
-        private void setBack(int startT, commandWithTime.comeBack comeBack)
+        private async void setBack(int startT, commandWithTime.comeBack comeBack)
         {
             Thread.Sleep(startT);
+            List<string> notifyMsg = new List<string>();
             lock (this.PlayerLock)
             {
                 var player = this._Players[comeBack.key];
                 var car = player.getCar(comeBack.car);
                 if (car.state == CarState.returning)
                 {
+                    var moneyCanSave1 = player.GetMoneyCanSave();
                     player.Money += car.ability.costBusiness;
                     player.Money += car.ability.costVolume;
                     if (car.ability.subsidize > 0)
@@ -231,14 +237,38 @@ namespace HouseManager
                     car.ability.Refresh();
                     car.Refresh();
                     printState(player, car, "执行了归位");
+                    var moneyCanSave2 = player.GetMoneyCanSave();
+                    if (moneyCanSave1 != moneyCanSave2)
+                    {
+                        MoneyCanSaveChanged(player, moneyCanSave2, ref notifyMsg);
+                    }
                 }
                 else
                 {
                     throw new Exception($"{car.name}返回是状态为{this._Players[comeBack.key].getCar(comeBack.car).state}");
                 }
             }
+
+            for (var i = 0; i < notifyMsg.Count; i += 2)
+            {
+                var url = notifyMsg[i];
+                var sendMsg = notifyMsg[i + 1];
+                Console.WriteLine($"url:{url}");
+
+                await Startup.sendMsg(url, sendMsg);
+            }
         }
 
-      
+        private void MoneyCanSaveChanged(Player player, long Money, ref List<string> msgsWithUrl)
+        {
+            var obj = new BradCastMoneyForSave
+            {
+                c = "BradCastMoneyForSave",
+                Money = Money
+            };
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(obj);
+            msgsWithUrl.Add(player.FromUrl);
+            msgsWithUrl.Add(json);
+        }
     }
 }

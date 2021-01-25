@@ -59,7 +59,7 @@ namespace HouseManager
                                         {
                                             if (car.purpose == Purpose.@null)
                                             {
-                                                var moneyIsEnoughToStart = giveMoneyFromPlayerToCarForAttack(player, car);
+                                                var moneyIsEnoughToStart = giveMoneyFromPlayerToCarForAttack(player, car, ref notifyMsg);
                                                 if (moneyIsEnoughToStart)
                                                 {
                                                     var state = CheckTargetState(sa.targetOwner);
@@ -67,23 +67,32 @@ namespace HouseManager
                                                     {
                                                         MileResultReason mrr;
                                                         attack(player, car, sa, ref notifyMsg, out mrr);
-                                                        if (mrr == MileResultReason.Abundant) { }
-                                                        else if (mrr == MileResultReason.CanNotReach)
+                                                        if (mrr == MileResultReason.Abundant)
                                                         {
 
                                                         }
-                                                        else if (mrr == MileResultReason.CanNotReturn)
+                                                        else
                                                         {
+                                                            if (mrr == MileResultReason.CanNotReach)
+                                                            {
+
+                                                            }
+                                                            else if (mrr == MileResultReason.CanNotReturn)
+                                                            {
+                                                            }
+                                                            giveMoneyFromCarToPlayer(player, car, ref notifyMsg);
                                                         }
                                                         // doAttack(player, car, sa, ref notifyMsg);
                                                     }
                                                     else if (state == CarStateForBeAttacked.HasBeenBust)
                                                     {
                                                         Console.WriteLine($"攻击对象已经破产！");
+                                                        giveMoneyFromCarToPlayer(player, car, ref notifyMsg);
                                                     }
                                                     else if (state == CarStateForBeAttacked.NotExisted)
                                                     {
                                                         Console.WriteLine($"攻击对象已经退出了游戏！");
+                                                        giveMoneyFromCarToPlayer(player, car, ref notifyMsg);
                                                     }
                                                     else
                                                     {
@@ -115,19 +124,22 @@ namespace HouseManager
                                                     if (mrr == MileResultReason.Abundant) { }
                                                     else if (mrr == MileResultReason.CanNotReach)
                                                     {
-
+                                                        carsAttackFailedThenMustReturn(car, player, sa, ref notifyMsg);
                                                     }
                                                     else if (mrr == MileResultReason.CanNotReturn)
                                                     {
+                                                        carsAttackFailedThenMustReturn(car, player, sa, ref notifyMsg);
                                                     }
                                                     // doAttack(player, car, sa, ref notifyMsg);
                                                 }
                                                 else if (state == CarStateForBeAttacked.HasBeenBust)
                                                 {
+                                                    carsAttackFailedThenMustReturn(car, player, sa, ref notifyMsg);
                                                     Console.WriteLine($"攻击对象已经破产！");
                                                 }
                                                 else if (state == CarStateForBeAttacked.NotExisted)
                                                 {
+                                                    carsAttackFailedThenMustReturn(car, player, sa, ref notifyMsg);
                                                     Console.WriteLine($"攻击对象已经退出了游戏！");
                                                 }
                                                 else
@@ -149,20 +161,23 @@ namespace HouseManager
                                                     if (mrr == MileResultReason.Abundant) { }
                                                     else if (mrr == MileResultReason.CanNotReach)
                                                     {
-
+                                                        carsAttackFailedThenMustReturn(car, player, sa, ref notifyMsg);
                                                     }
                                                     else if (mrr == MileResultReason.CanNotReturn)
                                                     {
+                                                        carsAttackFailedThenMustReturn(car, player, sa, ref notifyMsg);
                                                     }
                                                     // doAttack(player, car, sa, ref notifyMsg);
                                                 }
                                                 else if (state == CarStateForBeAttacked.HasBeenBust)
                                                 {
                                                     Console.WriteLine($"攻击对象已经破产！");
+                                                    carsAttackFailedThenMustReturn(car, player, sa, ref notifyMsg);
                                                 }
                                                 else if (state == CarStateForBeAttacked.NotExisted)
                                                 {
                                                     Console.WriteLine($"攻击对象已经退出了游戏！");
+                                                    carsAttackFailedThenMustReturn(car, player, sa, ref notifyMsg);
                                                 }
                                                 else
                                                 {
@@ -182,18 +197,21 @@ namespace HouseManager
                                                     if (mrr == MileResultReason.Abundant) { }
                                                     else if (mrr == MileResultReason.CanNotReach)
                                                     {
-
+                                                        carsAttackFailedThenMustReturn(car, player, sa, ref notifyMsg);
                                                     }
                                                     else if (mrr == MileResultReason.CanNotReturn)
                                                     {
-                                                    } 
+                                                        carsAttackFailedThenMustReturn(car, player, sa, ref notifyMsg);
+                                                    }
                                                 }
                                                 else if (state == CarStateForBeAttacked.HasBeenBust)
                                                 {
                                                     Console.WriteLine($"攻击对象已经破产！");
+                                                    carsAttackFailedThenMustReturn(car, player, sa, ref notifyMsg);
                                                 }
                                                 else if (state == CarStateForBeAttacked.NotExisted)
                                                 {
+                                                    carsAttackFailedThenMustReturn(car, player, sa, ref notifyMsg);
                                                     Console.WriteLine($"攻击对象已经退出了游戏！");
                                                 }
                                                 else
@@ -288,7 +306,7 @@ namespace HouseManager
         /// <param name="player">玩家</param>
         /// <param name="car">小车</param>
         /// <returns>玩家将钱给小车，小车进行攻击。如果攻击不成（如去不了、去了回不来），应该将钱返回</returns>
-        private bool giveMoneyFromPlayerToCarForAttack(Player player, Car car)
+        private bool giveMoneyFromPlayerToCarForAttack(Player player, Car car, ref List<string> notifyMsg)
         {
             var needMoney = car.ability.Business;
             //throw new Exception("");
@@ -305,8 +323,14 @@ namespace HouseManager
             }
             else
             {
+                var m1 = player.GetMoneyCanSave();
                 player.Money -= needMoney;
                 car.ability.costBusiness = needMoney;
+                var m2 = player.GetMoneyCanSave();
+                if (m1 != m2)
+                {
+                    MoneyCanSaveChanged(player, m2, ref notifyMsg);
+                }
                 return true;
             }
         }
@@ -546,7 +570,7 @@ namespace HouseManager
         //}
         private void carsAttackFailedThenMustReturn(Car car, Player player, SetAttack sc, ref List<string> notifyMsg)
         {
-            if (car.state == CarState.waitOnRoad)
+            // if (car.state == CarState.waitAtBaseStation)
             {
                 //Console.Write($"现在剩余容量为{car.ability.leftVolume}，总容量为{car.ability.Volume}");
                 Console.WriteLine($"由于里程安排问题，必须返回！");
@@ -561,7 +585,7 @@ namespace HouseManager
                     car = sc.car,
                     returnPath = returnPath_Record,
                     target = from,
-                    changeType = "collect-return",
+                    changeType = AttackFailedReturn,
                 }));
                 th.Start();
             }
@@ -638,9 +662,11 @@ namespace HouseManager
                             var victim = this._Players[dOwner.victim];
                             if (!victim.Bust)
                             {
+                                var m1 = victim.GetMoneyCanSave();
                                 // var lastDebt = victim.LastDebt;
                                 if (player.Debts.ContainsKey(dOwner.victim))
                                 {
+
                                     /*
                                      * step1用 business 和 volume 先偿还债务！
                                      * s
@@ -692,6 +718,12 @@ namespace HouseManager
                                         car.ability.costVolume -= attack;
                                     }
                                 }
+                                var m2 = victim.GetMoneyCanSave();
+                                if (m1 != m2)
+                                {
+                                    MoneyCanSaveChanged(victim, m2, ref notifyMsg);
+                                }
+
                             }
                             else
                             {
