@@ -71,6 +71,20 @@ namespace CommonClass
         public string pType { get; set; }
     }
 
+    public class BradCastAbility : CommandNotify
+    { 
+        public string pType { get; set; } 
+        public string carIndexStr { get; set; } 
+        public long costValue { get; set; }
+        public long sumValue { get; set; }
+    }
+
+    public class BradCastCarAbility : CommandNotify
+    {
+        public object Number { get; set; }
+        public string pType { get; set; }
+        public string sumOrCost { get; set; }
+    }
     public class BradCastAnimateOfSelfCar : CommandNotify
     {
         public string carID;

@@ -332,7 +332,7 @@ namespace HouseManager
             }
         }
 
-       
+
         /// <summary>
         /// 此方法，用于债务放大权益（包括收益、债务重组）
         /// </summary>
@@ -423,6 +423,8 @@ namespace HouseManager
             //收集完，留在原地。
             //var car = this._Players[cmp.key].getCar(cmp.car);
             car.ability.costMiles += pa.costMile;//
+            AbilityChanged(player, car, ref notifyMsg, "mile"); 
+
             carParkOnRoad(pa.target, ref car, player);
 
             if (car.purpose == Purpose.collect && car.state == CarState.roadForCollect)
@@ -441,6 +443,8 @@ namespace HouseManager
                 throw new Exception("");
             }
         }
+
+
 
 
 

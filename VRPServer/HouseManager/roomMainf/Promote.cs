@@ -376,6 +376,8 @@ namespace HouseManager
                             Console.WriteLine("由于迟到没有执行购买过程！");
 
                             car.ability.costMiles += dor.costMile;
+                            AbilityChanged(player, car, ref notifyMsg, "mile");
+
                             Console.WriteLine($"{player.PlayerName}的{dor.car}执行完购买宝石过程，由于没有抢到，停在路上,待命中...！");
                             carParkOnRoad(dor.target, ref car, player);
 
@@ -600,6 +602,52 @@ namespace HouseManager
                 notifyMsgs.Add(json);
             }
             //throw new NotImplementedException();
+        }
+
+
+        //  enum CostOrSum { Cost, Sum }
+        /// <summary>
+        /// 这里要通知前台，值发生了变化。
+        /// </summary>
+        /// <param name="player"></param>
+        /// <param name="car"></param>
+        /// <param name="notifyMsgs"></param>
+        /// <param name="pType"></param>
+        static void AbilityChanged(Player player, Car car, ref List<string> notifyMsgs, string pType)
+        {
+            var carIndexStr = car.IndexString;
+            long costValue = 0;
+            long sumValue = 1;
+            switch (pType)
+            {
+                case "mile":
+                    {
+                        costValue = car.ability.costMiles;
+                        sumValue = car.ability.mile;
+                    }; break;
+                case "business":
+                    {
+                        costValue = car.ability.costBusiness;
+                        sumValue = car.ability.Business;
+                    }; break;
+                case "volume":
+                    {
+                        costValue = car.ability.costVolume;
+                        sumValue = car.ability.Volume;
+                    }; break;
+            }
+            var obj = new BradCastAbility
+            {
+                c = "BradCastAbility",
+                WebSocketID = player.WebSocketID,
+                pType = pType,
+                carIndexStr = carIndexStr,
+                costValue = costValue,
+                sumValue = sumValue
+            };
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(obj);
+            notifyMsgs.Add(player.FromUrl);
+            notifyMsgs.Add(json);
         }
     }
 }

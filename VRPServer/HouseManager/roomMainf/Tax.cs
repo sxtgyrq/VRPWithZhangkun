@@ -335,6 +335,8 @@ namespace HouseManager
                 }
                 printState(player, car, $"{Program.dt.GetFpByIndex(car.targetFpIndex).FastenPositionName}收取{tax}");
                 car.ability.costMiles += pa.costMile;//
+                AbilityChanged(player, car, ref notifyMsg, "mile");
+
                 carParkOnRoad(pa.target, ref car, player);
                 SendSingleTax(player.Key, car.targetFpIndex, ref notifyMsg);
                 if (car.purpose == Purpose.tax && car.state == CarState.roadForTax)

@@ -83,7 +83,8 @@ namespace HouseManager
                     changeState = 0,
                     targetFpIndex = -1,
                     animateData = null,
-                    purpose = Purpose.@null
+                    purpose = Purpose.@null,
+                    carIndex = i + 0
                 });
             this.Money = intializedMoney;
             this.SupportToPlay = null;
@@ -345,6 +346,8 @@ namespace HouseManager
         /// 当小车执行完宝石获取任务，回到基地后。用相应增加。
         /// </summary>
         public Dictionary<string, int> PromoteDiamondCount { get; set; }
+
+
     }
     public class OtherPlayers
     {
@@ -486,9 +489,43 @@ namespace HouseManager
         public int targetFpIndex { get; set; }
         public int changeState { get; set; }
         public AnimateData animateData { get; internal set; }
+        public int carIndex { get; internal set; }
 
-
-
+        internal string IndexString
+        {
+            get
+            {
+                switch (this.carIndex)
+                {
+                    case 0:
+                        {
+                            return "carA";
+                        }; ;
+                    case 1:
+                        {
+                            return "carB";
+                        };
+                    case 2:
+                        {
+                            return "carC";
+                        };
+                    case 3:
+                        {
+                            return "carD";
+                        };
+                    case 4:
+                        {
+                            return "carE";
+                        };
+                    default:
+                        {
+                            throw new Exception("");
+                        };
+                }
+            }
+            //this._Cars.FindIndex(car);
+            //throw new NotImplementedException();
+        }
         internal void Refresh()
         {
             this.state = CarState.waitAtBaseStation;
@@ -527,7 +564,7 @@ namespace HouseManager
         /// <summary>
         /// 已经花费的里程！
         /// </summary>
-        public decimal costMiles { get; set; }
+        public long costMiles { get; set; }
 
         long _costBusiness = 0;
         /// <summary>
@@ -650,14 +687,14 @@ namespace HouseManager
         /// <summary>
         /// 小车能跑的最大距离，最小值为350km！确保地图中的最长路径有个来回！
         /// </summary>
-        public decimal mile
+        public long mile
         {
             get
             {
                 return this.Data["mile"].Count + 350;
             }
         }
-        public decimal leftMile
+        public long leftMile
         {
             get
             {
