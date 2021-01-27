@@ -327,6 +327,8 @@ namespace HouseManager
                 //确定税收的值
                 var tax = Math.Min(car.ability.leftBusiness, player.TaxInPosition[car.targetFpIndex]);
                 car.ability.costBusiness += tax;
+                AbilityChanged(player, car, ref notifyMsg, "business");
+
                 player.TaxInPosition[car.targetFpIndex] -= tax;
 
                 if (player.TaxInPosition[car.targetFpIndex] == 0)

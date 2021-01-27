@@ -555,7 +555,13 @@ namespace HouseManager
         }
 
         Dictionary<string, List<DateTime>> Data { get; set; }
-
+        public void AbilityAdd(string pType)
+        {
+            if (this.Data.ContainsKey(pType))
+            {
+                this.Data[pType].Add(DateTime.Now);
+            }
+        }
         /// <summary>
         /// 车上有没有已经完成的能力提升任务！""代表无，如mile则代表有！
         /// </summary>
@@ -649,23 +655,15 @@ namespace HouseManager
         }
 
 
-        /// <summary>
-        /// 小车使用来自玩家的钱
-        /// </summary>
-        /// <param name="moneyFromSupport">来自扶持</param>
-        /// <param name="moneyFromEarn">来自经营</param>
-        internal void getMoneyWithSupport(long moneyFromSupport, long moneyFromEarn)
-        {
-            this.subsidize += moneyFromSupport;
-            this.costBusiness += moneyFromEarn;
-        }
 
+        //internal delegate void AbilityChanged(Player player, Car car, ref List<string> notifyMsgs, string pType);
         /// <summary>
         /// 依次用辅助、business、volume来支付。
         /// </summary>
         /// <param name="needMoney"></param>
-        internal void payForPromote(long needMoney)
+        internal void payForPromote(long needMoney, out bool needToUpdateCostBussiness)
         {
+            needToUpdateCostBussiness = false;
             var pay1 = Math.Min(needMoney, this.subsidize);
             this.subsidize -= pay1;
             needMoney -= pay1;
@@ -673,10 +671,17 @@ namespace HouseManager
             var pay2 = Math.Min(needMoney, this.costBusiness);
             this.costBusiness -= pay2;
             needMoney -= pay2;
-
-            var pay3 = Math.Min(needMoney, this.costVolume);
-            this.costVolume -= pay3;
-            needMoney -= pay3;
+            if (pay2 > 0)
+            {
+                needToUpdateCostBussiness = true;
+            }
+            /*
+             * 在获得能力提升宝石过程中，不可能动costVolume上的钱。
+             * 状态变成收集后，只能攻击或者继续收集
+             */
+            //var pay3 = Math.Min(needMoney, this.costVolume);
+            //this.costVolume -= pay3;
+            //needMoney -= pay3;
 
             if (needMoney != 0)
             {
@@ -691,7 +696,7 @@ namespace HouseManager
         {
             get
             {
-                return this.Data["mile"].Count + 350;
+                return this.Data["mile"].Count * 30 + 350;
             }
         }
         public long leftMile
@@ -724,24 +729,24 @@ namespace HouseManager
         /// <summary>
         /// 小车能携带的金钱数量！单位为分，即1/100元。
         /// </summary>
-        public long Business { get { return (this.Data["business"].Count + 100) * 100; } }
+        public long Business { get { return (this.Data["business"].Count * 10 + 100) * 100; } }
         /// <summary>
         /// 小车能装载的最大容量，默认为100鼋！单位为分，即1/100元。
         /// </summary>
-        public long Volume { get { return (this.Data["volume"].Count + 100) * 100; } }
+        public long Volume { get { return (this.Data["volume"].Count * 10 + 100) * 100; } }
         /// <summary>
         /// 小车能跑的最快速度！
         /// </summary>
-        public int Speed { get { return this.Data["speed"].Count + 50; } }
+        public int Speed { get { return this.Data["speed"].Count * 5 + 50; } }
 
         /// <summary>
-        /// 单位为分，是身上 volume（容量） business（业务） subsidize（资助）的和。
+        /// 单位为分，是身上business（业务） subsidize（资助）的和。
         /// </summary>
         public long SumMoneyCanForPromote
         {
             get
             {
-                return this.costVolume + this.costBusiness + this.subsidize;
+                return this.costBusiness + this.subsidize;
             }
         }
         public long SumMoneyCanForAttack

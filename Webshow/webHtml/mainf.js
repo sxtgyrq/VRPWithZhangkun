@@ -169,7 +169,7 @@
         getLength: function (p1, p2) {
             return Math.sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y) + (p1.z - p2.z) * (p1.z - p2.z));
         },
-        drawPanelOfPromotion: function (type) {
+        drawPanelOfPromotion: function (type, endF) {
 
             var lengthOfObjs = objMain.groupOfOperatePanle.children.length;
             for (var i = lengthOfObjs - 1; i >= 0; i--) {
@@ -239,10 +239,11 @@
                     objMain.Task.state = '';
                     objMain.Task.carSelect = '';
                     objMain.mainF.removeF.removePanle('carsSelectionPanel');
+                    carAbility.clear();
 
                     objMain.mainF.removeF.clearGroup(objMain.promoteDiamond);
                     objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
-
+                    endF();
                 }
             }
 
@@ -274,7 +275,7 @@
                 }
             }
         },
-        refreshPromotionDiamondAndPanle: function (received_obj) {
+        refreshPromotionDiamondAndPanle: function (received_obj, endF) {
             if (received_obj.resultType == objMain.Task.state) {
                 /*
                  * 这里进行了Task的状态验证，确保3D资源没有加载前，不会调用此方法
@@ -321,11 +322,11 @@
                     else {
                         objMain.mainF.lookTwoPositionCenter(objMain.promoteDiamond.children[0].position, objMain.carGroup.getObjectByName(objMain.Task.carSelect).position);
                     }
-                    objMain.mainF.drawPanelOfPromotion(objMain.Task.state);
+                    objMain.mainF.drawPanelOfPromotion(objMain.Task.state, endF);
                 }
             }
         },
-        refreshCollectAndPanle: function () {
+        refreshCollectAndPanle: function (endF) {
             if (objMain.state == "OnLine") {
                 var startIndex = objMain.collectGroup.children.length - 1;
                 for (var i = startIndex; i >= 0; i--) {
@@ -375,7 +376,7 @@
                     }
                 }
                 if (objMain.Task.state == 'collect') {
-                    objMain.mainF.drawPanelOfCollect();
+                    objMain.mainF.drawPanelOfCollect(endF);
                 }
 
                 //var startIndex = objMain.promoteDiamond.children.length - 1;
@@ -422,7 +423,7 @@
                 //objMain.mainF.drawPanelOfPromotion(objMain.Task.state);
             }
         },
-        drawPanelOfCollect: function () {
+        drawPanelOfCollect: function (endF) {
 
             var lengthOfObjs = objMain.groupOfOperatePanle.children.length;
             for (var i = lengthOfObjs - 1; i >= 0; i--) {
@@ -492,9 +493,10 @@
                     objMain.Task.state = '';
                     objMain.Task.carSelect = '';
                     objMain.mainF.removeF.removePanle('carsSelectionPanel');
-
+                    carAbility.clear();
                     // objMain.mainF.removeF.clearGroup(objMain.collectGroup);
                     objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
+                    endF();
 
                 }
             }
@@ -586,7 +588,7 @@
                         objMain.Task.state = '';
                         objMain.Task.carSelect = '';
                         objMain.mainF.removeF.removePanle('carsSelectionPanel');
-
+                        carAbility.clear();
                         // objMain.mainF.removeF.clearGroup(objMain.collectGroup);
                         objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
 
@@ -677,6 +679,8 @@
                         objMain.Task.state = '';
                         objMain.Task.carSelect = '';
                         objMain.mainF.removeF.removePanle('carsSelectionPanel');
+                        carAbility.clear();
+
                         objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
                     }
                 }
@@ -697,6 +701,41 @@
             objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
             //for (var key in objMain.PromoteDiamondCount)
             {
+                //var AddBtnOfCommandReturn = function (element) {
+                //    var div3 = document.createElement('div');
+                //    div3.style.textAlign = 'center';
+                //    div3.style.width = 'calc(100% - 4px)';
+                //    div3.style.border = '2px inset #ffc403';
+                //    div3.style.borderRadius = '0.3em';
+                //    div3.style.marginTop = '4px';
+                //    div3.style.marginBottom = '4px';
+                //    div3.style.position = 'relative';
+                //    div3.style.left = 'calc(0%)';
+
+                //    var span = document.createElement('span');
+                //    span.innerText = '召回';
+                //    // div3.CustomTag = 'mile';
+                //    div3.onclick = function () {
+                //        if (objMain.Task.state == '') {
+                //            throw 'task not select';
+                //        }
+                //        else if (objMain.Task.carSelect == '') {
+                //            alert('请选择要执行此任务的车辆');
+                //        }
+                //        else {
+                //            objMain.ws.send(JSON.stringify({ 'c': 'SetCarReturn', 'car': objMain.Task.carSelect }));
+                //            objMain.Task.state = '';
+                //            objMain.Task.carSelect = '';
+                //            objMain.mainF.removeF.removePanle('carsSelectionPanel');
+                //            carAbility.clear();
+                //            objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
+                //        }
+                //    }
+
+                //    div3.appendChild(span);
+                //    element.appendChild(div3);
+                //}
+
                 if (objMain.PromoteDiamondCount.mile + objMain.PromoteDiamondCount.business + objMain.PromoteDiamondCount.volume + objMain.PromoteDiamondCount.speed < 0.5) {
                     var element = document.createElement('div');
 
@@ -738,7 +777,7 @@
 
                     element.appendChild(div2);
                     // element.appendChild(div3);
-                     
+                    //  AddBtnOfCommandReturn(element);
 
                     var object = new THREE.CSS2DObject(element);
                     var fp = objMain.basePoint;
@@ -748,7 +787,7 @@
                 }
                 else {
                     var element = document.createElement('div');
-                    
+
                     element.style.width = '10em';
                     element.style.marginTop = '3em';
                     var color = '#ff0000';
@@ -788,7 +827,23 @@
                     element.appendChild(div2);
                     // element.appendChild(div3);
 
-                   
+                    var clickBtn = function (that) {
+                        if (objMain.Task.state == '') {
+                            throw 'task not select';
+                        }
+                        else if (objMain.Task.carSelect == '') {
+                            alert('请选择要执行此任务的车辆');
+                        }
+                        else {
+                            objMain.ws.send(JSON.stringify({ 'c': 'Ability', 'car': objMain.Task.carSelect, 'pType': that.CustomTag }));
+                            objMain.Task.state = '';
+                            objMain.Task.carSelect = '';
+                            objMain.mainF.removeF.removePanle('carsSelectionPanel');
+                            carAbility.clear();
+                            objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
+                        }
+                    }
+
                     if (objMain.PromoteDiamondCount.mile > 0) {
                         var div3 = document.createElement('div');
                         div3.style.textAlign = 'center';
@@ -804,26 +859,13 @@
                         span.innerText = '提升续航';
                         div3.CustomTag = 'mile';
                         div3.onclick = function () {
-                            if (objMain.Task.state == '') {
-                                throw 'task not select';
-                            }
-                            else if (objMain.Task.carSelect == '') {
-                                alert('请选择要执行此任务的车辆');
-                            }
-                            else {
-                                //objMain.ws.send(JSON.stringify({ 'c': 'Tax', 'car': objMain.Task.carSelect, 'Target': this.CustomTag.target }));
-                                //objMain.Task.state = '';
-                                //objMain.Task.carSelect = '';
-                                //objMain.mainF.removeF.removePanle('carsSelectionPanel');
-                                //objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
-                            }
+                            clickBtn(this);
                         }
 
                         div3.appendChild(span);
                         element.appendChild(div3);
                     }
-                    if (objMain.PromoteDiamondCount.business > 0)
-                    {
+                    if (objMain.PromoteDiamondCount.business > 0) {
                         var div3 = document.createElement('div');
                         div3.style.textAlign = 'center';
                         div3.style.width = 'calc(100% - 4px)';
@@ -838,26 +880,13 @@
                         span.innerText = '提升业务';
                         div3.CustomTag = 'business';
                         div3.onclick = function () {
-                            if (objMain.Task.state == '') {
-                                throw 'task not select';
-                            }
-                            else if (objMain.Task.carSelect == '') {
-                                alert('请选择要执行此任务的车辆');
-                            }
-                            else {
-                                //objMain.ws.send(JSON.stringify({ 'c': 'Tax', 'car': objMain.Task.carSelect, 'Target': this.CustomTag.target }));
-                                //objMain.Task.state = '';
-                                //objMain.Task.carSelect = '';
-                                //objMain.mainF.removeF.removePanle('carsSelectionPanel');
-                                //objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
-                            }
+                            clickBtn(this);
                         }
 
                         div3.appendChild(span);
                         element.appendChild(div3);
                     }
-                    if (objMain.PromoteDiamondCount.volume > 0)
-                    {
+                    if (objMain.PromoteDiamondCount.volume > 0) {
                         var div3 = document.createElement('div');
                         div3.style.textAlign = 'center';
                         div3.style.width = 'calc(100% - 4px)';
@@ -872,26 +901,13 @@
                         span.innerText = '提升容量';
                         div3.CustomTag = 'volume';
                         div3.onclick = function () {
-                            if (objMain.Task.state == '') {
-                                throw 'task not select';
-                            }
-                            else if (objMain.Task.carSelect == '') {
-                                alert('请选择要执行此任务的车辆');
-                            }
-                            else {
-                                //objMain.ws.send(JSON.stringify({ 'c': 'Tax', 'car': objMain.Task.carSelect, 'Target': this.CustomTag.target }));
-                                //objMain.Task.state = '';
-                                //objMain.Task.carSelect = '';
-                                //objMain.mainF.removeF.removePanle('carsSelectionPanel');
-                                //objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
-                            }
+                            clickBtn(this);
                         }
 
                         div3.appendChild(span);
                         element.appendChild(div3);
                     }
-                    if (objMain.PromoteDiamondCount.speed > 0)
-                    {
+                    if (objMain.PromoteDiamondCount.speed > 0) {
                         var div3 = document.createElement('div');
                         div3.style.textAlign = 'center';
                         div3.style.width = 'calc(100% - 4px)';
@@ -906,24 +922,14 @@
                         span.innerText = '提升速度';
                         div3.CustomTag = 'speed';
                         div3.onclick = function () {
-                            if (objMain.Task.state == '') {
-                                throw 'task not select';
-                            }
-                            else if (objMain.Task.carSelect == '') {
-                                alert('请选择要执行此任务的车辆');
-                            }
-                            else {
-                                //objMain.ws.send(JSON.stringify({ 'c': 'Tax', 'car': objMain.Task.carSelect, 'Target': this.CustomTag.target }));
-                                //objMain.Task.state = '';
-                                //objMain.Task.carSelect = '';
-                                //objMain.mainF.removeF.removePanle('carsSelectionPanel');
-                                //objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
-                            }
+                            clickBtn(this);
                         }
 
                         div3.appendChild(span);
                         element.appendChild(div3);
                     }
+
+                    //   AddBtnOfCommandReturn(element);
 
                     var object = new THREE.CSS2DObject(element);
                     var fp = objMain.basePoint;
@@ -931,8 +937,102 @@
 
                     objMain.groupOfOperatePanle.add(object);
                 }
+
+
             }
-        }
+        },
+        refreshSetReturnPanel: function () {
+            objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
+            //for (var key in objMain.PromoteDiamondCount)
+            {
+                var AddBtnOfCommandReturn = function (element) {
+                    var div3 = document.createElement('div');
+                    div3.style.textAlign = 'center';
+                    div3.style.width = 'calc(100% - 4px)';
+                    div3.style.border = '2px inset #ffc403';
+                    div3.style.borderRadius = '0.3em';
+                    div3.style.marginTop = '4px';
+                    div3.style.marginBottom = '4px';
+                    div3.style.position = 'relative';
+                    div3.style.left = 'calc(0%)';
+
+                    var span = document.createElement('span');
+                    span.innerText = '召回';
+                    // div3.CustomTag = 'mile';
+                    div3.onclick = function () {
+                        if (objMain.Task.state == '') {
+                            throw 'task not select';
+                        }
+                        else if (objMain.Task.carSelect == '') {
+                            alert('请选择要执行此任务的车辆');
+                        }
+                        else {
+                            objMain.ws.send(JSON.stringify({ 'c': 'SetCarReturn', 'car': objMain.Task.carSelect }));
+                            objMain.Task.state = '';
+                            objMain.Task.carSelect = '';
+                            objMain.mainF.removeF.removePanle('carsSelectionPanel');
+                            carAbility.clear();
+                            objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
+                        }
+                    }
+
+                    div3.appendChild(span);
+                    element.appendChild(div3);
+                }
+
+                {
+                    var element = document.createElement('div');
+
+                    element.style.width = '10em';
+                    element.style.marginTop = '3em';
+                    var color = '#ff0000';
+                    //var colorName = '红';
+                    //switch (type) {
+                    //    case 'mile':
+                    //        {
+                    //            color = '#ff0000';
+                    //            colorName = '红';
+                    //        }; break;
+                    //    case 'business': {
+                    //        color = '#00ff00';
+                    //        colorName = '绿';
+                    //    }; break;
+                    //    case 'volume': { 
+                    //        color = '#0000ff';
+                    //        colorName = '蓝';
+                    //    }; break;
+                    //    case 'speed': { 
+                    //        color = '#000000';
+                    //        colorName = '黑';
+                    //    }; break; 
+                    //}
+                    element.style.border = '2px solid ' + color;
+                    element.style.borderTopLeftRadius = '0.5em';
+                    element.style.backgroundColor = 'rgba(255, 255, 255, 0.5)';
+                    element.style.color = '#1504f6';
+
+                    var div2 = document.createElement('div');
+
+                    var b = document.createElement('b');
+                    b.innerHTML = '你没有宝石';
+                    div2.appendChild(b);
+
+
+
+                    element.appendChild(div2);
+                    // element.appendChild(div3);
+                    AddBtnOfCommandReturn(element);
+
+                    var object = new THREE.CSS2DObject(element);
+                    var fp = objMain.basePoint;
+                    object.position.set(MercatorGetXbyLongitude(fp.Longitude), 0, -MercatorGetYbyLatitude(fp.Latitde));
+
+                    objMain.groupOfOperatePanle.add(object);
+                }
+
+
+            }
+        },
     },
     Task:
     {
@@ -1368,6 +1468,11 @@ var startA = function () {
             case 'BradCastPromoteDiamondCount':
                 {
                     objMain.PromoteDiamondCount[received_obj.pType] = received_obj.count;
+                }; break;
+            case 'BradCastAbility':
+                {
+                    carAbility.setData(received_obj);
+                    carAbility.drawChanel(received_obj.carIndexStr);
                 }; break;
         }
     };
@@ -2564,6 +2669,7 @@ var drawCarBtns = function () {
             var showBtnEvent = function (show) {
                 while (document.getElementById('carsSelectionPanel') != null) {
                     document.getElementById('carsSelectionPanel').remove();
+                    carAbility.clear();
                 }
                 if (!show) {
                     return;
@@ -2618,7 +2724,7 @@ var drawCarBtns = function () {
 
                                     var names = ['carA', 'carB', 'carC', 'carD', 'carE'];
                                     objMain.Task.carSelect = names[i] + '_' + objMain.indexKey;
-
+                                    carAbility.drawPanel(names[i]);
                                     if (objMain.PromoteList.indexOf(objMain.Task.state) >= 0)
                                         objMain.mainF.lookTwoPositionCenter(objMain.promoteDiamond.children[0].position, objMain.carGroup.getObjectByName(objMain.Task.carSelect).position);
                                     else if (objMain.Task.state == 'collect')
@@ -2724,6 +2830,8 @@ var drawCarBtns = function () {
                 }
                 addChildren(carsNames);
 
+                //   divCreate.onabort
+
                 document.body.appendChild(divCreate);
             }
             addItemToTaskOperatingPanle('收集金钱', function () {
@@ -2736,7 +2844,7 @@ var drawCarBtns = function () {
             });
             addItemToTaskOperatingPanle('使用物品', function () {
                 showBtnEvent(true);
-                objMain.Task.state = 'promote';
+                objMain.Task.state = 'ability';
                 objMain.Task.carSelect = '';
                 objMain.mainF.lookAtPosition(objMain.basePoint);
                 objMain.mainF.refreshPromotePanel();
@@ -2787,11 +2895,352 @@ var drawCarBtns = function () {
             });
             document.body.appendChild(divTaskOperatingPanel);
         };
-        ff();
+        // ff();
         var showTradeAndDialog = function () {
 
 
         }
+
+        var clearBtnOfObj = function (id) {
+            if (document.getElementById(id) == null) { }
+            else {
+                var tp = document.getElementById(id);
+                while (tp.children.length > 0) {
+                    tp.children[0].remove();
+                }
+            }
+        }
+
+        var ff2 = function () {
+            while (document.getElementById('taskOperatingPanel') != null) {
+                document.getElementById('taskOperatingPanel').remove();
+            }
+            var divTaskOperatingPanel = document.createElement('div');
+            divTaskOperatingPanel.id = 'taskOperatingPanel';
+
+            divTaskOperatingPanel.style.position = 'absolute';
+            divTaskOperatingPanel.style.zIndex = '7';
+            divTaskOperatingPanel.style.right = '20px';
+            divTaskOperatingPanel.style.border = 'none';
+            divTaskOperatingPanel.style.width = '5em';
+            divTaskOperatingPanel.style.color = 'green';
+            //每个子对象1.3em 8px 共2.5个
+            divTaskOperatingPanel.style.top = 'calc(50% - 3.25em - 20px)';
+
+            var addItemToTaskOperatingPanle = function (btnName, id, clickF) {
+                var div = document.createElement('div');
+                div.style.width = 'calc(5em - 4px)';
+                div.style.textAlign = 'center';
+                div.style.border = '2px inset #ffc403';
+                div.style.borderRadius = '0.3em';
+                div.style.marginTop = '4px';
+                div.style.marginBottom = '4px';
+                div.style.background = 'rgba(0, 191, 255, 0.6)';
+                div.style.height = '1.3em';
+                div.id = id;
+
+                var span = document.createElement('span');
+                span.innerText = btnName;
+                div.appendChild(span);
+                //  <span id="carASpan">提升续航</span>
+
+                div.onclick = function () { clickF(); }
+                divTaskOperatingPanel.appendChild(div);
+            }
+            var showBtnEvent = function (show) {
+                while (document.getElementById('carsSelectionPanel') != null) {
+                    document.getElementById('carsSelectionPanel').remove();
+                    carAbility.clear();
+                }
+                if (!show) {
+                    return;
+                }
+                var carsNames = objMain.carsNames;
+                var divCreate = document.createElement('div');
+                divCreate.id = 'carsSelectionPanel';
+                divCreate.style.position = 'absolute';
+                divCreate.style.width = '8em';
+                divCreate.style.height = 'calc(6em + 48px)';
+                divCreate.style.zIndex = '6';
+                divCreate.style.left = '1em';
+
+                divCreate.style.top = 'calc(50% - 20px - 2px - 3em)';
+                divCreate.style.fontSize = '20px';
+                divCreate.style.color = 'blue';
+                divCreate.style.textShadow = '1px 1px 1px #000000';
+                divCreate.style.borderColor = 'deepskyblue';
+
+                var addChildren = function (carsNames) {
+                    for (var i = 0; i < carsNames.length; i++) {
+                        //text += "        <div style=\"width: calc(100% - 2px);";
+                        //text += "        text-align: center;";
+                        //text += "        border: 1px solid deepskyblue;";
+                        //text += "        border-radius: 0.3em;";
+                        //text += "        margin-top: 4px;";
+                        //text += "        margin-bottom: 4px;\">";
+                        //text += "            <span id=\"carASpan\">啊啊啊啊啊啊啊</span>";
+                        //text += "        </div>";
+                        var divChildOfItem = document.createElement('div');
+                        divChildOfItem.style.width = 'calc(100% - 2px)';
+                        divChildOfItem.style.textAlign = 'center';
+                        divChildOfItem.style.border = '1px solid deepskyblue';
+                        divChildOfItem.style.borderRadius = '0.3em';
+                        divChildOfItem.style.marginTop = '4px';
+                        divChildOfItem.style.marginBottom = '4px';
+                        divChildOfItem.yrqTagIndex = i + 0;
+                        //divChildOfItem.parentNode
+                        divChildOfItem.onclick = function () {
+                            //   alert(this.yrqTagIndex);
+                            //console.log('parentNode', this);
+                            //console.log('parentNode', this.parentNode);
+
+                            for (var i = 0; i < 5; i++) {
+                                //  console.log(i, this.parentNode.children[i]);
+
+                                if (i == this.yrqTagIndex) {
+                                    this.parentNode.children[i].style.border = '2px inset #ffc403';
+                                    // alert('');
+                                    while (document.getElementById('itemNodes2') != null) {
+                                        document.getElementById('itemNodes2').remove();
+                                    }
+
+                                    var names = ['carA', 'carB', 'carC', 'carD', 'carE'];
+                                    objMain.Task.carSelect = names[i] + '_' + objMain.indexKey;
+                                    carAbility.drawPanel(names[i]);
+                                    if (objMain.PromoteList.indexOf(objMain.Task.state) >= 0)
+                                        objMain.mainF.lookTwoPositionCenter(objMain.promoteDiamond.children[0].position, objMain.carGroup.getObjectByName(objMain.Task.carSelect).position);
+                                    else if (objMain.Task.state == 'collect')
+                                        objMain.mainF.lookTwoPositionCenter(objMain.collectGroup.children[0].position, objMain.carGroup.getObjectByName(objMain.Task.carSelect).position);
+                                    /*
+                                     * 以下方法用户绘制二级菜单
+                                     */
+                                    if (false) {
+                                        var divCreate2 = document.createElement('div');
+                                        divCreate2.id = 'itemNodes2';
+                                        divCreate2.style.position = 'absolute';
+                                        divCreate2.style.width = '3em';
+                                        divCreate2.style.height = 'calc(6em + 48px)';
+                                        divCreate2.style.zIndex = '6';
+                                        divCreate2.style.left = '11em';
+                                        //calc(50% - 20px - 2px - 3em);
+                                        var emV = i.toString() + 'em';
+                                        var pxV = (i * 12).toString() + 'px'
+                                        divCreate2.style.top = 'calc(50% - 20px - 2px - 3em + ' + emV + ' + ' + pxV + ')';
+                                        divCreate2.style.fontSize = '20px';
+                                        divCreate2.style.color = 'blue';
+                                        divCreate2.style.textShadow = '1px 1px 1px #000000';
+                                        divCreate2.style.borderColor = 'deepskyblue';
+                                        /*这里要显示条目*/
+                                        var displays = ['属性', '任务'];
+                                        for (var jj = 0; jj < 2; jj++) {
+                                            var divChildOfItem2 = document.createElement('div');
+                                            divChildOfItem2.style.width = 'calc(100% - 2px)';
+                                            divChildOfItem2.style.textAlign = 'center';
+                                            divChildOfItem2.style.border = '1px solid #ffc403';
+                                            divChildOfItem2.style.borderRadius = '0.3em';
+                                            divChildOfItem2.style.marginTop = '4px';
+                                            divChildOfItem2.style.marginBottom = '4px';
+                                            // divChildOfItem2.innerText = '啊啊';
+                                            divCreate2.appendChild(divChildOfItem2);
+                                            divChildOfItem2.yrqTagIndex = jj + 0;
+
+                                            var spanOfItem2 = document.createElement('span');
+                                            spanOfItem2.innerText = displays[jj];
+                                            divChildOfItem2.appendChild(spanOfItem2);
+                                            switch (jj) {
+                                                case 0:
+                                                    {
+                                                        divChildOfItem2.onclick = function () {
+                                                            alert('获取属性');
+                                                        }
+                                                    }; break;
+                                                case 1:
+                                                    {
+                                                        divChildOfItem2.onclick = function () {
+                                                            alert('获取任务');
+                                                        }
+                                                    }; break;
+                                            }
+                                        }
+                                        document.body.appendChild(divCreate2);
+                                    }
+                                }
+                                else {
+                                    this.parentNode.children[i].style.border = '1px solid deepskyblue';
+                                }
+                            }
+                            //                this.parentNode
+                        }
+
+                        var spanOfItem = document.createElement('span');
+                        spanOfItem.innerText = carsNames[i];
+                        divChildOfItem.appendChild(spanOfItem);
+                        divCreate.appendChild(divChildOfItem);
+                    }
+                    if (false) {
+                        var divChildOfItem = document.createElement('div');
+                        divChildOfItem.style.width = '3em';
+                        divChildOfItem.style.textAlign = 'center';
+                        divChildOfItem.style.border = '1px solid gray';
+                        divChildOfItem.style.borderRadius = '0.3em';
+                        divChildOfItem.style.marginTop = '4px';
+                        divChildOfItem.style.marginBottom = '4px';
+                        divChildOfItem.style.color = 'yellowgreen';
+
+                        var spanOfItem = document.createElement('span');
+                        spanOfItem.innerText = '隐藏';
+                        divChildOfItem.appendChild(spanOfItem);
+
+                        divChildOfItem.onclick = function () {
+                            this.onclick = function () {
+                                divCreate.innerHTML = '';
+                                addChildren(carsNames);
+                                this.style.width = '3em';
+                                this.children[0].innerText = '隐藏';
+                            }
+                            while (divCreate.children.length > 1) {
+                                divCreate.removeChild(divCreate.children[0]);
+                            }
+                            this.style.width = '5em';
+                            this.children[0].innerText = '显示车辆';
+                            while (document.getElementById('itemNodes2') != null) {
+                                document.getElementById('itemNodes2').remove();
+                            }
+                        }
+                        divCreate.appendChild(divChildOfItem);
+                    }
+                }
+                addChildren(carsNames);
+
+                //   divCreate.onabort
+
+                document.body.appendChild(divCreate);
+            }
+            addItemToTaskOperatingPanle('收集', 'collectOrTaxBtn', function () {
+
+                clearBtnOfObj('taskOperatingPanel');
+                addItemToTaskOperatingPanle('收集金钱', 'collectMoneyBtn', function () {
+                    showBtnEvent(true);
+                    objMain.Task.state = 'collect';
+                    objMain.Task.carSelect = '';
+                    // alert('提升续航');
+                    console.log('点击', '收集金钱');
+                    var endF = ff2;
+                    objMain.mainF.refreshCollectAndPanle(endF);
+                    //  ff2();
+                });
+                addItemToTaskOperatingPanle('收集分红', 'collectTaxBtn', function () {
+
+
+                    //showBtnEvent(true);
+                    //objMain.Task.state = 'collect';
+                    //objMain.Task.carSelect = '';
+                    //// alert('提升续航');
+                    //console.log('点击', '收集金钱');
+                    //objMain.mainF.refreshCollectAndPanle();
+                });
+                addItemToTaskOperatingPanle('取消', 'cancleBtn', function () {
+                    showBtnEvent(false);
+                    objMain.Task.state = '';
+                    objMain.Task.carSelect = '';
+                    ff2();
+                    objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
+                    //showBtnEvent(true);
+                    //objMain.Task.state = 'collect';
+                    //objMain.Task.carSelect = '';
+                    //// alert('提升续航');
+                    //console.log('点击', '收集金钱');
+                    //objMain.mainF.refreshCollectAndPanle();
+                });
+
+                showBtnEvent(false);
+                objMain.Task.state = '';
+                objMain.Task.carSelect = '';
+                objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
+            });
+            addItemToTaskOperatingPanle('使用', 'useObjBtn', function () {
+                showBtnEvent(true);
+                objMain.Task.state = 'ability';
+                objMain.Task.carSelect = '';
+                objMain.mainF.lookAtPosition(objMain.basePoint);
+                objMain.mainF.refreshPromotePanel();
+            });
+            addItemToTaskOperatingPanle('寻宝', 'useGetDiamondBtn', function () {
+                clearBtnOfObj('taskOperatingPanel');
+                addItemToTaskOperatingPanle('提升续航', 'getPromoteMileDiamondBtn', function () {
+                    showBtnEvent(true);
+                    objMain.Task.state = 'mile'
+                    objMain.Task.carSelect = '';
+                    // alert('提升续航');
+                    console.log('点击', '提升续航');
+                    var endF = ff2;
+                    objMain.mainF.refreshPromotionDiamondAndPanle(objMain.PromotePositions[objMain.Task.state], endF);
+                });
+                addItemToTaskOperatingPanle('提升业务', 'getPromoteBusinessDiamondBtn', function () {
+                    showBtnEvent(true);
+                    objMain.Task.state = 'business'
+                    // alert('提升续航');
+                    console.log('点击', '提升业务');
+                    objMain.Task.carSelect = '';
+                    var endF = ff2;
+                    objMain.mainF.refreshPromotionDiamondAndPanle(objMain.PromotePositions[objMain.Task.state], endF);
+                });
+                addItemToTaskOperatingPanle('提升容量', 'getPromoteVolumeDiamondBtn', function () {
+                    showBtnEvent(true);
+                    objMain.Task.state = 'volume'
+                    // alert('提升续航');
+                    console.log('点击', '提升容量');
+                    objMain.Task.carSelect = '';
+                    var endF = ff2;
+                    objMain.mainF.refreshPromotionDiamondAndPanle(objMain.PromotePositions[objMain.Task.state], endF);
+                });
+                addItemToTaskOperatingPanle('提升速度', 'getPromoteSpeedDiamondBtn', function () {
+                    showBtnEvent(true);
+                    objMain.Task.state = 'speed';
+                    // alert('提升续航');
+                    console.log('点击', '提升速度');
+                    objMain.Task.carSelect = '';
+                    var endF = ff2;
+                    objMain.mainF.refreshPromotionDiamondAndPanle(objMain.PromotePositions[objMain.Task.state], endF);
+                });
+                addItemToTaskOperatingPanle('取消', 'cancleBtn', function () {
+                    showBtnEvent(false);
+                    objMain.Task.state = '';
+                    objMain.Task.carSelect = '';
+                    ff2();
+                    objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
+                    //showBtnEvent(true);
+                    //objMain.Task.state = 'collect';
+                    //objMain.Task.carSelect = '';
+                    //// alert('提升续航');
+                    //console.log('点击', '收集金钱');
+                    //objMain.mainF.refreshCollectAndPanle();
+                });
+
+                showBtnEvent(false);
+                objMain.Task.state = '';
+                objMain.Task.carSelect = '';
+                objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
+            });
+            addItemToTaskOperatingPanle('打压', 'attackOthersBtn', function () {
+                showBtnEvent(true);
+                objMain.Task.state = 'business'
+                // alert('提升续航');
+                console.log('点击', '提升业务');
+                objMain.Task.carSelect = '';
+                objMain.mainF.refreshPromotionDiamondAndPanle(objMain.PromotePositions[objMain.Task.state]);
+            });
+            addItemToTaskOperatingPanle('召回', 'commandToReturnBtn', function () {
+                showBtnEvent(true);
+                objMain.Task.state = 'ability';
+                objMain.Task.carSelect = '';
+                objMain.mainF.lookAtPosition(objMain.basePoint);
+                objMain.mainF.refreshSetReturnPanel();
+            });
+            document.body.appendChild(divTaskOperatingPanel);
+        }
+
+        ff2();
     }
 
 }

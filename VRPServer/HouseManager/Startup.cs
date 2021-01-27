@@ -169,7 +169,10 @@ namespace HouseManager
                                 var result = await BaseInfomation.rm.updateTax(st);
                                 await context.Response.WriteAsync("ok");
                             }; break;
-                        
+                        case "CommandToReturn": 
+                            {
+                                
+                            };break;
                     }
                 }
             });

@@ -326,6 +326,8 @@ namespace HouseManager
                 var m1 = player.GetMoneyCanSave();
                 player.Money -= needMoney;
                 car.ability.costBusiness = needMoney;
+                AbilityChanged(player, car, ref notifyMsg, "business");
+
                 var m2 = player.GetMoneyCanSave();
                 if (m1 != m2)
                 {
@@ -677,11 +679,13 @@ namespace HouseManager
                                             var debt = Math.Min(car.ability.costBusiness, player.Debts[dOwner.victim]);
                                             player.Debts[dOwner.victim] -= debt;
                                             car.ability.costBusiness -= debt;
+                                            AbilityChanged(player, car, ref notifyMsg, "business");
                                         }
                                         {
                                             var debt = Math.Min(car.ability.costVolume, player.Debts[dOwner.victim]);
                                             player.Debts[dOwner.victim] -= debt;
                                             car.ability.costVolume -= debt;
+                                            AbilityChanged(player, car, ref notifyMsg, "volume");
                                         }
                                         attackMoney = car.ability.costBusiness + car.ability.costVolume;
                                     }
@@ -711,11 +715,13 @@ namespace HouseManager
                                         var attack = car.ability.costBusiness;
                                         victim.AddDebts(player.Key, attack);
                                         car.ability.costBusiness -= attack;
+                                        AbilityChanged(player, car, ref notifyMsg, "business");
                                     }
                                     {
                                         var attack = car.ability.costVolume;
                                         victim.AddDebts(player.Key, attack);
                                         car.ability.costVolume -= attack;
+                                        AbilityChanged(player, car, ref notifyMsg, "volume");
                                     }
                                 }
                                 var m2 = victim.GetMoneyCanSave();

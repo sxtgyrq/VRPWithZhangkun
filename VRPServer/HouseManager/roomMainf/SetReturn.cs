@@ -64,7 +64,10 @@ namespace HouseManager
                         ReturnThenSetComeBack(car, cmp, ref notifyMsg);
                     }
                 }
-
+                else if (cmp.changeType == "orderToReturn")
+                {
+                    ReturnThenSetComeBack(car, cmp, ref notifyMsg);
+                }
                 else
                 {
 
@@ -185,6 +188,80 @@ namespace HouseManager
             }
         }
 
+
+        internal async Task<string> OrderToReturn(OrderToReturn otr)
+        {
+            if (string.IsNullOrEmpty(otr.car))
+            {
+                return "";
+            }
+            else if (!(otr.car == "carA" || otr.car == "carB" || otr.car == "carC" || otr.car == "carD" || otr.car == "carE"))
+            {
+                return "";
+            }
+            else
+            {
+
+                List<string> notifyMsg = new List<string>();
+                lock (this.PlayerLock)
+                {
+
+                    if (this._Players.ContainsKey(otr.Key))
+                    {
+                        if (this._Players[otr.Key].Bust) { }
+                        else
+                        {
+                            var player = this._Players[otr.Key];
+                            var carIndex = getCarIndex(otr.car);
+                            var car = this._Players[otr.Key].getCar(carIndex);
+                            switch (car.state)
+                            {
+                                case CarState.waitOnRoad:
+                                    {
+                                        SendOrderToReturnWhenCarIsStoping(otr, car);
+                                    }; break;
+                                case CarState.waitForCollectOrAttack:
+                                    {
+                                        SendOrderToReturnWhenCarIsStoping(otr, car);
+                                    }; break;
+                                case CarState.waitForTaxOrAttack:
+                                    {
+                                        SendOrderToReturnWhenCarIsStoping(otr, car);
+                                    }; break;
+                            }
+                        }
+                    }
+                }
+
+                for (var i = 0; i < notifyMsg.Count; i += 2)
+                {
+                    var url = notifyMsg[i];
+                    var sendMsg = notifyMsg[i + 1];
+                    Console.WriteLine($"url:{url}");
+
+                    await Startup.sendMsg(url, sendMsg);
+                }
+                return "";
+            }
+        }
+
+
+        private void SendOrderToReturnWhenCarIsStoping(OrderToReturn otr, Car car)
+        {
+            // var carKey = $"{sp.car}_{sp.Key}";
+            var returnPath = this._Players[otr.Key].returningRecord[otr.car];//  this.returningRecord[carKey];
+            Thread th = new Thread(() => setReturn(0, new commandWithTime.returnning()
+            {
+                c = "returnning",
+                key = otr.Key,
+                car = otr.car,
+                returnPath = returnPath,//returnPath_Record,
+                target = car.targetFpIndex,//这里的target 实际上是returnning 的起点,是汽车的上一个目标
+                changeType = "orderToReturn",
+            }));
+            th.Start();
+        }
+
         private void ReturnThenSetComeBack(Car car, commandWithTime.returnning cmp, ref List<string> notifyMsg)
         {
             var speed = car.ability.Speed;
@@ -225,7 +302,10 @@ namespace HouseManager
                 {
                     var moneyCanSave1 = player.GetMoneyCanSave();
                     player.Money += car.ability.costBusiness;
+
+
                     player.Money += car.ability.costVolume;
+
                     if (car.ability.subsidize > 0)
                     {
                         player.SupportToPlay.Money += car.ability.subsidize;
@@ -237,6 +317,11 @@ namespace HouseManager
                     }
                     car.ability.Refresh();
                     car.Refresh();
+
+                    AbilityChanged(player, car, ref notifyMsg, "business");
+                    AbilityChanged(player, car, ref notifyMsg, "volume");
+                    AbilityChanged(player, car, ref notifyMsg, "mile");
+
                     printState(player, car, "执行了归位");
                     var moneyCanSave2 = player.GetMoneyCanSave();
                     if (moneyCanSave1 != moneyCanSave2)

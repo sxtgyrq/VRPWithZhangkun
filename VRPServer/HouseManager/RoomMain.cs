@@ -584,6 +584,8 @@ namespace HouseManager
                     SendPromoteCountOfPlayer("volume", player, ref notifyMsgs);
                     SendPromoteCountOfPlayer("speed", player, ref notifyMsgs);
 
+
+
                     result = new GetPositionResult()
                     {
                         Success = true,
@@ -608,17 +610,47 @@ namespace HouseManager
             {
                 await CheckAllPromoteState(getPosition.Key);
                 await CheckCollectState(getPosition.Key);
+                await sendCarAbilityState(getPosition.Key);
             }
             else if (OpenMore > 0)
             {
                 await CheckAllPromoteState(getPosition.Key);
                 await CheckCollectState(getPosition.Key);
                 await SendAllTax(getPosition.Key);
+
+                await sendCarAbilityState(getPosition.Key);
+                //for(var i=0;i<)
+                //AbilityChanged(player, car, ref notifyMsg, "business");
+                //AbilityChanged(player, car, ref notifyMsg, "volume");
+                //AbilityChanged(player, car, ref notifyMsg, "mile");
             }
             return result;
         }
 
-        
+        private async Task sendCarAbilityState(string key)
+        {
+            List<string> notifyMsg = new List<string>();
+            var player = this._Players[key];
+            for (var i = 0; i < 5; i++)
+            {
+                var car = this._Players[key].getCar(i);
+                AbilityChanged(player, car, ref notifyMsg, "business");
+                AbilityChanged(player, car, ref notifyMsg, "volume");
+                AbilityChanged(player, car, ref notifyMsg, "mile");
+                AbilityChanged(player, car, ref notifyMsg, "speed");
+            }
+            for (var i = 0; i < notifyMsg.Count; i += 2)
+            {
+                var url = notifyMsg[i];
+                var sendMsg = notifyMsg[i + 1];
+                Console.WriteLine($"url:{url}");
+
+                await Startup.sendMsg(url, sendMsg);
+            }
+
+        }
+
+
 
         /// <summary>
         /// 广播小车状态

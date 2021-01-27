@@ -254,9 +254,16 @@ namespace HouseManager
             else
             {
                 var m1 = player.GetMoneyCanSave();
+
                 long moneyFromSupport, moneyFromEarn;
                 player.PayWithSupport(needMoney, out moneyFromSupport, out moneyFromEarn);
-                car.ability.getMoneyWithSupport(moneyFromSupport, moneyFromEarn);
+
+                car.ability.subsidize += moneyFromSupport;
+                car.ability.costBusiness += moneyFromEarn;/*这里没有总量限制*/
+                if (moneyFromEarn > 0)
+                    AbilityChanged(player, car, ref notifyMsg, "business");
+                // car.ability.getMoneyWithSupport(moneyFromSupport, moneyFromEarn);
+
                 var m2 = player.GetMoneyCanSave();
                 if (m1 != m2)
                 {
@@ -351,7 +358,13 @@ namespace HouseManager
                             }
                             Console.WriteLine($"需要用钱支付");
                             printState(player, car, $"支付前：subsidize:{car.ability.subsidize},costBusiness:{car.ability.costBusiness},costVolume:{car.ability.costVolume},needMoney:{needMoney}");
-                            car.ability.payForPromote(needMoney);//用汽车上的钱支付
+
+                            //var costBusiness1 = car.ability.costBusiness;
+                            bool needToUpdateCostBussiness;
+                            car.ability.payForPromote(needMoney, out needToUpdateCostBussiness);//用汽车上的钱支付
+                            if (needToUpdateCostBussiness)
+                                AbilityChanged(player, car, ref notifyMsg, "business");
+
                             printState(player, car, $"支付后：subsidize:{car.ability.subsidize},costBusiness:{car.ability.costBusiness},costVolume:{car.ability.costVolume},needMoney:{needMoney}");
 
                             setPromtePosition(dor.changeType);
@@ -605,50 +618,7 @@ namespace HouseManager
         }
 
 
-        //  enum CostOrSum { Cost, Sum }
-        /// <summary>
-        /// 这里要通知前台，值发生了变化。
-        /// </summary>
-        /// <param name="player"></param>
-        /// <param name="car"></param>
-        /// <param name="notifyMsgs"></param>
-        /// <param name="pType"></param>
-        static void AbilityChanged(Player player, Car car, ref List<string> notifyMsgs, string pType)
-        {
-            var carIndexStr = car.IndexString;
-            long costValue = 0;
-            long sumValue = 1;
-            switch (pType)
-            {
-                case "mile":
-                    {
-                        costValue = car.ability.costMiles;
-                        sumValue = car.ability.mile;
-                    }; break;
-                case "business":
-                    {
-                        costValue = car.ability.costBusiness;
-                        sumValue = car.ability.Business;
-                    }; break;
-                case "volume":
-                    {
-                        costValue = car.ability.costVolume;
-                        sumValue = car.ability.Volume;
-                    }; break;
-            }
-            var obj = new BradCastAbility
-            {
-                c = "BradCastAbility",
-                WebSocketID = player.WebSocketID,
-                pType = pType,
-                carIndexStr = carIndexStr,
-                costValue = costValue,
-                sumValue = sumValue
-            };
-            var json = Newtonsoft.Json.JsonConvert.SerializeObject(obj);
-            notifyMsgs.Add(player.FromUrl);
-            notifyMsgs.Add(json);
-        }
+     
     }
 }
 

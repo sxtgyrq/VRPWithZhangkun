@@ -410,6 +410,7 @@ namespace HouseManager
                      */
                     selfGet = Math.Max(1, selfGet);
                     car.ability.costVolume += selfGet;
+                    AbilityChanged(player, car, ref notifyMsg, "volume");
                 }
                 this.collectPosition = this.GetRandomPosition();
                 needUpdateCollectState = true;

@@ -497,6 +497,67 @@ namespace WsOfWebClient
             #endregion
         }
 
+        internal static async Task<string> setCarReturn(State s, SetCarReturn scr)
+        {
+
+            {
+                Regex r = new Regex("^car(?<car>[A-E]{1})_(?<key>[a-f0-9]{32})$");
+                var m = r.Match(scr.car);
+                // var m_Target = rex_Target.Match(attack.TargetOwner);
+                if (m.Success)//&& m_Target.Success)
+                {
+                    //   var targetOwner = m_Target.Groups["target"].Value;
+
+                    Console.WriteLine($"正则匹配成功：{m.Groups["car"] }+{m.Groups["key"] }");
+                    if (m.Groups["key"].Value == s.Key)
+                    {
+                        var getPosition = new OrderToReturn()
+                        {
+                            c = "OrderToReturn",
+                            Key = s.Key,
+                            car = "car" + m.Groups["car"].Value,
+                        };
+                        var msg = Newtonsoft.Json.JsonConvert.SerializeObject(getPosition);
+                        await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[s.roomIndex], msg);
+                    }
+                }
+                return "";
+            }
+        }
+
+        internal static async Task<string> setCarAbility(State s, Ability a)
+        {
+            if (!(a.pType == "mile" || a.pType == "business" || a.pType == "volume" || a.pType == "speed"))
+            {
+                return "";
+            }
+            else
+            {
+                Regex r = new Regex("^car(?<car>[A-E]{1})_(?<key>[a-f0-9]{32})$");
+                var m = r.Match(a.car);
+                // var m_Target = rex_Target.Match(attack.TargetOwner);
+                if (m.Success)//&& m_Target.Success)
+                {
+                    //   var targetOwner = m_Target.Groups["target"].Value;
+
+                    Console.WriteLine($"正则匹配成功：{m.Groups["car"] }+{m.Groups["key"] }");
+                    if (m.Groups["key"].Value == s.Key)
+                    {
+                        var getPosition = new SetAbility()
+                        {
+                            c = "SetAbility",
+                            Key = s.Key,
+                            car = "car" + m.Groups["car"].Value,
+                            pType = a.pType
+                        };
+                        var msg = Newtonsoft.Json.JsonConvert.SerializeObject(getPosition);
+                        await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[s.roomIndex], msg);
+                    }
+                }
+                return "";
+            }
+        }
+
         internal static async Task<string> passMsg(State s, Msg msg)
         {
             var dialogMsg = new DialogMsg()
@@ -504,7 +565,7 @@ namespace WsOfWebClient
                 c = "DialogMsg",
                 Key = s.Key,
                 Msg = msg.MsgPass,
-                To = msg.To, 
+                To = msg.To,
             };
             var msgString = Newtonsoft.Json.JsonConvert.SerializeObject(dialogMsg);
             //Room.roomUrls[s.roomIndex]

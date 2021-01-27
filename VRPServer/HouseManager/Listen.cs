@@ -206,6 +206,18 @@ namespace HouseManager
                                 await BaseInfomation.rm.SendMsg(dm);
                                 outPut = "ok";
                             }; break;
+                        case "SetAbility":
+                            {
+                                CommonClass.SetAbility sa = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.SetAbility>(notifyJson);
+                                await BaseInfomation.rm.SetAbility(sa);
+                                outPut = "ok";
+                            }; break;
+                        case "OrderToReturn":
+                            {
+                                CommonClass.OrderToReturn otr = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.OrderToReturn>(notifyJson);
+                                await BaseInfomation.rm.OrderToReturn(otr);
+                                outPut = "ok";
+                            }; break;
                     }
                 }
             }

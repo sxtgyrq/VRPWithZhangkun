@@ -3,8 +3,10 @@
     "",
     "\\VRPServer",
     "\\VRPServer\\HouseManager",
-    "\\VRPServer\\Server"
+    "\\VRPServer\\HouseManager\\roomMainf",
+    "\\VRPServer\\Server",
+    "\\WebFileOnly"
   ],
-  "SelectedNode": "\\VRPServer\\Server\\Server.sln",
+  "SelectedNode": "\\VRPServer\\HouseManager\\roomMainf\\SetReturn.cs",
   "PreviewInSolutionExplorer": false
 }

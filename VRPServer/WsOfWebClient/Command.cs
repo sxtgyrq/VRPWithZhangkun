@@ -60,6 +60,17 @@ namespace WsOfWebClient
         public int Target { get; set; }
         public string car { get; set; }
     }
+    public class Ability : CommonClass.Command
+    {
+        //  public int Target { get; set; }
+        public string pType { get; set; }
+        public string car { get; set; }
+    }
+
+    public class SetCarReturn : CommonClass.Command
+    {
+        public string car { get; set; }
+    }
     public class Collect1 : CommonClass.Command
     {
         public string cType { get; set; }

@@ -1,6 +1,8 @@
-﻿using System;
+﻿using CommonClass;
+using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace HouseManager
 {
@@ -8,5 +10,7 @@ namespace HouseManager
     {
         const string AttackFailedReturn = "attack-failed-return";
         const string CollectReturn = "collect-return";
+
+       
     }
 }

@@ -71,18 +71,64 @@
             animation: mymove 1.9s infinite;
             -webkit-animation: mymove 1.9s infinite;
         }
+
         #abilityCanvasContainer {
             z-index: 4;
             position: absolute;
             top: 4px;
-            right: calc(50% - 70px - 1px);
-            border: double 2px #000000;
+            right: calc(50% - 100px - 1px);
+            border: double 2px rgba(247, 245, 126, 0.28);
             height: 60px;
-            width: 140px;
+            width: 200px;
             font-size: 14px;
             color: white;
             text-align: center;
+            border-radius: 3px;
         }
+
+        #chanleOfCarAbility {
+            width: 140px;
+            height: 60px;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            opacity: 0.6;
+        }
+
+        #TextOfCarAbility {
+            width: 140px;
+            height: calc(100%);
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .TextOfCarAbilityItem {
+            width: 100%;
+            height: calc(33.3%);
+            background-color: transparent;
+            text-align: center;
+        }
+
+        .speedValueContainer {
+            vertical-align: middle;
+            position: absolute;
+            top: 0px;
+            left: 140px;
+            border: solid 1px red;
+            width: 58px;
+            height: 58px;
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+
+            .speedValueContainer > span {
+                vertical-align: middle;
+                width: 100%;
+                height: 100%;
+                line-height: 60px;
+            }
     </style>
     <script src="ThreeJs/three.js"></script>
     <script src="ThreeJs/CSS2DRenderer.js"></script>
@@ -95,12 +141,13 @@
     <script src="ThreeJs/OBJLoader.js"></script>
     <link href="css/ChatHtml.css" rel="stylesheet" />
     <link href="css/mainSet.css" rel="stylesheet" />
+
 </head>
 <body style="width:100%;height:100%;">
     <div id="rootContainer" style="width: 100%; height: 100%; overflow: hidden;position:absolute;left:0px;top:0px;">
 
     </div>
-
+    <script src="carAbility.js"></script>
     <script src="dialogSys.js"></script>
     <script src="mainf.js?xx=22"></script>
 

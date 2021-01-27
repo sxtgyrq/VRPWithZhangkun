@@ -72,9 +72,9 @@ namespace CommonClass
     }
 
     public class BradCastAbility : CommandNotify
-    { 
-        public string pType { get; set; } 
-        public string carIndexStr { get; set; } 
+    {
+        public string pType { get; set; }
+        public string carIndexStr { get; set; }
         public long costValue { get; set; }
         public long sumValue { get; set; }
     }
@@ -160,6 +160,19 @@ namespace CommonClass
         public string Key { get; set; }
         public string car { get; set; }
         public int target { get; set; }
+    }
+
+    public class SetAbility : Command
+    {
+        public string Key { get; set; }
+        public string car { get; set; }
+        public string pType { get; set; }
+    }
+
+    public class OrderToReturn : Command 
+    {
+        public string Key { get; set; }
+        public string car { get; set; }
     }
     public class GetTax : Command
     {

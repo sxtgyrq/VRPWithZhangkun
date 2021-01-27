@@ -12,61 +12,125 @@ namespace TcpFunction
         public static async Task<string> SendInmationToUrlAndGetRes(string roomUrl, string sendMsg)
         {
             var startTime = DateTime.Now;
-            string result;
-            using (TcpClient tc = new TcpClient())
+            string result = "";
+            bool isRight = true;
+            for (var kk = 0; kk < 100000; kk++)
             {
-                IPAddress ipa;
-                if (IPAddress.TryParse(roomUrl.Split(':')[0], out ipa))
+                using (TcpClient tc = new TcpClient())
                 {
-                    await tc.ConnectAsync(ipa, int.Parse(roomUrl.Split(':')[1]));
-                    if (tc.Connected)
+                    IPAddress ipa;
+                    if (IPAddress.TryParse(roomUrl.Split(':')[0], out ipa))
                     {
-                        using (var ns = tc.GetStream())
+                        await tc.ConnectAsync(ipa, int.Parse(roomUrl.Split(':')[1]));
+                        if (tc.Connected)
                         {
-                            var sendData = Encoding.UTF8.GetBytes(sendMsg);
-                            await Common.SendLength(sendData.Length, ns);
-                            var length = await Common.ReceiveLength(ns);
-                            if (sendData.Length == length) { }
-                            else
+                            using (var ns = tc.GetStream())
                             {
-                                var msg = $"sendData.Length ({sendData.Length})!= length({length})";
-                                Console.WriteLine(msg);
-                                throw new Exception(msg);
+                                var sendData = Encoding.UTF8.GetBytes(sendMsg);
+                                await Common.SendLength(sendData.Length, ns);
+
+                                var length = await Common.ReceiveLength(ns);
+                                if (sendData.Length == length) { }
+                                else
+                                {
+                                    var msg = $"sendData.Length ({sendData.Length})!= length({length})";
+                                    Console.WriteLine(msg);
+                                    throw new Exception(msg);
+                                }
+                                await ns.WriteAsync(sendData, 0, sendData.Length);
+
+                                var md5Return = await Common.ReveiveMd5(ns);
+                                var md5Cal = CommonClass.Random.GetMD5HashByteFromBytes(sendData);
+                                for (var j = 0; j < 16; j++)
+                                {
+                                    if (md5Return[j] == md5Cal[j]) { }
+                                    else
+                                    {
+                                        isRight = false;
+                                        break;
+                                    }
+                                }
+                                if (isRight) { }
+                                else
+                                {
+                                    await Common.SendWrong(ns);
+                                    await Common.ReveiveEnd(ns);
+                                }
+                                // await Common.SendDataMd5(sendData, ns);
+                                //var md5Return = await Common.ReveiveMd5(ns);
+                                //var md5Cal = CommonClass.Random.GetMD5HashByteFromBytes(sendData);
+
+                                //bool isRight = true;
+                                //for (var j = 0; j < 16; j++)
+                                //{
+                                //    if (md5Return[j] == md5Cal[j]) { }
+                                //    else
+                                //    {
+                                //        isRight = false;
+                                //        break;
+                                //    }
+                                //}
+                                if (isRight)
+                                {
+                                    await Common.SendRight(ns);
+
+                                    var length2 = await Common.ReceiveLength(ns);
+                                    await Common.SendLength(length2, ns);
+                                    byte[] bytes = new byte[length2];
+                                    int bytesRead = await ns.ReadAsync(bytes);
+
+                                    if (length2 != bytesRead)
+                                    {
+                                        throw new Exception("");
+                                    }
+                                    await Common.SendDataMd5(bytes, ns);
+                                    isRight = await Common.ReveiveRight(ns);
+
+                                    if (isRight)
+                                    {
+                                        result = Encoding.UTF8.GetString(bytes, 0, bytesRead);
+                                        //await Common.SendEnd(ns);
+                                    }
+                                    await Common.SendEnd(ns);
+                                }
+                                else
+                                {
+                                    await Common.SendWrong(ns);
+                                    await Common.ReveiveEnd(ns);
+                                }
+
+
+
+
+                                ns.Close();
                             }
-                            await ns.WriteAsync(sendData, 0, sendData.Length);
-
-                            var length2 = await Common.ReceiveLength(ns);
-                            await Common.SendLength(length2, ns);
-                            byte[] bytes = new byte[length2];
-                            int bytesRead = await ns.ReadAsync(bytes);
-
-                            if (length2 != bytesRead)
-                            {
-                                throw new Exception("");
-                            }
-                            result = Encoding.UTF8.GetString(bytes, 0, bytesRead);
-                            await Common.SendEnd(ns);
-
-                            ns.Close();
+                        }
+                        else
+                        {
+                            result = $"{roomUrl}连接失败！";
+                            Console.WriteLine("result");
                         }
                     }
                     else
                     {
-                        result = $"{roomUrl}连接失败！";
+                        result = $"{roomUrl}格式错误失败！";
                         Console.WriteLine("result");
+                        throw new Exception($"{result}");
                     }
+                    tc.Client.Dispose();
+                    tc.Client.Close();
+                    tc.Close();
+                }
+                if (isRight)
+                {
+                    break;
                 }
                 else
                 {
-                    result = $"{roomUrl}格式错误失败！";
-                    Console.WriteLine("result");
-                    throw new Exception($"{result}");
+                    Console.WriteLine("md5校验失败");
+                    Console.ReadLine();
                 }
-                tc.Client.Dispose();
-                tc.Client.Close();
-                tc.Close();
             }
-
             var endTime = DateTime.Now;
             Console.WriteLine($"------------------------------------");
             Console.WriteLine($"{sendMsg}响应时间：{(endTime - startTime).TotalSeconds}秒");
@@ -91,6 +155,7 @@ namespace TcpFunction
                 using (TcpClient client = server.AcceptTcpClient())
                 {
                     Console.WriteLine("Connected!");
+                    bool isRight;
                     using (NetworkStream stream = client.GetStream())
                     {
 
@@ -103,9 +168,15 @@ namespace TcpFunction
                         {
                             throw new Exception("length != bytesRead");
                         }
-                        notifyJson = Encoding.UTF8.GetString(bytes, 0, bytesRead);
-                        var outPut = await dealWith(notifyJson);
+                        await Common.SendDataMd5(bytes, stream);
+
+                        isRight = await Common.ReveiveRight(stream);
+
+                        if (isRight)
                         {
+                            notifyJson = Encoding.UTF8.GetString(bytes, 0, bytesRead);
+                            var outPut = await dealWith(notifyJson);
+
                             var sendData = Encoding.UTF8.GetBytes(outPut);
                             await Common.SendLength(sendData.Length, stream);
                             var length2 = await Common.ReceiveLength(stream);
@@ -116,7 +187,31 @@ namespace TcpFunction
                                 throw new Exception(msg);
                             }
                             await stream.WriteAsync(sendData, 0, sendData.Length);
+                            var md5Return = await Common.ReveiveMd5(stream);
+                            var md5Cal = CommonClass.Random.GetMD5HashByteFromBytes(sendData);
+
+                            for (int i = 0; i < 16; i++)
+                            {
+                                if (md5Return[i] == md5Cal[i]) { }
+                                else
+                                {
+                                    isRight = false;
+                                    break;
+                                }
+                            }
+                            if (isRight)
+                            {
+                                await Common.SendRight(stream);
+                            }
+                            else
+                            {
+                                await Common.SendWrong(stream);
+                            }
                             await Common.ReveiveEnd(stream);
+                        }
+                        else
+                        {
+                            await Common.SendEnd(stream);
                         }
                         stream.Close();
                     }
@@ -135,47 +230,86 @@ namespace TcpFunction
             //   Let’s use that to filter the records returned using the netstat command - netstat - ano | findstr 185.190.83.2
             Console.WriteLine($"controllerUrl:{controllerUrl}");
             Console.WriteLine($"json:{json}");
-
-            //  string result;
-            using (TcpClient tc = new TcpClient())
+            for (var i = 0; i < 10000; i++)
             {
-                IPAddress ipa;
-                if (IPAddress.TryParse(controllerUrl.Split(':')[0], out ipa))
+                bool isRight = true;
+                using (TcpClient tc = new TcpClient())
                 {
-                    await tc.ConnectAsync(ipa, int.Parse(controllerUrl.Split(':')[1]));
-                    if (tc.Connected)
+                    IPAddress ipa;
+                    if (IPAddress.TryParse(controllerUrl.Split(':')[0], out ipa))
                     {
-                        using (var ns = tc.GetStream())
+                        await tc.ConnectAsync(ipa, int.Parse(controllerUrl.Split(':')[1]));
+                        if (tc.Connected)
                         {
+                            using (var ns = tc.GetStream())
                             {
-                                var sendData = Encoding.UTF8.GetBytes(json);
-                                await Common.SendLength(sendData.Length, ns);
-                                var length = await Common.ReceiveLength(ns);
-                                if (length == sendData.Length) { }
-                                else
                                 {
-                                    throw new Exception($"length:({length})!= sendData.Length({sendData.Length})");
-                                }
+                                    var sendData = Encoding.UTF8.GetBytes(json);
+                                    await Common.SendLength(sendData.Length, ns);
+                                    var length = await Common.ReceiveLength(ns);
+                                    if (length == sendData.Length) { }
+                                    else
+                                    {
+                                        throw new Exception($"length:({length})!= sendData.Length({sendData.Length})");
+                                    }
 
-                                await ns.WriteAsync(sendData, 0, sendData.Length);
-                                await Common.ReveiveEnd(ns);
+                                    await ns.WriteAsync(sendData, 0, sendData.Length);
+                                    var md5Return = new byte[16];
+                                    await ns.ReadAsync(md5Return, 0, 16);
+                                    var md5Cal = CommonClass.Random.GetMD5HashByteFromBytes(sendData);
+
+                                    for (var j = 0; j < 16; j++)
+                                    {
+                                        if (md5Return[j] == md5Cal[j]) { }
+                                        else
+                                        {
+                                            isRight = false;
+                                            break;
+                                        }
+                                    }
+                                    Console.WriteLine($"结果{isRight}");
+                                    if (isRight)
+                                    {
+                                        await Common.SendRight(ns);
+                                    }
+                                    else
+                                    {
+                                        await Common.SendWrong(ns);
+                                    }
+                                    await Common.ReveiveEnd(ns);
+                                    //var md5 = CommonClass.Random.GetMD5HashByteFromBytes(sendData);
+                                    //await ns.WriteAsync(md5,0, sendData.Length);
+                                }
+                                ns.Close();
                             }
-                            ns.Close();
+                        }
+                        else
+                        {
+                            Console.WriteLine($"{controllerUrl}-连接失败！！！");
                         }
                     }
                     else
                     {
-                        Console.WriteLine($"{controllerUrl}-连接失败！！！");
+                        Console.WriteLine($"{controllerUrl} 有问题！");
                     }
+                    tc.Client.Dispose();
+                    tc.Client.Close();
+                    tc.Close();
+                }
+                if (isRight)
+                {
+                    break;
                 }
                 else
                 {
-                    Console.WriteLine($"{controllerUrl} 有问题！");
+                    Console.WriteLine($"传输数据校验失败,输入任意键继续。");
+                    Console.ReadKey();
                 }
-                tc.Client.Dispose();
-                tc.Client.Close();
-                tc.Close();
             }
+
+
+            //  string result;
+
         }
 
         public delegate Task DealWith(string notifyJson);
@@ -191,6 +325,7 @@ namespace TcpFunction
                 Console.Write("Waiting for a connection... ");
 
                 string notifyJson;
+                bool isRight;
                 using (TcpClient client = server.AcceptTcpClient())
                 {
 
@@ -210,23 +345,12 @@ namespace TcpFunction
 
                             notifyJson = Encoding.UTF8.GetString(bytes, 0, bytesRead);
 
-                            await Common.SendEnd(stream);
-                            //  var md5Received = CommonClass.Random.GetMD5HashByteFromBytes(bytes);
+                            var md5Respon = CommonClass.Random.GetMD5HashByteFromBytes(bytes);
+                            await stream.WriteAsync(md5Respon, 0, 16);
 
-                            //   await stream.WriteAsync(byteMd5, 0, 1);
-                            //for (var i = 0; i < md5Received.Length; i++)
-                            //{
-                            //    byte[] byteMd5 = new byte[1]
-                            //    {
-                            //        md5Received[i]
-                            //    };
-                            //    await stream.WriteAsync(byteMd5, 0, 1);
-                            //    // stream.
-                            //}
-                            // byte[] bytes = new byte[length];
-                            //await Common.SendEnd(stream);
-                            //int k = 0;
-                            //k++;
+                            isRight = await Common.ReveiveRight(stream);
+
+                            await Common.SendEnd(stream);
                         }
                         //  while (!await Common.ReveiveEnd(stream));
 
@@ -238,7 +362,10 @@ namespace TcpFunction
                 }
                 //  client.Client.
                 Console.WriteLine($"notify receive:{notifyJson}");
-                await dealWith(notifyJson);
+                if (isRight)
+                {
+                    await dealWith(notifyJson);
+                }
             }
         }
     }
@@ -270,16 +397,59 @@ namespace TcpFunction
         internal static async Task<bool> ReveiveEnd(NetworkStream ns)
         {
 
-            byte[] bytes = new byte[0];
+            byte[] bytes = new byte[3];
             int bytesRead = await ns.ReadAsync(bytes);
-            return bytesRead == 0;
+            return bytesRead == 3;
         }
 
         //     const byte endByte = 255;
         internal static async Task SendEnd(NetworkStream stream)
         {
-            var sendDataPreviw = new byte[] { };
-            await stream.WriteAsync(sendDataPreviw, 0, 0);
+            var sendDataPreviw = new byte[] { (byte)0, (byte)255, (byte)255 };
+            await stream.WriteAsync(sendDataPreviw, 0, 3);
+        }
+
+        internal static async Task SendRight(NetworkStream stream)
+        {
+            var sendDataPreviw = new byte[] { (byte)129 };
+            await stream.WriteAsync(sendDataPreviw, 0, 1);
+        }
+        internal static async Task SendWrong(NetworkStream stream)
+        {
+            var sendDataPreviw = new byte[] { (byte)130 };
+            await stream.WriteAsync(sendDataPreviw, 0, 1);
+        }
+
+        internal static async Task<bool> ReveiveRight(NetworkStream ns)
+        {
+
+            byte[] bytes = new byte[1];
+            int bytesRead = await ns.ReadAsync(bytes); 
+            if (bytes[0] == (byte)129)
+            {
+                return true;
+            }
+            else if (bytes[0] == (byte)130)
+            {
+                return false;
+            }
+            else
+            {
+                throw new Exception($"传输一个字节{bytes[0]}也报错？");
+            }
+        }
+
+        internal static async Task<byte[]> ReveiveMd5(NetworkStream ns)
+        {
+            var md5Return = new byte[16];
+            await ns.ReadAsync(md5Return, 0, 16);
+            return md5Return;
+        }
+
+        internal static async Task SendDataMd5(byte[] sendData, NetworkStream ns)
+        {
+            var md5 = CommonClass.Random.GetMD5HashByteFromBytes(sendData);
+            await ns.WriteAsync(md5, 0, 16);
         }
     }
 }

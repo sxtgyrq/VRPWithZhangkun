@@ -357,7 +357,22 @@ namespace WsOfWebClient
                                         }
                                     }
                                 }; break;
-
+                            case "Ability":
+                                {
+                                    if (s.Ls == LoginState.OnLine)
+                                    {
+                                        Ability a = Newtonsoft.Json.JsonConvert.DeserializeObject<Ability>(returnResult.result);
+                                        await Room.setCarAbility(s, a);
+                                    }
+                                }; break;
+                            case "SetCarReturn":
+                                {
+                                    if (s.Ls == LoginState.OnLine)
+                                    {
+                                        SetCarReturn scr = Newtonsoft.Json.JsonConvert.DeserializeObject<SetCarReturn>(returnResult.result);
+                                        await Room.setCarReturn(s, scr);
+                                    }
+                                }; break;
                         }
                     }
                     catch (Exception e)
