@@ -93,6 +93,14 @@ namespace HouseManager
                 car.SetAnimateChanged = roomMain.SetAnimateChanged;
                 car.setAnimateData(this, ref notifyMsg, null);
 
+                car.ability.MileChanged = RoomMain.AbilityChanged2_0;
+                car.ability.BusinessChanged = RoomMain.AbilityChanged2_0;
+                car.ability.VolumeChanged = RoomMain.AbilityChanged2_0;
+                car.ability.SpeedChanged = RoomMain.AbilityChanged2_0;
+
+                car.ability.SubsidizeChanged = RoomMain.SubsidizeChanged;
+                car.ability.DiamondInCarChanged = RoomMain.DiamondInCarChanged;
+
                 this._Cars.Add(car);
             }
 
@@ -603,33 +611,83 @@ namespace HouseManager
         public long subsidize
         {
             get { return this._subsidize; }
-            set
-            {
-                if (value < 0)
-                {
-                    throw new Exception("错误的输入");
-                }
-                this._subsidize = value;
-            }
+            //private set
+            //{
+            //    if (value < 0)
+            //    {
+            //        throw new Exception("错误的输入");
+            //    }
+            //    this._subsidize = value;
+            //}
         }
 
+        public delegate void SubsidizeChangedF(Player player, Car car, ref List<string> notifyMsgs, long subsidize);
+        public SubsidizeChangedF SubsidizeChanged;
+        public void setSubsidize(long subsidizeInput, Player player, Car car, ref List<string> notifyMsg)
+        {
+            this._subsidize = subsidizeInput;
+            this.SubsidizeChanged(player, car, ref notifyMsg, this.subsidize);
+            //this._costMiles = costMileInput;
+            //MileChanged(player, car, ref notifyMsg, "mile");
+        }
+
+
         Dictionary<string, List<DateTime>> Data { get; set; }
-        public void AbilityAdd(string pType)
+        public void AbilityAdd(string pType, Player player, Car car, ref List<string> notifyMsg)
         {
             if (this.Data.ContainsKey(pType))
             {
                 this.Data[pType].Add(DateTime.Now);
+                switch (pType)
+                {
+                    case "mile":
+                        {
+                            this.MileChanged(player, car, ref notifyMsg, pType);
+                        }; break;
+                    case "business":
+                        {
+                            this.BusinessChanged(player, car, ref notifyMsg, pType);
+                        }; break;
+                    case "volume":
+                        {
+                            this.VolumeChanged(player, car, ref notifyMsg, pType);
+                        }; break;
+                    case "speed":
+                        {
+                            this.SpeedChanged(player, car, ref notifyMsg, pType);
+                        }; break;
+                }
             }
         }
+
+        string _diamondInCar = "";
+
+        public delegate void DiamondInCarChangedF(Player player, Car car, ref List<string> notifyMsgs, string value);
+
+        public DiamondInCarChangedF DiamondInCarChanged;
         /// <summary>
         /// 车上有没有已经完成的能力提升任务！""代表无，如mile则代表有！
         /// </summary>
-        public string diamondInCar { get; set; }
+        public string diamondInCar { get { return this._diamondInCar; } }
+
+
+        public void setDiamondInCar(string diamondInCarInput, Player player, Car car, ref List<string> notifyMsg)
+        {
+            this._diamondInCar = diamondInCarInput;
+            this.DiamondInCarChanged(player, car, ref notifyMsg, this.diamondInCar);
+        }
+
         DateTime CreateTime { get; set; }
+
+        long _costMiles = 0;
         /// <summary>
         /// 已经花费的里程！
         /// </summary>
-        public long costMiles { get; set; }
+        public long costMiles
+        {
+            get { return _costMiles; }
+
+        }
 
         long _costBusiness = 0;
         /// <summary>
@@ -641,15 +699,15 @@ namespace HouseManager
             {
                 return _costBusiness;
             }
-            set
+            //private set
 
-            {
-                if (value < 0)
-                {
-                    throw new Exception("错误的输入");
-                }
-                this._costBusiness = value;
-            }
+            //{
+            //    if (value < 0)
+            //    {
+            //        throw new Exception("错误的输入");
+            //    }
+            //    this._costBusiness = value;
+            //}
         }
         long _costVolume = 0;
         /// <summary>
@@ -661,15 +719,15 @@ namespace HouseManager
             {
                 return _costVolume;
             }
-            set
+            //private set
 
-            {
-                if (value < 0)
-                {
-                    throw new Exception("错误的输入");
-                }
-                this._costVolume = value;
-            }
+            //{
+            //    if (value < 0)
+            //    {
+            //        throw new Exception("错误的输入");
+            //    }
+            //    this._costVolume = value;
+            //}
         }
         public AbilityAndState()
         {
@@ -689,50 +747,97 @@ namespace HouseManager
                     "speed",new List<DateTime>()
                 }
             };
-            this.costMiles = 0;
-            this.costVolume = 0;
-            this.costBusiness = 0;
-            this.diamondInCar = "";
-            this.subsidize = 0;
+            this._costMiles = 0;//this.costMiles = 0;
+            this._costVolume = 0;//this.costVolume = 0;
+            this._costBusiness = 0;
+            this._diamondInCar = "";
+            this._subsidize = 0; ;
+            //this.costBusiness = 0;
+            //this.diamondInCar = "";
+            //this.subsidize = 0;
         }
         /// <summary>
         /// 刷新时，会更新宝石状况（diamondInCar=""）。
         /// </summary>
-        public void Refresh()
+        public void Refresh(Player player, Car car, ref List<string> notifyMsg)
         {
 
             this.Data["mile"].RemoveAll(item => (item - this.CreateTime).TotalMinutes > 120);
             this.Data["business"].RemoveAll(item => (item - this.CreateTime).TotalMinutes > 120);
             this.Data["volume"].RemoveAll(item => (item - this.CreateTime).TotalMinutes > 120);
             this.Data["speed"].RemoveAll(item => (item - this.CreateTime).TotalMinutes > 120);
-            this.costMiles = 0;
-            this.costBusiness = 0;
-            this.costVolume = 0;
-
-            this.diamondInCar = "";
-            this.subsidize = 0;
+            this._costMiles = 0;
+            this._costBusiness = 0;
+            this._costVolume = 0;
+            MileChanged(player, car, ref notifyMsg, "mile");
+            BusinessChanged(player, car, ref notifyMsg, "business");
+            VolumeChanged(player, car, ref notifyMsg, "volume");
+            SpeedChanged(player, car, ref notifyMsg, "speed");
+            this.setCostMiles(0, player, car, ref notifyMsg);
+            // this.costMiles = 0;
+            this.setCostBusiness(0, player, car, ref notifyMsg);
+            //this.set
+            //this.costBusiness = 0;
+            this.setCostVolume(0, player, car, ref notifyMsg);
+            //this.costVolume = 0;
+            this.setDiamondInCar("", player, car, ref notifyMsg);
+            //  this.diamondInCar = "";
+            this.setSubsidize(0, player, car, ref notifyMsg);
+            //   this.subsidize = 0;
         }
 
+        public delegate void AbilityChangedF(Player player, Car car, ref List<string> notifyMsgs, string pType);
+        public AbilityChangedF MileChanged;
+        public void setCostMiles(long costMileInput, Player player, Car car, ref List<string> notifyMsg)
+        {
+            this._costMiles = costMileInput;
+            MileChanged(player, car, ref notifyMsg, "mile");
+        }
 
+        public AbilityChangedF BusinessChanged;
+        public void setCostBusiness(long costBusinessCostInput, Player player, Car car, ref List<string> notifyMsg)
+        {
+            this._costBusiness = costBusinessCostInput;
+            BusinessChanged(player, car, ref notifyMsg, "business");
+        }
 
+        public AbilityChangedF VolumeChanged;
+        public void setCostVolume(long costVolumeCostInput, Player player, Car car, ref List<string> notifyMsg)
+        {
+            this._costVolume = costVolumeCostInput;
+            VolumeChanged(player, car, ref notifyMsg, "volume");
+        }
+
+        public AbilityChangedF SpeedChanged;
         //internal delegate void AbilityChanged(Player player, Car car, ref List<string> notifyMsgs, string pType);
         /// <summary>
         /// 依次用辅助、business、volume来支付。
         /// </summary>
         /// <param name="needMoney"></param>
-        internal void payForPromote(long needMoney, out bool needToUpdateCostBussiness)
+        internal void payForPromote(long needMoney, Player player, Car car, ref List<string> notifyMsgs)
         {
-            needToUpdateCostBussiness = false;
             var pay1 = Math.Min(needMoney, this.subsidize);
-            this.subsidize -= pay1;
+            // this.subsidize -= pay1;
+
+            var subsidizeNew = this.subsidize - pay1;
+            if (subsidizeNew != this.subsidize)
+            {
+                this.setSubsidize(subsidizeNew, player, car, ref notifyMsgs);
+            }
+
             needMoney -= pay1;
 
             var pay2 = Math.Min(needMoney, this.costBusiness);
-            this.costBusiness -= pay2;
+            // this.costBusiness -= pay2;
+            var costBusinessNew = this.costBusiness - pay2;
+            if (costBusinessNew != this.costBusiness)
+            {
+                this.setCostBusiness(costBusinessNew, player, car, ref notifyMsgs);
+            }
             needMoney -= pay2;
             if (pay2 > 0)
             {
-                needToUpdateCostBussiness = true;
+                //needToUpdateCostBussiness = true;
             }
             /*
              * 在获得能力提升宝石过程中，不可能动costVolume上的钱。

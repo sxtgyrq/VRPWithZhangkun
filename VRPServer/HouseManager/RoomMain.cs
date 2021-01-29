@@ -706,10 +706,10 @@ namespace HouseManager
             for (var i = 0; i < 5; i++)
             {
                 var car = this._Players[key].getCar(i);
-                AbilityChanged(player, car, ref notifyMsg, "business");
-                AbilityChanged(player, car, ref notifyMsg, "volume");
-                AbilityChanged(player, car, ref notifyMsg, "mile");
-                AbilityChanged(player, car, ref notifyMsg, "speed");
+                AbilityChanged2_0(player, car, ref notifyMsg, "business");
+                AbilityChanged2_0(player, car, ref notifyMsg, "volume");
+                AbilityChanged2_0(player, car, ref notifyMsg, "mile");
+                AbilityChanged2_0(player, car, ref notifyMsg, "speed");
             }
             for (var i = 0; i < notifyMsg.Count; i += 2)
             {

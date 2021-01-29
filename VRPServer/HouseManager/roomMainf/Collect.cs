@@ -419,8 +419,10 @@ namespace HouseManager
                      * GetTax 用 costBussiness
                      */
                     selfGet = Math.Max(1, selfGet);
-                    car.ability.costVolume += selfGet;
-                    AbilityChanged(player, car, ref notifyMsg, "volume");
+
+                    //car.ability.costVolume += selfGet;
+                    car.ability.setCostVolume(car.ability.costVolume + selfGet, player, car, ref notifyMsg);
+                    //AbilityChanged(player, car, ref notifyMsg, "volume");
                 }
                 this.collectPosition = this.GetRandomPosition();
                 needUpdateCollectState = true;
@@ -433,8 +435,12 @@ namespace HouseManager
             }
             //收集完，留在原地。
             //var car = this._Players[cmp.key].getCar(cmp.car);
-            car.ability.costMiles += pa.costMile;//
-            AbilityChanged(player, car, ref notifyMsg, "mile");
+            // car.ability.costMiles += pa.costMile;//
+
+            var newCostMile = car.ability.costMiles + pa.costMile;
+            car.ability.setCostMiles(newCostMile, player, car, ref notifyMsg);
+            // AbilityChanged(player, car, ref notifyMsg, "mile");
+
 
             carParkOnRoad(pa.target, ref car, player, ref notifyMsg);
 
@@ -455,6 +461,11 @@ namespace HouseManager
 #warning 如果代码运行至此处，是要报错，并记录的！
                 throw new Exception("");
             }
+        }
+
+        private void AlibityChanged(long m, Player player, Car car, ref List<string> notifyMsg, string pType)
+        {
+            throw new NotImplementedException();
         }
 
 

@@ -338,8 +338,10 @@ namespace HouseManager
             {
                 //确定税收的值
                 var tax = Math.Min(car.ability.leftBusiness, player.TaxInPosition[car.targetFpIndex]);
-                car.ability.costBusiness += tax;
-                AbilityChanged(player, car, ref notifyMsg, "business");
+
+                car.ability.setCostBusiness(car.ability.costBusiness + tax, player, car, ref notifyMsg);
+                //   car.ability.costBusiness += tax;
+                // AbilityChanged(player, car, ref notifyMsg, "business");
 
                 player.TaxInPosition[car.targetFpIndex] -= tax;
 
@@ -348,8 +350,11 @@ namespace HouseManager
                     player.TaxInPosition.Remove(car.targetFpIndex);
                 }
                 printState(player, car, $"{Program.dt.GetFpByIndex(car.targetFpIndex).FastenPositionName}收取{tax}");
-                car.ability.costMiles += pa.costMile;//
-                AbilityChanged(player, car, ref notifyMsg, "mile");
+
+                //car.ability.costMiles += pa.costMile;//
+                car.ability.setCostMiles(car.ability.costMiles + pa.costMile, player, car, ref notifyMsg);
+
+                //AbilityChanged(player, car, ref notifyMsg, "mile");
 
                 carParkOnRoad(pa.target, ref car, player, ref notifyMsg);
                 SendSingleTax(player.Key, car.targetFpIndex, ref notifyMsg);

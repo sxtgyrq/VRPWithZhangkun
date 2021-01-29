@@ -325,8 +325,9 @@ namespace HouseManager
             {
                 var m1 = player.GetMoneyCanSave();
                 player.Money -= needMoney;
-                car.ability.costBusiness = needMoney;
-                AbilityChanged(player, car, ref notifyMsg, "business");
+                car.ability.setCostBusiness(needMoney, player, car, ref notifyMsg);
+                //   car.ability.costBusiness = needMoney;
+                // AbilityChanged(player, car, ref notifyMsg, "business");
 
                 var m2 = player.GetMoneyCanSave();
                 if (m1 != m2)
@@ -684,21 +685,37 @@ namespace HouseManager
                                      * step1用 business 和 volume 先偿还债务！
                                      * s
                                      */
+                                    int k = 0;
                                     do
                                     {
                                         {
                                             var debt = Math.Min(car.ability.costBusiness, player.Debts[dOwner.victim]);
                                             player.Debts[dOwner.victim] -= debt;
-                                            car.ability.costBusiness -= debt;
-                                            AbilityChanged(player, car, ref notifyMsg, "business");
+                                            //car.ability.costBusiness -= debt;
+                                            if (debt > 0)
+                                            {
+                                                car.ability.setCostBusiness(car.ability.costBusiness - debt, player, car, ref notifyMsg);
+                                            }
+
+                                            //AbilityChanged(player, car, ref notifyMsg, "business");
                                         }
                                         {
                                             var debt = Math.Min(car.ability.costVolume, player.Debts[dOwner.victim]);
                                             player.Debts[dOwner.victim] -= debt;
-                                            car.ability.costVolume -= debt;
-                                            AbilityChanged(player, car, ref notifyMsg, "volume");
+                                            //car.ability.costVolume -= debt;
+                                            if (debt > 0)
+                                            {
+                                                car.ability.setCostVolume(car.ability.costVolume - debt, player, car, ref notifyMsg);
+                                            }
+
+                                            //AbilityChanged(player, car, ref notifyMsg, "volume");
                                         }
                                         attackMoney = car.ability.costBusiness + car.ability.costVolume;
+                                        k++;
+                                        if (k > 1000)
+                                        {
+                                            Console.ReadLine();
+                                        }
                                     }
                                     while (attackMoney != 0 && player.Debts[dOwner.victim] != 0);
 
@@ -721,18 +738,26 @@ namespace HouseManager
                                 //}
                                 {
                                     //执行 攻击动作！ 
-                                    if (attackMoney > 0)
+                                    // if (attackMoney > 0)
                                     {
                                         var attack = car.ability.costBusiness;
-                                        victim.AddDebts(player.Key, attack);
-                                        car.ability.costBusiness -= attack;
-                                        AbilityChanged(player, car, ref notifyMsg, "business");
+                                        if (attack > 0)
+                                        {
+                                            victim.AddDebts(player.Key, attack);
+                                            car.ability.setCostBusiness(car.ability.costBusiness - attack, player, car, ref notifyMsg);
+                                        }
+                                        //  car.ability.costBusiness -= attack;
+                                        //AbilityChanged(player, car, ref notifyMsg, "business");
                                     }
                                     {
                                         var attack = car.ability.costVolume;
-                                        victim.AddDebts(player.Key, attack);
-                                        car.ability.costVolume -= attack;
-                                        AbilityChanged(player, car, ref notifyMsg, "volume");
+                                        if (attack > 0)
+                                        {
+                                            victim.AddDebts(player.Key, attack);
+                                            car.ability.setCostVolume(car.ability.costVolume - attack, player, car, ref notifyMsg);
+                                        }
+                                        //car.ability.costVolume -= attack;
+                                        //AbilityChanged(player, car, ref notifyMsg, "volume");
                                     }
                                 }
                                 var m2 = victim.GetMoneyCanSave();

@@ -58,9 +58,8 @@ namespace HouseManager
                                     {
                                         if (player.PromoteDiamondCount[sa.pType] > 0)
                                         {
-                                            car.ability.AbilityAdd(sa.pType);
-                                            player.PromoteDiamondCount[sa.pType]--;
-                                            AbilityChanged(player, car, ref notifyMsg, sa.pType);
+                                            car.ability.AbilityAdd(sa.pType, player, car, ref notifyMsg);
+                                            player.PromoteDiamondCount[sa.pType]--; 
                                             SendPromoteCountOfPlayer(sa.pType, player, ref notifyMsg);
                                         }
                                     }; break;
@@ -92,7 +91,7 @@ namespace HouseManager
         /// <param name="car"></param>
         /// <param name="notifyMsgs"></param>
         /// <param name="pType"></param>
-        static void AbilityChanged(Player player, Car car, ref List<string> notifyMsgs, string pType)
+        public static void AbilityChanged2_0(Player player, Car car, ref List<string> notifyMsgs, string pType)
         {
             var carIndexStr = car.IndexString;
             long costValue = 0;
@@ -133,7 +132,6 @@ namespace HouseManager
             notifyMsgs.Add(player.FromUrl);
             notifyMsgs.Add(json);
         }
-
 
     }
 }

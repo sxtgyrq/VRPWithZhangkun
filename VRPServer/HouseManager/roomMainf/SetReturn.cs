@@ -321,12 +321,12 @@ namespace HouseManager
                         player.PromoteDiamondCount[car.ability.diamondInCar]++;
                         SendPromoteCountOfPlayer(car.ability.diamondInCar, player, ref notifyMsg);
                     }
-                    car.ability.Refresh();
+                    car.ability.Refresh(player, car, ref notifyMsg);
                     car.Refresh(player, ref notifyMsg);
 
-                    AbilityChanged(player, car, ref notifyMsg, "business");
-                    AbilityChanged(player, car, ref notifyMsg, "volume");
-                    AbilityChanged(player, car, ref notifyMsg, "mile");
+                    //AbilityChanged(player, car, ref notifyMsg, "business");
+                    //AbilityChanged(player, car, ref notifyMsg, "volume");
+                    //AbilityChanged(player, car, ref notifyMsg, "mile");
 
                     printState(player, car, "执行了归位");
                     var moneyCanSave2 = player.GetMoneyCanSave();

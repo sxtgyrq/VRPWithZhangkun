@@ -224,7 +224,7 @@ namespace HouseManager
             {
                 player.PromoteDiamondCount[car.ability.diamondInCar]++;
             }
-            car.ability.Refresh();
+            car.ability.Refresh(player, car, ref notifyMsg);
             var m2 = player.GetMoneyCanSave();
             if (m1 != m2)
             {
@@ -259,10 +259,15 @@ namespace HouseManager
                 long moneyFromSupport, moneyFromEarn;
                 player.PayWithSupport(needMoney, out moneyFromSupport, out moneyFromEarn);
 
-                car.ability.subsidize += moneyFromSupport;
-                car.ability.costBusiness += moneyFromEarn;/*这里没有总量限制*/
+                //car.ability.subsidize += moneyFromSupport;
+                if (moneyFromSupport > 0)
+                    car.ability.setSubsidize(car.ability.subsidize + moneyFromSupport, player, car, ref notifyMsg);
+
+                //  car.ability.costBusiness += moneyFromEarn;/*这里没有总量限制*/
                 if (moneyFromEarn > 0)
-                    AbilityChanged(player, car, ref notifyMsg, "business");
+                    car.ability.setCostBusiness(car.ability.costBusiness + moneyFromEarn, player, car, ref notifyMsg);
+                if (moneyFromEarn > 0) { }
+                //AbilityChanged(player, car, ref notifyMsg, "business");
                 // car.ability.getMoneyWithSupport(moneyFromSupport, moneyFromEarn);
 
                 var m2 = player.GetMoneyCanSave();
@@ -361,17 +366,18 @@ namespace HouseManager
                             printState(player, car, $"支付前：subsidize:{car.ability.subsidize},costBusiness:{car.ability.costBusiness},costVolume:{car.ability.costVolume},needMoney:{needMoney}");
 
                             //var costBusiness1 = car.ability.costBusiness;
-                            bool needToUpdateCostBussiness;
-                            car.ability.payForPromote(needMoney, out needToUpdateCostBussiness);//用汽车上的钱支付
-                            if (needToUpdateCostBussiness)
-                                AbilityChanged(player, car, ref notifyMsg, "business");
+                            // bool needToUpdateCostBussiness;
+                            car.ability.payForPromote(needMoney, player, car, ref notifyMsg);//用汽车上的钱支付
+                            //if (needToUpdateCostBussiness)
+                            //    AbilityChanged(player, car, ref notifyMsg, "business");
 
                             printState(player, car, $"支付后：subsidize:{car.ability.subsidize},costBusiness:{car.ability.costBusiness},costVolume:{car.ability.costVolume},needMoney:{needMoney}");
 
                             setPromtePosition(dor.changeType);
                             //this.promoteMilePosition = GetRandomPosition();
                             needUpdatePromoteState = true;
-                            car.ability.diamondInCar = dor.changeType;
+                            car.ability.setDiamondInCar(dor.changeType, player, car, ref notifyMsg);
+                            // car.ability.diamondInCar = dor.changeType;
                             printState(player, car, "执行购买过程！需要立即执行返回！");
                             Thread th = new Thread(() => setReturn(0, new commandWithTime.returnning()
                             {
@@ -389,8 +395,11 @@ namespace HouseManager
                         {
                             Console.WriteLine("由于迟到没有执行购买过程！");
 
-                            car.ability.costMiles += dor.costMile;
-                            AbilityChanged(player, car, ref notifyMsg, "mile");
+                            car.ability.setCostMiles(car.ability.costMiles + dor.costMile, player, car, ref notifyMsg);
+                            //   car.ability.costMiles += dor.costMile;
+
+
+                            //   AbilityChanged(player, car, ref notifyMsg, "mile");
 
                             Console.WriteLine($"{player.PlayerName}的{dor.car}执行完购买宝石过程，由于没有抢到，停在路上,待命中...！");
                             carParkOnRoad(dor.target, ref car, player, ref notifyMsg);
