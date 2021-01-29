@@ -85,7 +85,7 @@ namespace HouseManager
                             {"speed",0 }
                         }
                     });
-                    this._Players[addItem.Key].initializeCars(addItem.CarsNames);
+                    this._Players[addItem.Key].initializeCars(addItem.CarsNames, this);
                     //System.Random rm = new System.Random(DateTime.Now.GetHashCode());
 
                     int fpIndex = this.GetRandomPosition(); // this.rm.Next(0, Program.dt.GetFpCount());

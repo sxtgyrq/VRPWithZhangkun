@@ -383,9 +383,9 @@ namespace HouseManager
                     if (car.ability.leftMile >= goMile + returnMile)
                     {
                         int startT;
-                        EditCarStateWhenAttackStartOK(ref car, to, fp1, sa, goPath, out startT);
+                        EditCarStateWhenAttackStartOK(player, ref car, to, fp1, sa, goPath, out startT, ref notifyMsg);
                         SetAttackArrivalThread(startT, car, sa, returnPath);
-                        getAllCarInfomations(sa.Key, ref notifyMsg);
+                        // getAllCarInfomations(sa.Key, ref notifyMsg);
                         Mrr = MileResultReason.Abundant;
                     }
 
@@ -429,11 +429,12 @@ namespace HouseManager
             th.Start();
         }
 
-        private void EditCarStateWhenAttackStartOK(ref Car car, int to, Model.FastonPosition fp1, SetAttack sa, List<Model.MapGo.nyrqPosition> goPath, out int startT)
+        private void EditCarStateWhenAttackStartOK(Player player, ref Car car, int to, Model.FastonPosition fp1, SetAttack sa, List<Model.MapGo.nyrqPosition> goPath, out int startT, ref List<string> notifyMsg)
         {
             car.targetFpIndex = to;//A.更改小车目标，在其他地方引用。
-            car.purpose = Purpose.attack;//B.更改小车目的，小车变为攻击状态！
-            car.changeState++;//C.更改状态用去前台更新动画  
+            car.setPurpose(this._Players[sa.Key], ref notifyMsg, Purpose.attack);
+            // car.purpose = Purpose.attack;//B.更改小车目的，小车变为攻击状态！
+            //  car.changeState++;//C.更改状态用去前台更新动画  
 
             /*
             * D.更新小车动画参数
@@ -461,16 +462,26 @@ namespace HouseManager
             {
                 throw new Exception("错误的汽车类型！！！");
             }
+            car.setState(this._Players[sa.Key], ref notifyMsg, CarState.roadForAttack);
+            //car.state = CarState.roadForAttack;
+            //  this.SendStateAndPurpose(this._Players[sa.Key], car, ref notifyMsg);
 
-            car.state = CarState.roadForAttack;
 
             Program.dt.GetAFromBPoint(goPath, fp1, speed, ref result, ref startT);
             result.RemoveAll(item => item.t0 == item.t1);
-            car.animateData = new AnimateData()
+
+            var animateData = new AnimateData()
             {
                 animateData = result,
                 recordTime = DateTime.Now
             };
+
+            car.setAnimateData(player, ref notifyMsg, animateData);
+            //car.animateData = new AnimateData()
+            //{
+            //    animateData = result,
+            //    recordTime = DateTime.Now
+            //};
         }
 
         private int getFromWhenAttack(Player player, Car car)

@@ -191,9 +191,9 @@ namespace HouseManager
             if (car.ability.leftMile >= goMile + returnMile)
             {
                 int startT;
-                EditCarStateWhenCollectStartOK(ref car, to, fp1, sc, goPath, out startT);
+                EditCarStateWhenCollectStartOK(player, ref car, to, fp1, sc, goPath, ref notifyMsg, out startT);
                 StartArriavalThread(startT, car, sc, returnPath, goMile);
-                getAllCarInfomations(sc.Key, ref notifyMsg);
+                //  getAllCarInfomations(sc.Key, ref notifyMsg);
                 reason = MileResultReason.Abundant;//返回原因
             }
 
@@ -245,13 +245,16 @@ namespace HouseManager
         /// <param name="fp1"></param>
         /// <param name="sc"></param>
         /// <param name="goPath"></param>
-        private void EditCarStateWhenCollectStartOK(ref Car car, int to, Model.FastonPosition fp1, SetCollect sc, List<Model.MapGo.nyrqPosition> goPath, out int startT)
+        private void EditCarStateWhenCollectStartOK(Player player, ref Car car, int to, Model.FastonPosition fp1, SetCollect sc, List<Model.MapGo.nyrqPosition> goPath, ref List<string> notifyMsg, out int startT)
         {
 
             car.targetFpIndex = to;//A.更改小车目标，在其他地方引用。
-            car.purpose = Purpose.collect;//B.更改小车目的，用户操作控制
-            car.changeState++;//C.更改状态用去前台更新动画   
-
+            car.setPurpose(player, ref notifyMsg, Purpose.collect); //B.更改小车目的，用户操作控制
+                                                                    //car.purpose = Purpose.collect;//B.更改小车目的，用户操作控制
+                                                                    //    car.changeState++;//C.更改状态用去前台更新动画   
+            /*
+             * 步骤C已经封装进 car.setAnimateData
+             */
             /*
              * D.更新小车动画参数
              */
@@ -271,15 +274,22 @@ namespace HouseManager
             {
                 throw new Exception($"未知情况！{Newtonsoft.Json.JsonConvert.SerializeObject(car)}");
             }
-            car.state = CarState.roadForCollect;
+            car.setState(player, ref notifyMsg, CarState.roadForCollect);
+            //car.state = CarState.roadForCollect;
 
             Program.dt.GetAFromBPoint(goPath, fp1, speed, ref result, ref startT);
             result.RemoveAll(item => item.t0 == item.t1);
-            car.animateData = new AnimateData()
+
+            car.setAnimateData(player, ref notifyMsg, new AnimateData()
             {
                 animateData = result,
                 recordTime = DateTime.Now
-            };
+            });
+            //car.animateData = new AnimateData()
+            //{
+            //    animateData = result,
+            //    recordTime = DateTime.Now
+            //};
         }
 
         /// <summary>
@@ -424,19 +434,21 @@ namespace HouseManager
             //收集完，留在原地。
             //var car = this._Players[cmp.key].getCar(cmp.car);
             car.ability.costMiles += pa.costMile;//
-            AbilityChanged(player, car, ref notifyMsg, "mile"); 
+            AbilityChanged(player, car, ref notifyMsg, "mile");
 
-            carParkOnRoad(pa.target, ref car, player);
+            carParkOnRoad(pa.target, ref car, player, ref notifyMsg);
 
             if (car.purpose == Purpose.collect && car.state == CarState.roadForCollect)
             {
-                car.state = CarState.waitForCollectOrAttack;
+                car.setState(player, ref notifyMsg, CarState.waitForCollectOrAttack);
+                //car.state = CarState.waitForCollectOrAttack;
+                //this.SendStateAndPurpose(player, car, ref notifyMsg);
                 //var carKey = $"{pa.car}";
                 this._Players[pa.key].returningRecord[pa.car] = pa.returnPath;
 
                 //第二步，更改状态
-                car.changeState++;
-                getAllCarInfomations(pa.key, ref notifyMsg);
+                //car.changeState++;
+                //getAllCarInfomations(pa.key, ref notifyMsg);
             }
             else
             {

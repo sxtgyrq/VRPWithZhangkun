@@ -78,7 +78,16 @@ namespace CommonClass
         public long costValue { get; set; }
         public long sumValue { get; set; }
     }
-
+    public class BradCarState : CommandNotify
+    { 
+        public string State { get; set; }
+        public string carID { get; set; }
+    }
+    public class BradCarPurpose : CommandNotify
+    {
+        public string Purpose { get; set; } 
+        public string carID { get; set; }
+    }
     public class BradCastCarAbility : CommandNotify
     {
         public object Number { get; set; }
@@ -169,7 +178,7 @@ namespace CommonClass
         public string pType { get; set; }
     }
 
-    public class OrderToReturn : Command 
+    public class OrderToReturn : Command
     {
         public string Key { get; set; }
         public string car { get; set; }

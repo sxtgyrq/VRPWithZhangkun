@@ -11,6 +11,6 @@ namespace HouseManager
         const string AttackFailedReturn = "attack-failed-return";
         const string CollectReturn = "collect-return";
 
-       
+        
     }
 }

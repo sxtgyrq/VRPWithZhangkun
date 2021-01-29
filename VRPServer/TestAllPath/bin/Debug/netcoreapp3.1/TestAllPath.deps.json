@@ -187,6 +187,9 @@
         }
       },
       "TcpFunction/1.0.0": {
+        "dependencies": {
+          "CommonClass": "1.0.0"
+        },
         "runtime": {
           "TcpFunction.dll": {}
         }

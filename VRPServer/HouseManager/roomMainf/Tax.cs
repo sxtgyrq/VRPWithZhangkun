@@ -225,7 +225,7 @@ namespace HouseManager
                 }));
                 th.Start();
 
-                car.changeState++;//更改状态  
+                // car.changeState++;//更改状态  
 
             }
         }
@@ -249,7 +249,9 @@ namespace HouseManager
             {
                 car.targetFpIndex = to;
                 Console.WriteLine($"{car.name}的目标设置成了{Program.dt.GetFpByIndex(to).FastenPositionName}");
-                car.purpose = Purpose.tax;
+
+                car.setPurpose(player, ref notifyMsg, Purpose.tax);
+                //car.purpose = Purpose.tax;
                 var speed = car.ability.Speed;
                 int startT = 0;
                 List<Data.PathResult> result;
@@ -265,14 +267,23 @@ namespace HouseManager
                 {
                     throw new Exception($"未知情况！{Newtonsoft.Json.JsonConvert.SerializeObject(car)}");
                 }
-                car.state = CarState.roadForTax;
+                car.setState(player, ref notifyMsg, CarState.roadForTax);
+                //car.state = CarState.roadForTax;
                 Program.dt.GetAFromBPoint(goPath, fp1, speed, ref result, ref startT);
                 result.RemoveAll(item => item.t0 == item.t1);
-                car.animateData = new AnimateData()
+
+                var animateData = new AnimateData()
                 {
                     animateData = result,
                     recordTime = DateTime.Now
                 };
+                car.setAnimateData(player, ref notifyMsg, animateData);
+
+                //car.animateData = new AnimateData()
+                //{
+                //    animateData = result,
+                //    recordTime = DateTime.Now
+                //};
                 Thread th = new Thread(() => setArrive(startT, new commandWithTime.placeArriving()
                 {
                     c = "placeArriving",
@@ -287,10 +298,11 @@ namespace HouseManager
 
                 reason = MileResultReason.Abundant;
 
-                car.changeState++;//更改状态  
-                car.purpose = Purpose.tax;
+                //   car.changeState++;//更改状态  
+                car.setPurpose(player, ref notifyMsg, Purpose.tax);
+                //car.purpose = Purpose.tax;
 
-                getAllCarInfomations(st.Key, ref notifyMsg);
+                //getAllCarInfomations(st.Key, ref notifyMsg);
             }
 
             else if (car.ability.leftMile >= goMile)
@@ -339,16 +351,17 @@ namespace HouseManager
                 car.ability.costMiles += pa.costMile;//
                 AbilityChanged(player, car, ref notifyMsg, "mile");
 
-                carParkOnRoad(pa.target, ref car, player);
+                carParkOnRoad(pa.target, ref car, player, ref notifyMsg);
                 SendSingleTax(player.Key, car.targetFpIndex, ref notifyMsg);
                 if (car.purpose == Purpose.tax && car.state == CarState.roadForTax)
                 {
-                    car.state = CarState.waitForTaxOrAttack;
+                    car.setState(player, ref notifyMsg, CarState.waitForTaxOrAttack);
+                    //car.state = CarState.waitForTaxOrAttack;
                     this._Players[pa.key].returningRecord[pa.car] = pa.returnPath;
 
                     //第二步，更改状态
-                    car.changeState++;
-                    getAllCarInfomations(pa.key, ref notifyMsg);
+                    //car.changeState++;
+                    //getAllCarInfomations(pa.key, ref notifyMsg);
                 }
             }
         }

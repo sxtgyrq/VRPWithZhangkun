@@ -30,7 +30,7 @@ namespace HouseManager
                 if ((cmp.changeType == "mile" || cmp.changeType == "business" || cmp.changeType == "volume" || cmp.changeType == "speed")
                     && car.state == CarState.buying)
                 {
-                    ReturnThenSetComeBack(car, cmp, ref notifyMsg);
+                    ReturnThenSetComeBack(player, car, cmp, ref notifyMsg);
                 }
                 else if ((cmp.changeType == "mile" || cmp.changeType == "business" || cmp.changeType == "volume" || cmp.changeType == "speed")
                   && car.state == CarState.waitOnRoad)
@@ -39,34 +39,34 @@ namespace HouseManager
                      * 此项对应的条件是在找能力提升宝石过程中，里程不够然后安排返回。
                      * 
                      */
-                    ReturnThenSetComeBack(car, cmp, ref notifyMsg);
+                    ReturnThenSetComeBack(player, car, cmp, ref notifyMsg);
                 }
                 else if (cmp.changeType == CollectReturn && (car.state == CarState.waitForCollectOrAttack || car.state == CarState.waitOnRoad))
                 {
-                    ReturnThenSetComeBack(car, cmp, ref notifyMsg);
+                    ReturnThenSetComeBack(player, car, cmp, ref notifyMsg);
                 }
                 else if (cmp.changeType == "tax-return" && (car.state == CarState.waitForTaxOrAttack || car.state == CarState.waitOnRoad))
                 {
-                    ReturnThenSetComeBack(car, cmp, ref notifyMsg);
+                    ReturnThenSetComeBack(player, car, cmp, ref notifyMsg);
                 }
                 else if (cmp.changeType == "Attack" && car.state == CarState.roadForAttack && car.purpose == Purpose.attack)
                 {
-                    ReturnThenSetComeBack(car, cmp, ref notifyMsg);
+                    ReturnThenSetComeBack(player, car, cmp, ref notifyMsg);
                 }
                 else if (cmp.changeType == AttackFailedReturn)
                 {
-                    ReturnThenSetComeBack(car, cmp, ref notifyMsg);
+                    ReturnThenSetComeBack(player, car, cmp, ref notifyMsg);
                 }
                 else if (cmp.changeType == "sys-return")
                 {
                     //if (car.state == CarState.roadForAttack)
                     {
-                        ReturnThenSetComeBack(car, cmp, ref notifyMsg);
+                        ReturnThenSetComeBack(player, car, cmp, ref notifyMsg);
                     }
                 }
                 else if (cmp.changeType == "orderToReturn")
                 {
-                    ReturnThenSetComeBack(car, cmp, ref notifyMsg);
+                    ReturnThenSetComeBack(player, car, cmp, ref notifyMsg);
                 }
                 else
                 {
@@ -172,8 +172,8 @@ namespace HouseManager
                             changeType = "sys-return",
                         }));
                         th.Start();
-                        car.changeState++;//更改状态   
-                        getAllCarInfomations(keysNeedToClear[i], ref notifyMsg);
+                        //car.changeState++;//更改状态   
+                        //getAllCarInfomations(keysNeedToClear[i], ref notifyMsg);
                     }
                 }
 
@@ -262,7 +262,7 @@ namespace HouseManager
             th.Start();
         }
 
-        private void ReturnThenSetComeBack(Car car, commandWithTime.returnning cmp, ref List<string> notifyMsg)
+        private void ReturnThenSetComeBack(Player player, Car car, commandWithTime.returnning cmp, ref List<string> notifyMsg)
         {
             var speed = car.ability.Speed;
             int startT = 0;
@@ -271,7 +271,8 @@ namespace HouseManager
             getEndPositon(Program.dt.GetFpByIndex(this._Players[cmp.key].StartFPIndex), cmp.car, ref result, ref startT);
             result.RemoveAll(item => item.t0 == item.t1);
 
-            car.state = CarState.returning;
+            car.setState(this._Players[cmp.key], ref notifyMsg, CarState.returning);
+            // car.state = CarState.returning;
             Thread th = new Thread(() => setBack(startT, new commandWithTime.comeBack()
             {
                 c = "comeBack",
@@ -280,15 +281,20 @@ namespace HouseManager
             }));
             th.Start();
 
-
-            car.animateData = new AnimateData()
+            //var player = this._Players[cmp.key];
+            car.setAnimateData(player, ref notifyMsg, new AnimateData()
             {
                 animateData = result,
                 recordTime = DateTime.Now
-            };
+            });
+            //car.animateData = new AnimateData()
+            //{
+            //    animateData = result,
+            //    recordTime = DateTime.Now
+            //};
             //第二步，更改状态
-            car.changeState++;
-            getAllCarInfomations(cmp.key, ref notifyMsg);
+            //car.changeState++;
+            //getAllCarInfomations(cmp.key, ref notifyMsg);
         }
         private async void setBack(int startT, commandWithTime.comeBack comeBack)
         {
@@ -316,7 +322,7 @@ namespace HouseManager
                         SendPromoteCountOfPlayer(car.ability.diamondInCar, player, ref notifyMsg);
                     }
                     car.ability.Refresh();
-                    car.Refresh();
+                    car.Refresh(player, ref notifyMsg);
 
                     AbilityChanged(player, car, ref notifyMsg, "business");
                     AbilityChanged(player, car, ref notifyMsg, "volume");

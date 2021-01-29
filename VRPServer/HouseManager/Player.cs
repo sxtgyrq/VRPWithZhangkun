@@ -65,7 +65,7 @@ namespace HouseManager
             // return this._Cars[carIndex];
         }
         List<Car> _Cars = new List<Car>();
-        internal void initializeCars(string[] carsNames)
+        internal void initializeCars(string[] carsNames, RoomMain roomMain)
         {
             if (carsNames.Length != 5)
             {
@@ -75,17 +75,27 @@ namespace HouseManager
             }
             this._Cars = new List<Car>(5);
             for (var i = 0; i < 5; i++)
-                this._Cars.Add(new Car()
+            {
+                var car = new Car()
                 {
                     name = carsNames[i],
                     ability = new AbilityAndState(),
-                    state = CarState.waitAtBaseStation,
-                    changeState = 0,
                     targetFpIndex = -1,
-                    animateData = null,
-                    purpose = Purpose.@null,
                     carIndex = i + 0
-                });
+                };
+                var notifyMsg = new List<string>();
+                car.SendStateAndPurpose = RoomMain.SendStateOfCar;
+                car.setState(this, ref notifyMsg, CarState.waitAtBaseStation);
+
+                car.SendPurposeOfCar = RoomMain.SendPurposeOfCar;
+                car.setPurpose(this, ref notifyMsg, Purpose.@null);
+
+                car.SetAnimateChanged = roomMain.SetAnimateChanged;
+                car.setAnimateData(this, ref notifyMsg, null);
+
+                this._Cars.Add(car);
+            }
+
             this.Money = intializedMoney;
             this.SupportToPlay = null;
         }
@@ -478,17 +488,55 @@ namespace HouseManager
     }
     public class Car
     {
+        public delegate void SendStateAndPurposeF(Player player, Car car, ref List<string> notifyMsg);
+
+        public delegate void SendPurposeOfCarF(Player player, Car car, ref List<string> notifyMsg);
+
+        public delegate void SetAnimateChangedF(Player player, Car car, ref List<string> notifyMsg);
+
         public string name { get; set; }
         public AbilityAndState ability { get; set; }
 
-        public CarState state { get; set; }
-        public Purpose purpose { get; set; }
+        CarState _state = CarState.waitAtBaseStation;
+
+        public SendStateAndPurposeF SendStateAndPurpose;
+
+
+        public CarState state
+        {
+            get
+            {
+                return this._state;
+            }
+        }
+        public void setState(Player player, ref List<string> notifyMsg, CarState s)
+        {
+            this._state = s;
+            SendStateAndPurpose(player, this, ref notifyMsg);
+
+        }
+
+        public Purpose purpose { get; private set; }
+
+
         /// <summary>
         /// 汽车的目标地点。
         /// </summary>
         public int targetFpIndex { get; set; }
-        public int changeState { get; set; }
-        public AnimateData animateData { get; internal set; }
+
+
+        int _changeState = 0;
+        public int changeState { get { return this._changeState; } }
+        public SetAnimateChangedF SetAnimateChanged;
+        public AnimateData animateData { get; private set; }
+        internal void setAnimateData(Player player, ref List<string> notifyMsg, AnimateData data)
+        {
+            this.animateData = data;
+            this._changeState++;
+            SetAnimateChanged(player, this, ref notifyMsg);
+            //  throw new NotImplementedException();
+        }
+
         public int carIndex { get; internal set; }
 
         internal string IndexString
@@ -526,12 +574,23 @@ namespace HouseManager
             //this._Cars.FindIndex(car);
             //throw new NotImplementedException();
         }
-        internal void Refresh()
+        internal void Refresh(Player player, ref List<string> notifyMsg)
         {
-            this.state = CarState.waitAtBaseStation;
+            this.setState(player, ref notifyMsg, CarState.waitAtBaseStation);
+            //this.state = CarState.waitAtBaseStation;
             this.targetFpIndex = -1;
-            this.purpose = Purpose.@null;
+            this.setPurpose(player, ref notifyMsg, Purpose.@null);
+            //this.purpose = Purpose.@null;
         }
+        public SendPurposeOfCarF SendPurposeOfCar;
+        internal void setPurpose(Player player, ref List<string> notifyMsg, Purpose p)
+        {
+            this.purpose = p;
+            this.SendPurposeOfCar(player, this, ref notifyMsg);
+            //throw new NotImplementedException();
+        }
+
+
     }
     public class AbilityAndState
     {

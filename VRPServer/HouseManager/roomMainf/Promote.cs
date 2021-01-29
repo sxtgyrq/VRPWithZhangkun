@@ -218,7 +218,8 @@ namespace HouseManager
                 player.SupportToPlay.Money += car.ability.subsidize;
                 printState(player, car, $"返回基站，返还资助{car.ability.subsidize}");
             }
-            car.Refresh();
+            car.Refresh(player, ref notifyMsg);
+
             if (!string.IsNullOrEmpty(car.ability.diamondInCar))
             {
                 player.PromoteDiamondCount[car.ability.diamondInCar]++;
@@ -392,7 +393,7 @@ namespace HouseManager
                             AbilityChanged(player, car, ref notifyMsg, "mile");
 
                             Console.WriteLine($"{player.PlayerName}的{dor.car}执行完购买宝石过程，由于没有抢到，停在路上,待命中...！");
-                            carParkOnRoad(dor.target, ref car, player);
+                            carParkOnRoad(dor.target, ref car, player, ref notifyMsg);
 
                             if (this.debug)
                             {
@@ -401,13 +402,12 @@ namespace HouseManager
 
                             if (car.purpose == Purpose.@null && car.state == CarState.buying)
                             {
-                                car.state = CarState.waitOnRoad;
+                                car.setState(player, ref notifyMsg, CarState.waitOnRoad);
+                                //car.state = CarState.waitOnRoad;
 
                                 this._Players[dor.key].returningRecord[dor.car] = dor.returnPath;
 
-                                //第二步，更改状态
-                                car.changeState++;
-                                getAllCarInfomations(dor.key, ref notifyMsg);
+
                             }
                             else
                             {
@@ -468,9 +468,9 @@ namespace HouseManager
             if (car.ability.leftMile >= goMile + returnMile)
             {
                 int startT;
-                EditCarStateWhenPromoteStartOK(ref car, to, fp1, to, sp, goPath, out startT);
+                EditCarStateWhenPromoteStartOK(player, ref car, to, fp1, to, sp, goPath, ref notifyMsg, out startT);
                 StartDiamondOwnerThread(startT, car, sp, returnPath, goMile);
-                getAllCarInfomations(sp.Key, ref notifyMsg);
+                //  getAllCarInfomations(sp.Key, ref notifyMsg);
                 reason = MileResultReason.Abundant;
                 return true;
             }
@@ -505,10 +505,10 @@ namespace HouseManager
             th.Start();
         }
 
-        private void EditCarStateWhenPromoteStartOK(ref Car car, int to, Model.FastonPosition fp1, int to2, SetPromote sp, List<Model.MapGo.nyrqPosition> goPath, out int startT)
+        private void EditCarStateWhenPromoteStartOK(Player player, ref Car car, int to, Model.FastonPosition fp1, int to2, SetPromote sp, List<Model.MapGo.nyrqPosition> goPath, ref List<string> nofityMsgs, out int startT)
         {
             car.targetFpIndex = to;//A.更改小车目标，在其他地方引用。
-            car.changeState++;//B.更改状态用去前台更新动画    
+                                   //  car.changeState++;//B.更改状态用去前台更新动画    
 
             /*
              * C.更新小车动画参数
@@ -539,13 +539,20 @@ namespace HouseManager
             }
             Program.dt.GetAFromBPoint(goPath, fp1, speed, ref result, ref startT);
             result.RemoveAll(item => item.t0 == item.t1);
-            car.animateData = new AnimateData()
+
+            var animateData = new AnimateData()
             {
                 animateData = result,
                 recordTime = DateTime.Now
             };
-
-            car.state = CarState.buying;//更改汽车状态
+            car.setAnimateData(player, ref nofityMsgs, animateData);
+            //car.animateData = new AnimateData()
+            //{
+            //    animateData = result,
+            //    recordTime = DateTime.Now
+            //};
+            car.setState(player, ref nofityMsgs, CarState.buying);
+            //  car.state = CarState.buying;//更改汽车状态
 
             //Thread th = new Thread(() => setDiamondOwner(startT, new commandWithTime.diamondOwner()
             //{
@@ -618,7 +625,7 @@ namespace HouseManager
         }
 
 
-     
+
     }
 }
 
