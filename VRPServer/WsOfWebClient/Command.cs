@@ -71,6 +71,15 @@ namespace WsOfWebClient
     {
         public string car { get; set; }
     }
+
+    public class Donate : CommonClass.Command
+    {
+        //    objMain.ws.send(JSON.stringify({ c: 'Donate', dType: type, address: address }));
+        public string dType { get; set; }
+        public string address { get; set; }
+
+    }
+
     public class Collect1 : CommonClass.Command
     {
         public string cType { get; set; }

@@ -21,5 +21,7 @@ namespace HouseManager
         {
             Console.WriteLine($"DiamondInCarChanged 方法没有编写");
         }
+
+        
     }
 }

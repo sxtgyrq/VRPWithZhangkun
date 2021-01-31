@@ -373,6 +373,14 @@ namespace WsOfWebClient
                                         await Room.setCarReturn(s, scr);
                                     }
                                 }; break;
+                            case "Donate":
+                                {
+                                    if (s.Ls == LoginState.OnLine)
+                                    {
+                                        Donate donate = Newtonsoft.Json.JsonConvert.DeserializeObject<Donate>(returnResult.result);
+                                        await Room.Donate(s, donate);
+                                    }
+                                }; break;
                         }
                     }
                     catch (Exception e)

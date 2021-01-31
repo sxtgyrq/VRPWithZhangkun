@@ -348,12 +348,12 @@ namespace HouseManager
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        private long Magnify(long value)
-        {
-            const long t1 = 105;
-            const long t2 = 100;
-            return value * t1 / t2;
-        }
+        //private long Magnify(long value)
+        //{
+        //    const long t1 = 105;
+        //    const long t2 = 100;
+        //    return value * t1 / t2;
+        //}
         private void arriveThenDoCollect(ref Player player, ref Car car, commandWithTime.placeArriving pa, ref List<string> notifyMsg, out bool needUpdateCollectState)
         {
             needUpdateCollectState = false;
@@ -367,27 +367,29 @@ namespace HouseManager
                 long sumCollect = this.CollectReWard;
                 var selfGet = sumCollect;
                 long sumDebet = 0;
-                foreach (var item in player.Debts)
+
+                var DebtsCopy = player.DebtsCopy;
+                foreach (var item in DebtsCopy)
                 {
-                    sumDebet += item.Value;
+                    sumDebet += player.Magnify(item.Value);
                 }
                 if (sumDebet > 0)
                 {
                     Dictionary<string, long> profiles = new Dictionary<string, long>();
 
-                    long sumDebts = 0;
-                    foreach (var item in player.Debts)
-                    {
-                        sumDebts += Magnify(item.Value);
-                    }
-                    sumDebts += player.Money;
+                    // long sumDebts = 0;
+                    //foreach (var item in DebtsCopy)
+                    //{
+                    //    sumDebts += Magnify(item.Value);
+                    //}
+                    sumDebet += player.Money;
                     sumDebet = Math.Max(1, sumDebet);
 
-                    foreach (var item in player.Debts)
+                    foreach (var item in DebtsCopy)
                     {
                         if (item.Value > 0)
                         {
-                            var profileOfOther = Magnify(item.Value) * sumCollect / sumDebts;
+                            var profileOfOther = player.Magnify(item.Value) * sumCollect / sumDebet;
                             profileOfOther = Math.Max(profileOfOther, 1);
                             profiles.Add(item.Key, profileOfOther);
                             printState(player, car, $"{player.PlayerName}({player.Key})通过收集，在{Program.dt.GetFpByIndex(taxPostion).FastenPositionName}，给{this._Players[item.Key].PlayerName}创造利润");
@@ -402,8 +404,8 @@ namespace HouseManager
                     {
                         if (this._Players.ContainsKey(item.Key))
                         {
-                            this._Players[item.Key].AddTax(taxPostion, item.Value);
-                            SendSingleTax(item.Key, taxPostion, ref notifyMsg);
+                            this._Players[item.Key].AddTax(taxPostion, item.Value, ref notifyMsg);
+                            //   SendSingleTax(item.Key, taxPostion, ref notifyMsg);
                         }
                         else
                         {
@@ -463,10 +465,10 @@ namespace HouseManager
             }
         }
 
-        private void AlibityChanged(long m, Player player, Car car, ref List<string> notifyMsg, string pType)
-        {
-            throw new NotImplementedException();
-        }
+        //private void AlibityChanged(long m, Player player, Car car, ref List<string> notifyMsg, string pType)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
 
 

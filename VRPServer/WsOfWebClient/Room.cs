@@ -525,6 +525,20 @@ namespace WsOfWebClient
             }
         }
 
+        internal static async Task<string> Donate(State s, Donate donate)
+        {
+            var sm = new SaveMoney()
+            {
+                c = "SaveMoney", 
+                Key = s.Key,
+                address = donate.address,
+                dType = donate.dType
+            };
+            var msg = Newtonsoft.Json.JsonConvert.SerializeObject(sm);
+            await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[s.roomIndex], msg);
+            return "";
+        }
+
         internal static async Task<string> setCarAbility(State s, Ability a)
         {
             if (!(a.pType == "mile" || a.pType == "business" || a.pType == "volume" || a.pType == "speed"))

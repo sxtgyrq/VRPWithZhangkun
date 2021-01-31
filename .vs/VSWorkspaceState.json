@@ -2,10 +2,9 @@
   "ExpandedNodes": [
     "",
     "\\VRPServer",
+    "\\VRPServer\\HouseManager",
+    "\\VRPServer\\HouseManager\\roomMainf",
     "\\VRPServer\\Server",
-    "\\VRPServer\\WpfCustomControlLibrary1",
-    "\\VRPServer\\WsOfWebClient",
-    "\\WebFileOnly",
     "\\Webshow",
     "\\Webshow\\WebApplication1"
   ],

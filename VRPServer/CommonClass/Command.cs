@@ -44,7 +44,10 @@ namespace CommonClass
         public long tax { get; set; }
         public int target { get; set; }
     }
-
+    public class MoneyForSaveNotify : CommandNotify
+    {
+        public long MoneyForSave { get; set; }
+    }
     public class BradCastAnimateOfCar : CommandNotify
     {
         public string carID;
@@ -79,13 +82,13 @@ namespace CommonClass
         public long sumValue { get; set; }
     }
     public class BradCarState : CommandNotify
-    { 
+    {
         public string State { get; set; }
         public string carID { get; set; }
     }
     public class BradCarPurpose : CommandNotify
     {
-        public string Purpose { get; set; } 
+        public string Purpose { get; set; }
         public string carID { get; set; }
     }
     public class BradCastCarAbility : CommandNotify
@@ -182,6 +185,12 @@ namespace CommonClass
     {
         public string Key { get; set; }
         public string car { get; set; }
+    }
+    public class SaveMoney : Command
+    {
+        public string Key { get; set; }
+        public string dType { get; set; }
+        public string address { get; set; }
     }
     public class GetTax : Command
     {

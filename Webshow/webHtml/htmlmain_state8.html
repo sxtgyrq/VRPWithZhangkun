@@ -57,7 +57,7 @@
         font-size: 20px;
         color: blue;
         text-shadow: 1px 1px 1px #000000;
-        border-color:deepskyblue;
+        border-color:deepskyblue; 
         ">
         <div style="width: calc(100% - 2px);
         text-align: center;
@@ -249,41 +249,58 @@
             取消
         </div>
     </div>-->
-    <div style="position:absolute;z-index:8;top:calc(50% - 3em);width:24em; left:calc(50% - 6em);height:12em;border:solid 1px red;text-align:center;background:rgba(104, 48, 8, 0.85);color:#83ffff; overflow:hidden;  ">
+    <div style="position:absolute;z-index:8;top:calc(50% - 3em);width:24em; left:calc(50% - 6em);height:auto;border:solid 1px red;text-align:center;background:rgba(104, 48, 8, 0.85);color:#83ffff; overflow:hidden;  ">
+        <table style="width:100%;">
+            <tr>
+                <th>总资金</th>
+                <th>债务</th>
+                <th>可提现</th>
+            </tr>
+            <tr>
+                <td>10000</td>
+                <td>10000</td>
+                <td>10000</td>
+            </tr>
+        </table>
         <div style="
         margin-bottom: 0.25em;
         margin-top: 0.25em;border:1px solid gray;">
 
             <label>
-                --↓↓↓输入比特币地址↓↓↓--
+                --↓↓↓输入1打头的比特币地址↓↓↓--
             </label>
-            <input type="text" style="width:calc(90% - 10px);margin-bottom:0.25em" />
+            <input type="text" style="width:calc(90% - 10px);margin-bottom:0.25em;background:rgba(255, 0, 0, 0.5);" />
         </div>
 
-        <div style="background: yellowgreen;
+        <!--<div style="background: yellowgreen;
         margin-bottom: 0.25em;
         margin-top: 0.25em;">
             存入1/5
+        </div>-->
+        <div style="background: yellowgreen;
+        margin-bottom: 0.25em;
+        margin-top: 0.25em;">
+            捐献一半
         </div>
         <div style="background: yellowgreen;
         margin-bottom: 0.25em;
         margin-top: 0.25em;">
-            存入1/2
+            全部捐献
         </div>
         <div style="background: yellowgreen;
         margin-bottom: 0.25em;
         margin-top: 0.25em;">
-            全部存入
+            取出
         </div>
         <div style="background: yellowgreen;
         margin-bottom: 0.25em;
-        margin-top: 0.25em;">
+        margin-top: 0.25em;" onclick="moneyOperator.add();">
             取消
         </div>
     </div>
     <!--<script src="mainf.js"></script>-->
 
-    <div style="z-index:4;position:absolute;top:4px;right:calc(50% - 100px - 1px);border:double 2px #000000;height:60px;width:200px;font-size:14px;color:white;text-align:center;">
+    <div id="实施" style="z-index:4;position:absolute;top:4px;right:calc(50% - 100px - 1px);border:double 2px #000000;height:60px;width:200px;font-size:14px;color:white;text-align:center;">
         <canvas id="chanleOfCarAbility" style="
     width: 140px;
         height: 60px;

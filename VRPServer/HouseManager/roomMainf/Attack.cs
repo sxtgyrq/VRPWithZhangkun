@@ -323,16 +323,18 @@ namespace HouseManager
             }
             else
             {
-                var m1 = player.GetMoneyCanSave();
-                player.Money -= needMoney;
+                // var m1 = player.GetMoneyCanSave();
+                //player.Money -= needMoney;
+                player.MoneySet(player.Money - needMoney, ref notifyMsg);
+
                 car.ability.setCostBusiness(needMoney, player, car, ref notifyMsg);
                 //   car.ability.costBusiness = needMoney;
                 // AbilityChanged(player, car, ref notifyMsg, "business");
 
-                var m2 = player.GetMoneyCanSave();
-                if (m1 != m2)
+                //  var m2 = player.GetMoneyCanSave();
+                //  if (m1 != m2)
                 {
-                    MoneyCanSaveChanged(player, m2, ref notifyMsg);
+                    // MoneyCanSaveChanged(player, m2, ref notifyMsg);
                 }
                 return true;
             }
@@ -676,9 +678,9 @@ namespace HouseManager
                             var victim = this._Players[dOwner.victim];
                             if (!victim.Bust)
                             {
-                                var m1 = victim.GetMoneyCanSave();
+                                //  var m1 = victim.GetMoneyCanSave();
                                 // var lastDebt = victim.LastDebt;
-                                if (player.Debts.ContainsKey(dOwner.victim))
+                                if (player.DebtsContainsKey(dOwner.victim))
                                 {
 
                                     /*
@@ -689,8 +691,9 @@ namespace HouseManager
                                     do
                                     {
                                         {
-                                            var debt = Math.Min(car.ability.costBusiness, player.Debts[dOwner.victim]);
-                                            player.Debts[dOwner.victim] -= debt;
+                                            var debt = Math.Min(car.ability.costBusiness, player.DebtsGet(dOwner.victim));
+                                            player.SetDebts(dOwner.victim, player.DebtsGet(dOwner.victim) - debt);
+                                            //   player.Debts[dOwner.victim] -= debt;
                                             //car.ability.costBusiness -= debt;
                                             if (debt > 0)
                                             {
@@ -700,8 +703,10 @@ namespace HouseManager
                                             //AbilityChanged(player, car, ref notifyMsg, "business");
                                         }
                                         {
-                                            var debt = Math.Min(car.ability.costVolume, player.Debts[dOwner.victim]);
-                                            player.Debts[dOwner.victim] -= debt;
+                                            //  player.DebtsGet
+                                            var debt = Math.Min(car.ability.costVolume, player.DebtsGet(dOwner.victim));
+                                            player.SetDebts(dOwner.victim, player.DebtsGet(dOwner.victim) - debt);
+                                            //player.Debts[dOwner.victim] -= debt;
                                             //car.ability.costVolume -= debt;
                                             if (debt > 0)
                                             {
@@ -717,11 +722,11 @@ namespace HouseManager
                                             Console.ReadLine();
                                         }
                                     }
-                                    while (attackMoney != 0 && player.Debts[dOwner.victim] != 0);
+                                    while (attackMoney != 0 && player.DebtsGet(dOwner.victim) != 0);
 
-                                    if (player.Debts[dOwner.victim] == 0)
+                                    if (player.DebtsGet(dOwner.victim) == 0)
                                     {
-                                        player.Debts.Remove(dOwner.victim);
+                                        player.DebtsRemove(dOwner.victim);
                                     }
 
                                 }
@@ -743,7 +748,7 @@ namespace HouseManager
                                         var attack = car.ability.costBusiness;
                                         if (attack > 0)
                                         {
-                                            victim.AddDebts(player.Key, attack);
+                                            victim.AddDebts(player.Key, attack, ref notifyMsg);
                                             car.ability.setCostBusiness(car.ability.costBusiness - attack, player, car, ref notifyMsg);
                                         }
                                         //  car.ability.costBusiness -= attack;
@@ -753,17 +758,17 @@ namespace HouseManager
                                         var attack = car.ability.costVolume;
                                         if (attack > 0)
                                         {
-                                            victim.AddDebts(player.Key, attack);
+                                            victim.AddDebts(player.Key, attack, ref notifyMsg);
                                             car.ability.setCostVolume(car.ability.costVolume - attack, player, car, ref notifyMsg);
                                         }
                                         //car.ability.costVolume -= attack;
                                         //AbilityChanged(player, car, ref notifyMsg, "volume");
                                     }
                                 }
-                                var m2 = victim.GetMoneyCanSave();
-                                if (m1 != m2)
+                                //  var m2 = victim.GetMoneyCanSave();
+                                // if (m1 != m2)
                                 {
-                                    MoneyCanSaveChanged(victim, m2, ref notifyMsg);
+                                    //   MoneyCanSaveChanged(victim, m2, ref notifyMsg);
                                 }
 
                             }

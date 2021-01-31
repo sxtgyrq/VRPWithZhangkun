@@ -1474,6 +1474,11 @@ var startA = function () {
                     carAbility.setData(received_obj);
                     carAbility.drawChanel(received_obj.carIndexStr);
                 }; break;
+            case 'MoneyForSaveNotify':
+                {
+                    moneyOperator.MoneyForSave = received_obj.MoneyForSave;
+                    moneyOperator.updateMoneyForSave();
+                }; break;
         }
     };
     ws.onclose = function () {
@@ -3131,7 +3136,11 @@ var drawCarBtns = function () {
                 });
                 addItemToTaskOperatingPanle('收集分红', 'collectTaxBtn', function () {
 
-
+                    showBtnEvent(true);
+                    objMain.Task.state = 'getTax';
+                    objMain.mainF.refreshTaxPanel();
+                    objMain.Task.carSelect = '';
+                    alert('收取税金！');
                     //showBtnEvent(true);
                     //objMain.Task.state = 'collect';
                     //objMain.Task.carSelect = '';
@@ -3224,11 +3233,9 @@ var drawCarBtns = function () {
             });
             addItemToTaskOperatingPanle('打压', 'attackOthersBtn', function () {
                 showBtnEvent(true);
-                objMain.Task.state = 'business'
-                // alert('提升续航');
-                console.log('点击', '提升业务');
+                objMain.Task.state = 'attack';
+                objMain.mainF.refreshAttackPanel();
                 objMain.Task.carSelect = '';
-                objMain.mainF.refreshPromotionDiamondAndPanle(objMain.PromotePositions[objMain.Task.state]);
             });
             addItemToTaskOperatingPanle('召回', 'commandToReturnBtn', function () {
                 showBtnEvent(true);
@@ -3287,7 +3294,27 @@ var SysOperatePanel =
             img.onclick = function () {
                 // alert('打开聊天框');
                 //      dialogSys.show();
+                //alert('弹出对话框');
+                moneyOperator.add();
+            };
+
+            divSysOperatePanel.appendChild(img);
+        }
+        {
+            var img = document.createElement('img');
+            img.id = 'moneySubsidize'
+            img.src = 'Pic/trade.png';
+            img.classList.add('chatdialog');
+            img.style.border = 'solid 1px yellowgreen';
+            img.style.borderRadius = '5px';
+            img.style.height = 'calc(2.5em - 2px)';
+            img.style.width = 'auto';
+            img.style.marginLeft = "0.5em";
+            img.onclick = function () {
+                // alert('打开聊天框');
+                //      dialogSys.show();
                 alert('弹出对话框');
+                //moneyOperator.add();
             };
 
             divSysOperatePanel.appendChild(img);

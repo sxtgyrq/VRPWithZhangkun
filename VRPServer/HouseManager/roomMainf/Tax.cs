@@ -28,56 +28,90 @@ namespace HouseManager
 
             var url = this._Players[key].FromUrl;
             List<TaxWebObj> objs = new List<TaxWebObj>();
-            foreach (var item in this._Players[key].TaxInPosition)
+            var positions = this._Players[key].TaxInPositionForeach();
+            for (var i = 0; i < positions.Count; i++)
             {
+                var tax = this._Players[key].GetTaxByPositionIndex(positions[i]);
                 TaxNotify tn = new TaxNotify()
                 {
                     c = "TaxNotify",
-                    fp = Program.dt.GetFpByIndex(item.Key),
+                    fp = Program.dt.GetFpByIndex(positions[i]),
                     WebSocketID = this._Players[key].WebSocketID,
-                    tax = item.Value,
-                    target = item.Key
+                    tax = tax,
+                    target = positions[i]
                 };
                 var sendMsg = Newtonsoft.Json.JsonConvert.SerializeObject(tn);
                 msgsWithUrl.Add(url);
                 msgsWithUrl.Add(sendMsg);
             }
+            //foreach (var item in this._Players[key].TaxInPosition)
+            //{
+            //    TaxNotify tn = new TaxNotify()
+            //    {
+            //        c = "TaxNotify",
+            //        fp = Program.dt.GetFpByIndex(item.Key),
+            //        WebSocketID = this._Players[key].WebSocketID,
+            //        tax = item.Value,
+            //        target = item.Key
+            //    };
+            //    var sendMsg = Newtonsoft.Json.JsonConvert.SerializeObject(tn);
+            //    msgsWithUrl.Add(url);
+            //    msgsWithUrl.Add(sendMsg);
+            //}
 
 
 
         }
-
-
-        /// <summary>
-        /// 用于向税收受益者传送收益消息。
-        /// </summary>
-        /// <param name="key">一般是税收受益者的key</param>
-        /// <param name="placeIndex">地点ID</param>
-        /// <param name="msgsWithUrl">用于广播消息</param>
-        private void SendSingleTax(string key, int placeIndex, ref List<string> msgsWithUrl)
+        private static void TaxAdded(Player player, int placeIndex, long AddValue, ref List<string> msgsWithUrl)
         {
-            var player = this._Players[key];
-            var url = this._Players[key].FromUrl;
-            List<TaxWebObj> objs = new List<TaxWebObj>();
-            if (this._Players[key].TaxInPosition.ContainsKey(placeIndex))
+            var url = player.FromUrl;
+
+            TaxNotify tn = new TaxNotify()
             {
-                TaxNotify tn = new TaxNotify()
-                {
-                    c = "TaxNotify",
-                    fp = Program.dt.GetFpByIndex(placeIndex),
-                    WebSocketID = this._Players[key].WebSocketID,
-                    tax = this._Players[key].TaxInPosition[placeIndex],
-                    target = placeIndex
-                };
+                c = "TaxNotify",
+                fp = Program.dt.GetFpByIndex(placeIndex),
+                WebSocketID = player.WebSocketID,
+                tax = AddValue,
+                target = placeIndex
+            };
 
-                var sendMsg = Newtonsoft.Json.JsonConvert.SerializeObject(tn);
-                msgsWithUrl.Add(url);
-                msgsWithUrl.Add(sendMsg);
-            }
-
-
-
+            var sendMsg = Newtonsoft.Json.JsonConvert.SerializeObject(tn);
+            msgsWithUrl.Add(url);
+            msgsWithUrl.Add(sendMsg);
+            //  throw new NotImplementedException();
         }
+
+        ///// <summary>
+        ///// 用于向税收受益者传送收益消息。
+        ///// </summary>
+        ///// <param name="key">一般是税收受益者的key</param>
+        ///// <param name="placeIndex">地点ID</param>
+        ///// <param name="msgsWithUrl">用于广播消息</param>
+        //private void SendSingleTax2(string key, int placeIndex, ref List<string> msgsWithUrl)
+        //{
+
+        //    var player = this._Players[key];
+        //    var url = this._Players[key].FromUrl;
+        //    List<TaxWebObj> objs = new List<TaxWebObj>();
+        //    if (this._Players[key].TaxInPosition.ContainsKey(placeIndex))
+        //    {
+        //        TaxNotify tn = new TaxNotify()
+        //        {
+        //            c = "TaxNotify",
+        //            fp = Program.dt.GetFpByIndex(placeIndex),
+        //            WebSocketID = this._Players[key].WebSocketID,
+        //            tax = this._Players[key].TaxInPosition[placeIndex],
+        //            target = placeIndex
+        //        };
+
+        //        var sendMsg = Newtonsoft.Json.JsonConvert.SerializeObject(tn);
+        //        msgsWithUrl.Add(url);
+        //        msgsWithUrl.Add(sendMsg);
+        //    }
+
+
+
+        //}
 
 
         internal async Task<string> updateTax(SetTax st)
@@ -98,7 +132,7 @@ namespace HouseManager
                 {
                     if (this._Players.ContainsKey(st.Key))
                     {
-                        if (this._Players[st.Key].TaxInPosition.ContainsKey(st.target))
+                        if (this._Players[st.Key].TaxContainsKey(st.target))
                         {
                             var player = this._Players[st.Key];
                             var car = this._Players[st.Key].getCar(carIndex);
@@ -329,26 +363,27 @@ namespace HouseManager
             {
                 throw new Exception("这个地点应该是执行税收和即将要等待的地点！");
             }
-            if (player.TaxInPosition.ContainsKey(car.targetFpIndex)) { }
+            if (player.TaxContainsKey(car.targetFpIndex)) { }
             else
             {
                 throw new Exception("没有判断是否包含地点");
             }
-            if (player.TaxInPosition[car.targetFpIndex] > 0)
+            if (player.GetTaxByPositionIndex(car.targetFpIndex) > 0)
             {
                 //确定税收的值
-                var tax = Math.Min(car.ability.leftBusiness, player.TaxInPosition[car.targetFpIndex]);
+                var tax = Math.Min(car.ability.leftBusiness, player.GetTaxByPositionIndex(car.targetFpIndex));
 
                 car.ability.setCostBusiness(car.ability.costBusiness + tax, player, car, ref notifyMsg);
                 //   car.ability.costBusiness += tax;
                 // AbilityChanged(player, car, ref notifyMsg, "business");
 
-                player.TaxInPosition[car.targetFpIndex] -= tax;
+               // player.TaxInPosition[car.targetFpIndex] -= tax;
+                player.SetTaxByPositionIndex(car.targetFpIndex, player.GetTaxByPositionIndex(car.targetFpIndex) - tax, ref notifyMsg);
 
-                if (player.TaxInPosition[car.targetFpIndex] == 0)
-                {
-                    player.TaxInPosition.Remove(car.targetFpIndex);
-                }
+                //if (player.TaxInPosition[car.targetFpIndex] == 0)
+                //{
+                //    player.TaxInPosition.Remove(car.targetFpIndex);
+                //}
                 printState(player, car, $"{Program.dt.GetFpByIndex(car.targetFpIndex).FastenPositionName}收取{tax}");
 
                 //car.ability.costMiles += pa.costMile;//
@@ -357,7 +392,7 @@ namespace HouseManager
                 //AbilityChanged(player, car, ref notifyMsg, "mile");
 
                 carParkOnRoad(pa.target, ref car, player, ref notifyMsg);
-                SendSingleTax(player.Key, car.targetFpIndex, ref notifyMsg);
+                //  SendSingleTax(player.Key, car.targetFpIndex, ref notifyMsg);
                 if (car.purpose == Purpose.tax && car.state == CarState.roadForTax)
                 {
                     car.setState(player, ref notifyMsg, CarState.waitForTaxOrAttack);

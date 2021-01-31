@@ -100,6 +100,7 @@ namespace HouseManager
 
         internal async void ClearPlayers()
         {
+            return;
             List<string> notifyMsg = new List<string>();
             lock (this.PlayerLock)
             {
@@ -140,9 +141,9 @@ namespace HouseManager
                             {
                                 this._Players[keysOfAll[j]].others.Remove(keysNeedToClear[i]);
                             }
-                            if (this._Players[keysOfAll[j]].Debts.ContainsKey(keysNeedToClear[i]))
+                            if (this._Players[keysOfAll[j]].DebtsContainsKey(keysNeedToClear[i]))
                             {
-                                this._Players[keysOfAll[j]].Debts.Remove(keysNeedToClear[i]);
+                                this._Players[keysOfAll[j]].DebtsRemove(keysNeedToClear[i]);
                             }
 
                         }
@@ -306,11 +307,11 @@ namespace HouseManager
                 var car = player.getCar(comeBack.car);
                 if (car.state == CarState.returning)
                 {
-                    var moneyCanSave1 = player.GetMoneyCanSave();
-                    player.Money += car.ability.costBusiness;
+                    //  var moneyCanSave1 = player.GetMoneyCanSave();
 
-
-                    player.Money += car.ability.costVolume;
+                    player.MoneySet(player.Money + car.ability.costBusiness + car.ability.costVolume, ref notifyMsg);
+                    //player.Money += car.ability.costBusiness;
+                    //player.Money += car.ability.costVolume;
 
                     if (car.ability.subsidize > 0)
                     {
@@ -329,10 +330,10 @@ namespace HouseManager
                     //AbilityChanged(player, car, ref notifyMsg, "mile");
 
                     printState(player, car, "执行了归位");
-                    var moneyCanSave2 = player.GetMoneyCanSave();
-                    if (moneyCanSave1 != moneyCanSave2)
+                    //  var moneyCanSave2 = player.GetMoneyCanSave();
+                    //if (moneyCanSave1 != moneyCanSave2)
                     {
-                        MoneyCanSaveChanged(player, moneyCanSave2, ref notifyMsg);
+                        // MoneyCanSaveChanged(player, moneyCanSave2, ref notifyMsg);
                     }
                 }
                 else
@@ -351,17 +352,6 @@ namespace HouseManager
             }
         }
 
-        private void MoneyCanSaveChanged(Player player, long Money, ref List<string> msgsWithUrl)
-        {
-            var obj = new BradCastMoneyForSave
-            {
-                c = "BradCastMoneyForSave",
-                Money = Money,
-                WebSocketID = player.WebSocketID
-            };
-            var json = Newtonsoft.Json.JsonConvert.SerializeObject(obj);
-            msgsWithUrl.Add(player.FromUrl);
-            msgsWithUrl.Add(json);
-        }
+        
     }
 }

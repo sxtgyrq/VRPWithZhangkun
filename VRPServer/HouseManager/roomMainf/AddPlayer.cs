@@ -64,10 +64,10 @@ namespace HouseManager
                             {"speed",-1 }
                         },
                         Collect = -1,
-                        Debts = new Dictionary<string, long>(),
-                        Money = 500 * 100,
+                        //Debts = new Dictionary<string, long>(),
+                        //Money = 500 * 100,
                         Bust = false,
-                        TaxInPosition = new Dictionary<int, long>(),
+                        //TaxInPosition = new Dictionary<int, long>(),
                         returningRecord = new Dictionary<string, List<Model.MapGo.nyrqPosition>>()
                         {
                             {"carA",new List<Model.MapGo.nyrqPosition>() },
@@ -92,6 +92,22 @@ namespace HouseManager
 
                     this._FpOwner.Add(fpIndex, addItem.Key);
                     this._Players[addItem.Key].StartFPIndex = fpIndex;
+
+                    this._Players[addItem.Key].TaxChanged = RoomMain.TaxAdded;
+                    this._Players[addItem.Key].TaxInPositionInit();// = RoomMain.TaxAdded;
+                    this._Players[addItem.Key].InitializeDebt();
+
+                    //SetMoneyCanSave 在InitializeDebt 之后，MoneySet之前
+                    this._Players[addItem.Key].SetMoneyCanSave = RoomMain.SetMoneyCanSave;
+                    this._Players[addItem.Key].MoneyChanged = RoomMain.MoneyChanged;
+                    var notifyMsgs = new List<string>();
+                    this._Players[addItem.Key].MoneySet(500 * 100, ref notifyMsgs);
+
+
+
+
+                    // this._Players[addItem.Key].Money
+
                 }
             }
 
@@ -106,5 +122,7 @@ namespace HouseManager
             }
             //  throw new NotImplementedException();
         }
+
+
     }
 }

@@ -595,15 +595,18 @@ namespace HouseManager
                     OpenMore = this._Players[getPosition.Key].OpenMore;
 
                     var player = this._Players[getPosition.Key];
-                    var m2 = player.GetMoneyCanSave();
-                    MoneyCanSaveChanged(player, m2, ref notifyMsgs);
+                    //var m2 = player.GetMoneyCanSave();
+
+                    //    MoneyCanSaveChanged(player, m2, ref notifyMsgs);
 
                     SendPromoteCountOfPlayer("mile", player, ref notifyMsgs);
                     SendPromoteCountOfPlayer("business", player, ref notifyMsgs);
                     SendPromoteCountOfPlayer("volume", player, ref notifyMsgs);
                     SendPromoteCountOfPlayer("speed", player, ref notifyMsgs);
 
-
+                    player.SetMoneyCanSave(player, ref notifyMsgs);
+                    //player.this._Players[addItem.Key].SetMoneyCanSave = RoomMain.SetMoneyCanSave;
+                    //MoneyCanSaveChanged(player, player.MoneyForSave, ref notifyMsgs);
 
                     result = new GetPositionResult()
                     {

@@ -10,6 +10,8 @@ namespace HouseManager
         /// 玩家初始携带金额，单位分。
         /// </summary>
         const long intializedMoney = 50000;
+
+
         public string Key { get; internal set; }
         public string FromUrl { get; internal set; }
         public int WebSocketID { get; internal set; }
@@ -103,8 +105,8 @@ namespace HouseManager
 
                 this._Cars.Add(car);
             }
-
-            this.Money = intializedMoney;
+            this._Money = intializedMoney;
+            // this.Money = intializedMoney;
             this.SupportToPlay = null;
         }
 
@@ -116,7 +118,21 @@ namespace HouseManager
         public Dictionary<string, int> PromoteState { get; set; }
         public int Collect { get; internal set; }
 
+        internal void TaxInPositionInit()
+        {
+            this.TaxInPosition = new Dictionary<int, long>();
+        }
+
+        public delegate void MoneyChangedF(Player player, long money, ref List<string> msgsWithUrl);
+        public MoneyChangedF MoneyChanged;
         long _Money = 0;
+
+        internal void InitializeDebt()
+        {
+            this.Debts = new Dictionary<string, long>();
+            //throw new NotImplementedException();
+        }
+
         /// <summary>
         /// 单位是分
         /// </summary>
@@ -126,15 +142,26 @@ namespace HouseManager
             {
                 return this._Money;
             }
-            set
-            {
-                if (value < 0)
-                {
-                    throw new Exception("金钱怎么能负，为何不做判断？");
-                }
-                this._Money = value;
-            }
+            //set
+            //{
+            //    if (value < 0)
+            //    {
+            //        throw new Exception("金钱怎么能负，为何不做判断？");
+            //    }
+            //    this._Money = value;
+            //}
         }
+        public void MoneySet(long value, ref List<string> notifyMsg)
+        {
+            if (value < 0)
+            {
+                throw new Exception("金钱怎么能负，为何不做判断？");
+            }
+            this._Money = value;
+            MoneyChanged(this, this.Money, ref notifyMsg);
+            this.SetMoneyCanSave(this, ref notifyMsg);
+        }
+
         /// <summary>
         /// 可用于攻击的金钱。
         /// </summary>
@@ -145,6 +172,12 @@ namespace HouseManager
                 return this.LastMoneyCanUseForAttack;
             }
         }
+
+        internal bool TaxContainsKey(int target)
+        {
+            return this.TaxInPosition.ContainsKey(target);
+        }
+
         /// <summary>
         /// 玩家，总债务！
         /// </summary>
@@ -205,7 +238,7 @@ namespace HouseManager
         /// <param name="needMoney">总共需要的钱</param>
         /// <param name="moneyFromSupport">用于扶持的钱</param>
         /// <param name="moneyFromEarn">从自己腰包里掏出的钱</param>
-        internal void PayWithSupport(long needMoney, out long moneyFromSupport, out long moneyFromEarn)
+        internal void PayWithSupport(long needMoney, out long moneyFromSupport, out long moneyFromEarn, ref List<string> notifyMsg)
         {
             if (this.SupportToPlay != null)
             {
@@ -219,22 +252,52 @@ namespace HouseManager
             moneyFromEarn = needMoney - moneyFromSupport;
             if (this.SupportToPlay != null)
                 this.SupportToPlay.Money -= moneyFromSupport;
-            this.Money -= moneyFromEarn;
+            if (moneyFromEarn > 0)
+            {
+                this.MoneySet(this.Money - moneyFromEarn, ref notifyMsg);
+            }
+            //this.Money -= moneyFromEarn;
         }
         /// <summary>
         /// 玩家欠其他玩家的债！
         /// </summary>
-        public Dictionary<string, long> Debts { get; set; }
+        private Dictionary<string, long> Debts { get; set; }
 
+        internal Dictionary<string, long> DebtsCopy
+        {
+            get
+            {
+                var result = new Dictionary<string, long>();
+                foreach (var item in this.Debts)
+                {
+                    result.Add(item.Key + "", item.Value + 0);
+                }
+                return result;
+            }
+        }
 
         /// <summary>
         /// 用于计算破产相关参数
         /// </summary>
-        const long brokenParameterT2 = 100;
+        long brokenParameterT2
+        {
+            get { return 100; }
+        }
+        long brokenParameterT1Value = 90;
         /// <summary>
         /// 用于计算破产相关参数
         /// </summary>
-        const long brokenParameterT1 = 120;
+        public long brokenParameterT1
+        {
+            get
+            {
+                return brokenParameterT1Value;
+            }
+            private set
+            {
+                brokenParameterT1Value = value;
+            }
+        }
         ///// <summary>
         ///// 返回使玩家破产需要的资金！
         ///// </summary>
@@ -281,8 +344,12 @@ namespace HouseManager
         {
             get; set;
         }
-
-        internal void AddDebts(string key, long attack)
+        internal bool DebtsContainsKey(string key)
+        {
+            return this.Debts.ContainsKey(key);
+            //  throw new NotImplementedException();
+        }
+        internal void AddDebts(string key, long attack, ref List<string> notifyMsg)
         {
             if (key == this.Key)
             {
@@ -296,12 +363,49 @@ namespace HouseManager
             {
                 this.Debts.Add(key, attack);
             }
+            SetMoneyCanSave(this, ref notifyMsg);
+            // SetMoneyCanSave(ref notifyMsg);
         }
 
         /// <summary>
         /// 表征玩家在某一地点能,key是地点，long是金钱（分）
         /// </summary>
-        internal Dictionary<int, long> TaxInPosition { get; set; }
+        Dictionary<int, long> TaxInPosition { get; set; }
+        public long GetTaxByPositionIndex(int position)
+        {
+            return this.TaxInPosition[position];
+        }
+        public void SetTaxByPositionIndex(int taxPostion, long taxValue, ref List<string> notifyMsg)
+        {
+            if (this.TaxInPosition.ContainsKey(taxPostion))
+            {
+                this.TaxInPosition[taxPostion] = taxValue;
+            }
+            else
+            {
+                this.TaxInPosition.Add(taxPostion, taxValue);
+            }
+            TaxChanged(this, taxPostion, this.TaxInPosition[taxPostion], ref notifyMsg);
+            if (this.TaxInPosition[taxPostion] == 0)
+            {
+                this.TaxInPosition.Remove(taxPostion);
+            }
+            else if (this.TaxInPosition[taxPostion] < 0)
+            {
+                throw new Exception("错误！");
+            }
+        }
+        public List<int> TaxInPositionForeach()
+        {
+
+            List<int> result = new List<int>();
+            foreach (var item in this.TaxInPosition)
+            {
+                result.Add(item.Key);
+            }
+            return result;
+        }
+
         DateTime _BustTime { get; set; }
         public DateTime BustTime
         {
@@ -336,7 +440,7 @@ namespace HouseManager
         /// </summary>
         /// <param name="taxPostion">地点</param>
         /// <param name="taxValue">待收税金（分）</param>
-        internal void AddTax(int taxPostion, long taxValue)
+        internal void AddTax(int taxPostion, long taxValue, ref List<string> notifyMsg)
         {
             if (this.TaxInPosition.ContainsKey(taxPostion))
             {
@@ -346,12 +450,30 @@ namespace HouseManager
             {
                 this.TaxInPosition.Add(taxPostion, taxValue);
             }
+            if (taxValue > 0)
+            {
+                TaxChanged(this, taxPostion, this.TaxInPosition[taxPostion], ref notifyMsg);
+            }
         }
 
-        internal long GetMoneyCanSave()
+        public long MoneyForSave
         {
-            return Math.Max(0, this.Money - 500 - this.sumDebets * brokenParameterT1 / brokenParameterT2 * 2);
+            get
+            {
+                return Math.Max(0, this.Money - intializedMoney - this.sumDebets * brokenParameterT1 / brokenParameterT2 * 2);
+            }
         }
+        public delegate void SetMoneyCanSaveF(Player player, ref List<string> notifyMsg);
+        public SetMoneyCanSaveF SetMoneyCanSave;
+        //{
+        //    var newValue = Math.Max(0, this.Money - intializedMoney - this.sumDebets * brokenParameterT1 / brokenParameterT2 * 2);
+        //    if (newValue == MoneyForSave) { }
+        //    else
+        //    {
+        //        MoneyForSave = newValue;
+        //    }
+        //    //   return Math.Max(0, this.Money - intializedMoney - this.sumDebets * brokenParameterT1 / brokenParameterT2 * 2);
+        //}
 
         internal Dictionary<string, List<Model.MapGo.nyrqPosition>> returningRecord { get; set; }
 
@@ -365,7 +487,40 @@ namespace HouseManager
         /// </summary>
         public Dictionary<string, int> PromoteDiamondCount { get; set; }
 
+        public delegate void TaxChangedF(Player player, int Position, long AddValue, ref List<string> msgsWithUrl);
+        public TaxChangedF TaxChanged { get; internal set; }
 
+        internal long DebtsGet(string key)
+        {
+            return this.Debts[key];
+        }
+
+        internal void SetDebts(string key, long v)
+        {
+            this.Debts[key] = v;
+        }
+
+        internal void DebtsRemove(string key)
+        {
+            this.Debts.Remove(key);
+        }
+
+        /// <summary>
+        /// 此方法，用于债务放大权益（包括收益、债务重组）
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        //private long Magnify(long value)
+        //{
+        //    const long t1 = 105;
+        //    const long t2 = 100;
+        //    return value * t1 / t2;
+        //}
+        internal long Magnify(long value)
+        {
+            return value * this.brokenParameterT1 / this.brokenParameterT2;
+            throw new NotImplementedException();
+        }
     }
     public class OtherPlayers
     {

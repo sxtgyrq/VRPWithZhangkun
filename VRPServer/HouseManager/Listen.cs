@@ -82,6 +82,7 @@ namespace HouseManager
                             var result = BaseInfomation.rm.Monitor(all);
                             return result;
                         }; break;
+
                 }
             }
             return outPut;
@@ -218,6 +219,12 @@ namespace HouseManager
                                 await BaseInfomation.rm.OrderToReturn(otr);
                                 outPut = "ok";
                             }; break;
+                        case "SaveMoney": 
+                            {
+                                CommonClass.SaveMoney saveMoney = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.SaveMoney>(notifyJson);
+                                await BaseInfomation.rm.SaveMoney(saveMoney);
+                                outPut = "ok";
+                            };break;
                     }
                 }
             }

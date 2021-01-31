@@ -202,9 +202,10 @@ namespace HouseManager
         /// <param name="car"></param>
         private void giveMoneyFromCarToPlayer(Player player, Car car, ref List<string> notifyMsg)
         {
-            var m1 = player.GetMoneyCanSave();
-            player.Money += car.ability.leftBusiness;
-            player.Money += car.ability.leftVolume;
+            //   var m1 = player.GetMoneyCanSave();
+            player.MoneySet(player.Money + car.ability.leftBusiness + car.ability.leftVolume, ref notifyMsg);
+            //player.Money += car.ability.leftBusiness;
+            //player.Money += car.ability.leftVolume;
 
             if (car.ability.leftBusiness > 0)
                 printState(player, car, $"返回基站，通过leftBusiness，是流动资金增加{car.ability.leftBusiness}");
@@ -225,10 +226,10 @@ namespace HouseManager
                 player.PromoteDiamondCount[car.ability.diamondInCar]++;
             }
             car.ability.Refresh(player, car, ref notifyMsg);
-            var m2 = player.GetMoneyCanSave();
-            if (m1 != m2)
+            //  var m2 = player.GetMoneyCanSave();
+            //  if (m1 != m2)
             {
-                MoneyCanSaveChanged(player, m2, ref notifyMsg);
+                // MoneyCanSaveChanged(player, m2, ref notifyMsg);
             }
         }
 
@@ -254,10 +255,10 @@ namespace HouseManager
             }
             else
             {
-                var m1 = player.GetMoneyCanSave();
+                //     var m1 = player.GetMoneyCanSave();
 
                 long moneyFromSupport, moneyFromEarn;
-                player.PayWithSupport(needMoney, out moneyFromSupport, out moneyFromEarn);
+                player.PayWithSupport(needMoney, out moneyFromSupport, out moneyFromEarn, ref notifyMsg);
 
                 //car.ability.subsidize += moneyFromSupport;
                 if (moneyFromSupport > 0)
@@ -270,10 +271,10 @@ namespace HouseManager
                 //AbilityChanged(player, car, ref notifyMsg, "business");
                 // car.ability.getMoneyWithSupport(moneyFromSupport, moneyFromEarn);
 
-                var m2 = player.GetMoneyCanSave();
-                if (m1 != m2)
+                //  var m2 = player.GetMoneyCanSave();
+                //  if (m1 != m2)
                 {
-                    MoneyCanSaveChanged(player, m2, ref notifyMsg);
+                    // MoneyCanSaveChanged(player, m2, ref notifyMsg);
                 }
                 return true;
             }
