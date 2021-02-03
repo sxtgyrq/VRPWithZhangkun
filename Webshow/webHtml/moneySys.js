@@ -61,24 +61,19 @@
         var that = moneyOperator;
         if (that.MoneyForSave > 0) {
             var bitcoinAddressInput = document.getElementById('bitcoinAddressInput');
-            var checkResult = yrqCheckBitcoinF(bitcoinAddressInput.value);
+            var checkResult = yrqCheckAddress(bitcoinAddressInput.value);
             if (checkResult) {
-                if (checkResult.type == 'p2pkh') {
-                    var address = bitcoinAddressInput.value;
-                    objMain.ws.send(JSON.stringify({ c: 'Donate', dType: type, address: address }));
-                    return;
-                }
-                else {
-                    alert('请输入1打头的地址，暂不支持3打头的！');
-                }
+                var address = bitcoinAddressInput.value;
+                objMain.ws.send(JSON.stringify({ c: 'Donate', dType: type, address: address }));
+                return;
+
             }
             else {
                 alert('请输入正确的比特币地址');
                 //   bitcoinAddressInput.style.background = 'background:rgba(127, 255, 127, 1);';
             }
         }
-        else
-        {
+        else {
             alert('您没有捐献的钱！');
         }
         // bitcoinAddressInput.style.background = 'rgba(255, 127, 127, 0.5)';
@@ -89,12 +84,9 @@
     },
     checkBitcoinAddress: function () {
         var bitcoinAddressInput = document.getElementById('bitcoinAddressInput');
-        var checkResult = yrqCheckBitcoinF(bitcoinAddressInput.value);
+        var checkResult = yrqCheckAddress(bitcoinAddressInput.value);
         if (checkResult) {
-            if (checkResult.type == 'p2pkh') {
-                bitcoinAddressInput.style.background = 'rgba(127, 255, 127, 1)';
-                return;
-            }
+            bitcoinAddressInput.style.background = 'rgba(127, 255, 127, 1)';
         }
         else {
             //   bitcoinAddressInput.style.background = 'background:rgba(127, 255, 127, 1);';

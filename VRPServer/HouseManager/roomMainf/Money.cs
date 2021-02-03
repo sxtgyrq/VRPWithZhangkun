@@ -95,8 +95,9 @@ namespace HouseManager
 
             if (money > 0)
             {
-                Thread th = new Thread(() => DalOfAddress.MoneyAdd.AddMoney(saveMoney.address, money));
-                th.Start();
+                DalOfAddress.MoneyAdd.AddMoney(saveMoney.address, money);
+                //Thread th = new Thread(() => );
+                //th.Start();
             }
             return "";
         }

@@ -3303,7 +3303,7 @@ var SysOperatePanel =
         {
             var img = document.createElement('img');
             img.id = 'moneySubsidize'
-            img.src = 'Pic/trade.png';
+            img.src = 'Pic/subsidize.png';
             img.classList.add('chatdialog');
             img.style.border = 'solid 1px yellowgreen';
             img.style.borderRadius = '5px';
@@ -3313,7 +3313,8 @@ var SysOperatePanel =
             img.onclick = function () {
                 // alert('打开聊天框');
                 //      dialogSys.show();
-                alert('弹出对话框');
+                //alert('弹出对话框');
+                subsidizeSys.add();
                 //moneyOperator.add();
             };
 
