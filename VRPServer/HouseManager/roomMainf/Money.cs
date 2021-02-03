@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HouseManager
@@ -46,6 +47,8 @@ namespace HouseManager
 
         internal async Task<string> SaveMoney(SaveMoney saveMoney)
         {
+            // var doSaveMoney = false;
+            long money = 0;
             List<string> notifyMsg = new List<string>();
             lock (this.PlayerLock)
             {
@@ -59,13 +62,21 @@ namespace HouseManager
                         {
                             case "half":
                                 {
-                                    var money = this._Players[saveMoney.Key].MoneyForSave / 2;
-                                    player.MoneySet(player.Money - money, ref notifyMsg);
+                                    money = this._Players[saveMoney.Key].MoneyForSave / 2;
+                                    if (money > 0)
+                                    {
+                                        //  doSaveMoney = true;
+                                        player.MoneySet(player.Money - money, ref notifyMsg);
+                                    }
                                 }; break;
                             case "all":
                                 {
-                                    var money = this._Players[saveMoney.Key].MoneyForSave;
-                                    player.MoneySet(player.Money - money, ref notifyMsg);
+                                    money = this._Players[saveMoney.Key].MoneyForSave;
+                                    if (money > 0)
+                                    {
+                                        //  doSaveMoney = true;
+                                        player.MoneySet(player.Money - money, ref notifyMsg);
+                                    }
                                 }; break;
                         }
                     }
@@ -80,6 +91,12 @@ namespace HouseManager
                 {
                     await Startup.sendMsg(url, sendMsg);
                 }
+            }
+
+            if (money > 0)
+            {
+                Thread th = new Thread(() => DalOfAddress.MoneyAdd.AddMoney(saveMoney.address, money));
+                th.Start();
             }
             return "";
         }

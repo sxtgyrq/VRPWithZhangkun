@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CommonClass\CommonClass.csproj" />
+    <ProjectReference Include="..\DalOfAddress\DalOfAddress.csproj" />
     <ProjectReference Include="..\Model\Model.csproj" />
     <ProjectReference Include="..\TcpFunction\TcpFunction.csproj" />
   </ItemGroup>

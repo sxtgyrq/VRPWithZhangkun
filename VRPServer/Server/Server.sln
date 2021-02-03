@@ -29,7 +29,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShowDemo", "..\ShowDemo\Sho
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test_HttpClientTest", "..\Test_HttpClientTest\Test_HttpClientTest.csproj", "{DC25001C-597B-435E-8BAB-CC5E0D9EC6FF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestAllPath", "..\TestAllPath\TestAllPath.csproj", "{DC55D105-C8E8-4DB0-83FB-08A6C7B250A8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AllPathGenerator", "..\TestAllPath\AllPathGenerator.csproj", "{DC55D105-C8E8-4DB0-83FB-08A6C7B250A8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleTestAPP", "..\ConsoleTestAPP\ConsoleTestAPP.csproj", "{58B48CE4-A5F7-474D-B7BB-21025C363695}"
 EndProject
@@ -39,7 +39,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HouseManagerController", ".
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WindowsFormsController", "..\WindowsFormsController\WindowsFormsController.csproj", "{31FB4972-EA06-4B28-A363-82707D21EEDA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitCoin", "..\BitCoin\BitCoin.csproj", "{9BEC2B5B-897A-49ED-8115-6F90244C9803}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitCoin", "..\BitCoin\BitCoin.csproj", "{9BEC2B5B-897A-49ED-8115-6F90244C9803}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DalOfAddress", "..\DalOfAddress\DalOfAddress.csproj", "{6ED19806-D1F5-428E-B1F9-516B400DBB12}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppDoProgramFunction", "..\AppDoProgramFunction\AppDoProgramFunction.csproj", "{F3A15926-6864-48DC-9748-7F42B256207D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -267,6 +271,30 @@ Global
 		{9BEC2B5B-897A-49ED-8115-6F90244C9803}.Release|x64.Build.0 = Release|Any CPU
 		{9BEC2B5B-897A-49ED-8115-6F90244C9803}.Release|x86.ActiveCfg = Release|Any CPU
 		{9BEC2B5B-897A-49ED-8115-6F90244C9803}.Release|x86.Build.0 = Release|Any CPU
+		{6ED19806-D1F5-428E-B1F9-516B400DBB12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6ED19806-D1F5-428E-B1F9-516B400DBB12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6ED19806-D1F5-428E-B1F9-516B400DBB12}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6ED19806-D1F5-428E-B1F9-516B400DBB12}.Debug|x64.Build.0 = Debug|Any CPU
+		{6ED19806-D1F5-428E-B1F9-516B400DBB12}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6ED19806-D1F5-428E-B1F9-516B400DBB12}.Debug|x86.Build.0 = Debug|Any CPU
+		{6ED19806-D1F5-428E-B1F9-516B400DBB12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6ED19806-D1F5-428E-B1F9-516B400DBB12}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6ED19806-D1F5-428E-B1F9-516B400DBB12}.Release|x64.ActiveCfg = Release|Any CPU
+		{6ED19806-D1F5-428E-B1F9-516B400DBB12}.Release|x64.Build.0 = Release|Any CPU
+		{6ED19806-D1F5-428E-B1F9-516B400DBB12}.Release|x86.ActiveCfg = Release|Any CPU
+		{6ED19806-D1F5-428E-B1F9-516B400DBB12}.Release|x86.Build.0 = Release|Any CPU
+		{F3A15926-6864-48DC-9748-7F42B256207D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3A15926-6864-48DC-9748-7F42B256207D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3A15926-6864-48DC-9748-7F42B256207D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F3A15926-6864-48DC-9748-7F42B256207D}.Debug|x64.Build.0 = Debug|Any CPU
+		{F3A15926-6864-48DC-9748-7F42B256207D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F3A15926-6864-48DC-9748-7F42B256207D}.Debug|x86.Build.0 = Debug|Any CPU
+		{F3A15926-6864-48DC-9748-7F42B256207D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3A15926-6864-48DC-9748-7F42B256207D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3A15926-6864-48DC-9748-7F42B256207D}.Release|x64.ActiveCfg = Release|Any CPU
+		{F3A15926-6864-48DC-9748-7F42B256207D}.Release|x64.Build.0 = Release|Any CPU
+		{F3A15926-6864-48DC-9748-7F42B256207D}.Release|x86.ActiveCfg = Release|Any CPU
+		{F3A15926-6864-48DC-9748-7F42B256207D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

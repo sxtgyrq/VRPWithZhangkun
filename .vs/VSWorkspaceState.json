@@ -1,7 +1,6 @@
 {
   "ExpandedNodes": [
     "",
-    "\\VRPServer",
     "\\VRPServer\\HouseManager",
     "\\VRPServer\\HouseManager\\roomMainf",
     "\\VRPServer\\Server",
