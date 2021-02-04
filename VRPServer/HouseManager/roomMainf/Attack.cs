@@ -103,7 +103,8 @@ namespace HouseManager
                                                 {
 #warning 前端要提示
                                                     Console.WriteLine($"金钱不足以展开攻击！");
-                                                    carsAttackFailedThenMustReturn(car, player, sa, ref notifyMsg);
+                                                    giveMoneyFromCarToPlayer(player, car, ref notifyMsg);
+                                                    //carsAttackFailedThenMustReturn(car, player, sa, ref notifyMsg);
                                                 }
                                             }
                                         }; break;
@@ -239,7 +240,6 @@ namespace HouseManager
                 }
                 return "";
             }
-            throw new NotImplementedException();
         }
 
         enum CarStateForBeAttacked
@@ -374,9 +374,12 @@ namespace HouseManager
                     var baseFp = Program.dt.GetFpByIndex(player.StartFPIndex);
 
                     // var goPath = Program.dt.GetAFromB(fp1, fp2.FastenPositionID);
-                    var goPath = Program.dt.GetAFromB(from, to);
+
+                    //var goPath = Program.dt.GetAFromB(from, to);
+                    var goPath = this.GetAFromB(from, to, player, ref notifyMsg);
                     //var returnPath = Program.dt.GetAFromB(fp2, baseFp.FastenPositionID);
-                    var returnPath = Program.dt.GetAFromB(to, player.StartFPIndex);
+                    //var returnPath = Program.dt.GetAFromB(to, player.StartFPIndex);
+                    var returnPath = this.GetAFromB(to, player.StartFPIndex, player, ref notifyMsg);
 
                     var goMile = GetMile(goPath);
                     var returnMile = GetMile(returnPath);
@@ -692,7 +695,7 @@ namespace HouseManager
                                     {
                                         {
                                             var debt = Math.Min(car.ability.costBusiness, player.DebtsGet(dOwner.victim));
-                                            player.SetDebts(dOwner.victim, player.DebtsGet(dOwner.victim) - debt);
+                                            player.SetDebts(dOwner.victim, player.DebtsGet(dOwner.victim) - debt, ref notifyMsg);
                                             //   player.Debts[dOwner.victim] -= debt;
                                             //car.ability.costBusiness -= debt;
                                             if (debt > 0)
@@ -705,7 +708,7 @@ namespace HouseManager
                                         {
                                             //  player.DebtsGet
                                             var debt = Math.Min(car.ability.costVolume, player.DebtsGet(dOwner.victim));
-                                            player.SetDebts(dOwner.victim, player.DebtsGet(dOwner.victim) - debt);
+                                            player.SetDebts(dOwner.victim, player.DebtsGet(dOwner.victim) - debt, ref notifyMsg);
                                             //player.Debts[dOwner.victim] -= debt;
                                             //car.ability.costVolume -= debt;
                                             if (debt > 0)
@@ -726,7 +729,7 @@ namespace HouseManager
 
                                     if (player.DebtsGet(dOwner.victim) == 0)
                                     {
-                                        player.DebtsRemove(dOwner.victim);
+                                        player.DebtsRemove(dOwner.victim, ref notifyMsg);
                                     }
 
                                 }

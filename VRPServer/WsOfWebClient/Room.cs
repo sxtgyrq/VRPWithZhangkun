@@ -1,8 +1,10 @@
 ﻿using CommonClass;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.WebSockets;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -13,14 +15,85 @@ namespace WsOfWebClient
 {
     public class Room
     {
-        public static List<string> roomUrls = new List<string>()
+        //public static List<string> roomUrls = new List<string>()
+        //{
+        //    "127.0.0.1:11100"
+        //};
+        //public static List<string> roomUrls = new List<string>()
+        //{
+        //    "10.80.52.218:11100",//10.80.52.218
+        //    "10.80.52.218:11200",//10.80.52.218
+        //};
+        public static List<string> roomUrls
         {
-            "127.0.0.1:11100"
-        };
-
-        internal static PlayerAdd getRoomNum(int websocketID, string playerName, string[] carsNames, out int roomIndex)
+            get
+            {
+                if (DebugInLocalHost)
+                {
+                    return new List<string>()
+                    {
+                        "127.0.0.1:11100"
+                    };
+                }
+                else
+                {
+                    return new List<string>()
+                    {
+                        "10.80.52.218:11100",//10.80.52.218
+                        "10.80.52.218:11200",//10.80.52.218
+                    };
+                }
+            }
+        }
+        private static bool DebugInLocalHost = true;
+        private static System.Random rm = new System.Random(DateTime.Now.GetHashCode());
+        public static void SetWhenStart()
         {
-            roomIndex = 0;
+            Console.WriteLine("是否以debug形式运行(y/n)");
+            var input = Console.ReadLine().ToUpper().Trim();
+            if (input == "Y" || input == "YES")
+            {
+                DebugInLocalHost = true;
+            }
+            else if (input == "N" || input == "NO")
+            {
+                DebugInLocalHost = false;
+            }
+        }
+        internal static async Task<PlayerAdd> getRoomNum(int websocketID, string playerName, string[] carsNames)
+        {
+            int roomIndex = 0;
+            if (DebugInLocalHost)
+            {
+                roomIndex = 0;
+            }
+            else
+            {
+                var index1 = rm.Next(roomUrls.Count);
+                var index2 = rm.Next(roomUrls.Count);
+                if (index1 == index2)
+                {
+                    roomIndex = index1;
+                }
+                else
+                {
+                    var frequency1 = await getFrequency(Room.roomUrls[index1]); ; //Startup.sendInmationToUrlAndGetRes(Room.roomUrls[roomInfo.RoomIndex], sendMsg);
+                    var frequency2 = await getFrequency(Room.roomUrls[index2]);
+                    //这里的2000，极值是1/6Hz(2000)。极限是1/4Hz(3000)
+                    var value1 = frequency1 < 2000 ? frequency1 : Math.Max(1, 6000 - 2 * frequency1);
+                    var value2 = frequency2 < 2000 ? frequency2 : Math.Max(1, 6000 - 2 * frequency2);
+                    var sumV = value1 + value2;
+                    var rIndex = rm.Next(sumV);
+                    if (rIndex < value1)
+                    {
+                        roomIndex = index1;
+                    }
+                    else
+                    {
+                        roomIndex = index2;
+                    }
+                }
+            }
             // var  
             var key = CommonClass.Random.GetMD5HashFromStr(ConnectInfo.HostIP + websocketID + DateTime.Now.ToString());
             var roomUrl = roomUrls[roomIndex];
@@ -29,7 +102,7 @@ namespace WsOfWebClient
                 Key = key,
                 c = "PlayerAdd",
                 FromUrl = $"{ConnectInfo.HostIP}:{ConnectInfo.tcpServerPort}",// ConnectInfo.ConnectedInfo + "/notify",
-                RoomIndex = 0,
+                RoomIndex = roomIndex,
                 WebSocketID = websocketID,
                 Check = CommonClass.Random.GetMD5HashFromStr(key + roomUrl + CheckParameter),
                 PlayerName = playerName,
@@ -37,6 +110,19 @@ namespace WsOfWebClient
             };
             // throw new NotImplementedException();
         }
+
+        private static async Task<int> getFrequency(string roomUrl)
+        {
+            var sendMsg = Newtonsoft.Json.JsonConvert.SerializeObject(new GetFrequency()
+            {
+                c = "GetFrequency",
+
+            });
+            var result = await Startup.sendInmationToUrlAndGetRes(roomUrl, sendMsg);
+
+            return int.Parse(result);
+        }
+
         private static PlayerAdd getRoomNumByRoom(int websocketID, int roomIndex, string playerName, string[] carsNames)
         {
             var key = CommonClass.Random.GetMD5HashFromStr(ConnectInfo.HostIP + websocketID + DateTime.Now.ToString());
@@ -46,7 +132,7 @@ namespace WsOfWebClient
                 Key = key,
                 c = "PlayerAdd",
                 FromUrl = $"{ConnectInfo.HostIP}:{ConnectInfo.tcpServerPort}",// ConnectInfo.ConnectedInfo + "/notify",
-                RoomIndex = 0,
+                RoomIndex = roomIndex,
                 WebSocketID = websocketID,
                 Check = CommonClass.Random.GetMD5HashFromStr(key + roomUrl + CheckParameter),
                 CarsNames = carsNames,
@@ -69,7 +155,8 @@ namespace WsOfWebClient
              * 单人组队下
              */
             int roomIndex;
-            var roomInfo = Room.getRoomNum(s.WebsocketID, playerName, carsNames, out roomIndex);
+            var roomInfo = await Room.getRoomNum(s.WebsocketID, playerName, carsNames);
+            roomIndex = roomInfo.RoomIndex;
             s.Key = roomInfo.Key;
             var sendMsg = Newtonsoft.Json.JsonConvert.SerializeObject(roomInfo);
             var receivedMsg = await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[roomInfo.RoomIndex], sendMsg);
@@ -100,6 +187,7 @@ namespace WsOfWebClient
                     ConnectInfo.mapRoadAndCrossJson = await getRoadInfomation(s);
                     Console.WriteLine($"获取ConnectInfo.mapRoadAndCrossJson json的长度为{ConnectInfo.mapRoadAndCrossJson.Length}");
                 }
+                if (false)
                 {
                     var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { c = "MapRoadAndCrossJson", action = "start" });
                     var sendData = Encoding.ASCII.GetBytes(msg);
@@ -525,11 +613,60 @@ namespace WsOfWebClient
             }
         }
 
+        internal static async Task GetSubsidize(State s, GetSubsidize getSubsidize)
+        {
+            Regex r = new Regex("^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})$");
+            if (r.IsMatch(getSubsidize.signature))
+            {
+                var getPosition = new OrderToSubsidize()
+                {
+                    c = "OrderToSubsidize",
+                    Key = s.Key,
+                    address = getSubsidize.address,
+                    signature = getSubsidize.signature,
+                    value = getSubsidize.value
+                };
+                var msg = Newtonsoft.Json.JsonConvert.SerializeObject(getPosition);
+                await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[s.roomIndex], msg);
+            }
+
+            //throw new NotImplementedException();
+        }
+
+        internal static async Task<string> setBust(State s, Bust bust)
+        {
+            Regex r = new Regex("^car(?<car>[A-E]{1})_(?<key>[a-f0-9]{32})$");
+            Regex rex_Target = new Regex("^(?<target>[a-f0-9]{32})$");
+
+            var m = r.Match(bust.car);
+            var m_Target = rex_Target.Match(bust.TargetOwner);
+            if (m.Success && m_Target.Success)
+            {
+                var targetOwner = m_Target.Groups["target"].Value;
+
+                Console.WriteLine($"正则匹配成功：{m.Groups["car"] }+{m.Groups["key"] }");
+                if (m.Groups["key"].Value == s.Key)
+                {
+                    var getPosition = new SetBust()
+                    {
+                        c = "SetBust",
+                        Key = s.Key,
+                        car = "car" + m.Groups["car"].Value,
+                        targetOwner = targetOwner,
+                        target = bust.Target
+                    };
+                    var msg = Newtonsoft.Json.JsonConvert.SerializeObject(getPosition);
+                    await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[s.roomIndex], msg);
+                }
+            }
+            return "";
+        }
+
         internal static async Task<string> Donate(State s, Donate donate)
         {
             var sm = new SaveMoney()
             {
-                c = "SaveMoney", 
+                c = "SaveMoney",
                 Key = s.Key,
                 address = donate.address,
                 dType = donate.dType
@@ -684,7 +821,8 @@ namespace WsOfWebClient
              * 组队，队长状态下，队长点击了开始
              */
             int roomIndex;
-            var roomInfo = Room.getRoomNum(s.WebsocketID, playerName, carsNames, out roomIndex);
+            var roomInfo = await Room.getRoomNum(s.WebsocketID, playerName, carsNames);
+            roomIndex = roomInfo.RoomIndex;
             s.Key = roomInfo.Key;
             var sendMsg = Newtonsoft.Json.JsonConvert.SerializeObject(roomInfo);
             var receivedMsg = await Team.SetToBegain(team, roomIndex);

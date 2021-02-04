@@ -10,7 +10,7 @@ namespace HouseManager
     {
         internal string UpdatePlayer(PlayerCheck checkItem)
         {
-         //   try
+            //   try
             {
                 bool success;
                 lock (this.PlayerLock)
@@ -20,7 +20,8 @@ namespace HouseManager
                         BaseInfomation.rm._Players[checkItem.Key].FromUrl = checkItem.FromUrl;
                         BaseInfomation.rm._Players[checkItem.Key].WebSocketID = checkItem.WebSocketID;
 
-                        BaseInfomation.rm._Players[checkItem.Key].others = new Dictionary<string, OtherPlayers>();
+                        //BaseInfomation.rm._Players[checkItem.Key].others = new Dictionary<string, OtherPlayers>();
+                        BaseInfomation.rm._Players[checkItem.Key].initializeOthers();
                         //this.sendPrometeState(checkItem.FromUrl, checkItem.WebSocketID);
                         success = true;
                         BaseInfomation.rm._Players[checkItem.Key].PromoteState = new Dictionary<string, int>()

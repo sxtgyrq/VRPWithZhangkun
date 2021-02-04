@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.WebSockets;
 using System.Numerics;
 using System.Text;
 using System.Threading;
@@ -42,6 +43,8 @@ namespace HouseManager
                 {  "volume" ,10 * 100 },
                 {  "speed" ,10 * 100},
             };
+
+            initializeEarningRate();
             // case "mile":
             //        {
             //    return 1;
@@ -59,6 +62,9 @@ namespace HouseManager
             //    return 1;
             //}; break;
         }
+
+
+
         object PlayerLock = new object();
         /// <summary>
         /// 商店-玩家索引。key，代表所在位置的 商店index，value（string）代表player.key
@@ -155,13 +161,13 @@ namespace HouseManager
             {
                 return;
             }
-            if (self.others.ContainsKey(other.Key))
+            if (self.othersContainsKey(other.Key))
             {
 
             }
             else
             {
-                self.others.Add(other.Key, new OtherPlayers());
+                self.othersAdd(other.Key, new OtherPlayers());
                 var fp = Program.dt.GetFpByIndex(other.StartFPIndex);
                 // fromUrl = this._Players[getPosition.Key].FromUrl;
                 var webSocketID = self.WebSocketID;
@@ -604,9 +610,28 @@ namespace HouseManager
                     SendPromoteCountOfPlayer("volume", player, ref notifyMsgs);
                     SendPromoteCountOfPlayer("speed", player, ref notifyMsgs);
 
+                    BroadCoastFrequency(player, ref notifyMsgs);
                     player.SetMoneyCanSave(player, ref notifyMsgs);
+
+                    player.RunSupportChangedF(ref notifyMsgs);
                     //player.this._Players[addItem.Key].SetMoneyCanSave = RoomMain.SetMoneyCanSave;
                     //MoneyCanSaveChanged(player, player.MoneyForSave, ref notifyMsgs);
+
+                    SendMaxHolderInfoMation(player, ref notifyMsgs);
+
+                    var players = this._Players;
+                    foreach (var item in players)
+                    {
+                        if (item.Value.TheLargestHolderKey == player.Key)
+                        {
+                            player.TheLargestHolderKeyChanged(item.Key, item.Value.TheLargestHolderKey, item.Key, ref notifyMsgs);
+                        }
+                    }
+                    var list = player.usedRoadsList;
+                    for (var i = 0; i < list.Count; i++)
+                    {
+                        this.DrawSingleRoadF(player, list[i], ref notifyMsgs);
+                    }
 
                     result = new GetPositionResult()
                     {
@@ -649,6 +674,22 @@ namespace HouseManager
                 //AbilityChanged(player, car, ref notifyMsg, "mile");
             }
             return result;
+        }
+
+        private void SendMaxHolderInfoMation(Player player, ref List<string> notifyMsgs)
+        {
+            foreach (var item in this._Players)
+            {
+                //  if (player.Key == item.Key) { }
+                //else 
+                {
+                    if (item.Value.TheLargestHolderKey == item.Key)
+                    {
+                        this.TheLargestHolderKeyChanged(item.Key, player.Key, player.Key, ref notifyMsgs);
+                    }
+                }
+            }
+            // throw new NotImplementedException();
         }
 
         private async Task sendCarStateAndPurpose(string key)
@@ -803,11 +844,11 @@ namespace HouseManager
         {
             //这是发送给self的消息
             //throw new NotImplementedException();
-            if (self.others.ContainsKey(other.Key))
+            if (self.othersContainsKey(other.Key))
             {
                 for (var indexOfCar = 0; indexOfCar < 5; indexOfCar++)
                 {
-                    if (self.others[other.Key].getCarState(indexOfCar) == other.getCar(indexOfCar).changeState)
+                    if (self.getOthers(other.Key).getCarState(indexOfCar) == other.getCar(indexOfCar).changeState)
                     {
 
                     }
@@ -836,7 +877,7 @@ namespace HouseManager
                             msgsWithUrl.Add(self.FromUrl);
                             msgsWithUrl.Add(json);
                         }
-                        self.others[other.Key].setCarState(indexOfCar, other.getCar(indexOfCar).changeState);
+                        self.getOthers(other.Key).setCarState(indexOfCar, other.getCar(indexOfCar).changeState);
                     }
                 }
             }
@@ -949,7 +990,11 @@ namespace HouseManager
                 //  public int costMile { get; internal set; }
                 public string victim { get; internal set; }
             }
-
+            public class bustSet : returnning
+            {
+                //  public int costMile { get; internal set; }
+                public string victim { get; internal set; }
+            }
 
             public class placeArriving : baseC
             {

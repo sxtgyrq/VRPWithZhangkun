@@ -1,8 +1,10 @@
-﻿using System;
+﻿using CommonClass;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TcpFunction
@@ -37,6 +39,7 @@ namespace TcpFunction
                                     Console.WriteLine(msg);
                                     throw new Exception(msg);
                                 }
+                                Common.CheckBeforeSend(ns);
                                 await ns.WriteAsync(sendData, 0, sendData.Length);
 
                                 var md5Return = await Common.ReveiveMd5(ns);
@@ -77,12 +80,13 @@ namespace TcpFunction
                                     var length2 = await Common.ReceiveLength(ns);
                                     await Common.SendLength(length2, ns);
                                     byte[] bytes = new byte[length2];
+                                    Common.CheckBeforeRead(ns);
                                     int bytesRead = await ns.ReadAsync(bytes);
 
                                     if (length2 != bytesRead)
                                     {
                                         throw new Exception("");
-                                    }
+                                    } 
                                     await Common.SendDataMd5(bytes, ns);
                                     isRight = await Common.ReveiveRight(ns);
 
@@ -160,7 +164,12 @@ namespace TcpFunction
                     {
 
                         var length = await Common.ReceiveLength(stream);
+
+
                         await Common.SendLength(length, stream);
+                        //stream.
+
+                        Common.CheckBeforeRead(stream);
                         byte[] bytes = new byte[length];
                         int bytesRead = await stream.ReadAsync(bytes);
 
@@ -168,6 +177,7 @@ namespace TcpFunction
                         {
                             throw new Exception("length != bytesRead");
                         }
+
                         await Common.SendDataMd5(bytes, stream);
 
                         isRight = await Common.ReveiveRight(stream);
@@ -186,7 +196,9 @@ namespace TcpFunction
                                 Console.WriteLine(msg);
                                 throw new Exception(msg);
                             }
+                            Common.CheckBeforeSend(stream);
                             await stream.WriteAsync(sendData, 0, sendData.Length);
+                            // stream.CanRead
                             var md5Return = await Common.ReveiveMd5(stream);
                             var md5Cal = CommonClass.Random.GetMD5HashByteFromBytes(sendData);
 
@@ -375,15 +387,67 @@ namespace TcpFunction
     {
         public static async Task<int> ReceiveLength(NetworkStream ns)
         {
-            byte[] bytes = new byte[4];
-            int bytesRead = await ns.ReadAsync(bytes);
-            var length = bytes[0] * 256 * 256 * 256 + bytes[1] * 256 * 256 + bytes[2] * 256 + bytes[3] * 1;
-            return length;
+
+            // while (true)
+
+            {
+                if (CheckBeforeRead(ns)) { }
+                {
+                    byte[] bytes = new byte[4];
+                    int bytesRead = await ns.ReadAsync(bytes);
+                    var length = bytes[0] * 256 * 256 * 256 + bytes[1] * 256 * 256 + bytes[2] * 256 + bytes[3] * 1;
+                    return length;
+                }
+            }
+        }
+        public static bool CheckBeforeSend(NetworkStream ns)
+        {
+            int k = 0;
+            while (true)
+            {
+                if (ns.CanWrite)
+                {
+                    break;
+                }
+                else
+                {
+                    k++;
+                    Thread.Sleep(10);
+                }
+                if (k >= 1000)
+                {
+                    throw new Exception("等待10s没响应！");
+                }
+            }
+            return true;
+        }
+
+        public static bool CheckBeforeRead(NetworkStream ns)
+        {
+            int k = 0;
+            while (true)
+            {
+                if (ns.CanRead)
+                {
+                    break;
+                }
+                else
+                {
+                    k++;
+                    Thread.Sleep(1);
+                }
+                if (k >= 10000)
+                {
+                    throw new Exception("等待10s没响应！");
+                }
+            }
+            return true;
         }
 
 
         public static async Task SendLength(int length, NetworkStream ns)
         {
+            if (CheckBeforeSend(ns)) { }
             var sendDataPreviw = new byte[]
             {
                 Convert.ToByte((length>>24)%256),
@@ -396,7 +460,7 @@ namespace TcpFunction
 
         internal static async Task<bool> ReveiveEnd(NetworkStream ns)
         {
-
+            CheckBeforeRead(ns);
             byte[] bytes = new byte[3];
             int bytesRead = await ns.ReadAsync(bytes);
             return bytesRead == 3;
@@ -405,26 +469,30 @@ namespace TcpFunction
         //     const byte endByte = 255;
         internal static async Task SendEnd(NetworkStream stream)
         {
+            CheckBeforeSend(stream);
             var sendDataPreviw = new byte[] { (byte)0, (byte)255, (byte)255 };
             await stream.WriteAsync(sendDataPreviw, 0, 3);
         }
 
         internal static async Task SendRight(NetworkStream stream)
         {
+            CheckBeforeSend(stream);
             var sendDataPreviw = new byte[] { (byte)129 };
             await stream.WriteAsync(sendDataPreviw, 0, 1);
         }
         internal static async Task SendWrong(NetworkStream stream)
         {
+            CheckBeforeSend(stream);
             var sendDataPreviw = new byte[] { (byte)130 };
             await stream.WriteAsync(sendDataPreviw, 0, 1);
         }
 
         internal static async Task<bool> ReveiveRight(NetworkStream ns)
         {
+            CheckBeforeRead(ns);
 
             byte[] bytes = new byte[1];
-            int bytesRead = await ns.ReadAsync(bytes); 
+            int bytesRead = await ns.ReadAsync(bytes);
             if (bytes[0] == (byte)129)
             {
                 return true;
@@ -441,6 +509,7 @@ namespace TcpFunction
 
         internal static async Task<byte[]> ReveiveMd5(NetworkStream ns)
         {
+            Common.CheckBeforeRead(ns);
             var md5Return = new byte[16];
             await ns.ReadAsync(md5Return, 0, 16);
             return md5Return;
@@ -448,6 +517,7 @@ namespace TcpFunction
 
         internal static async Task SendDataMd5(byte[] sendData, NetworkStream ns)
         {
+            Common.CheckBeforeSend(ns);
             var md5 = CommonClass.Random.GetMD5HashByteFromBytes(sendData);
             await ns.WriteAsync(md5, 0, 16);
         }

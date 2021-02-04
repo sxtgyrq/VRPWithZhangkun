@@ -1,0 +1,566 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+
+    <meta charset="utf-8" />
+    <title>北一区电眼看城市</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <script src="Scripts/jquery-3.5.1.js"></script>
+    <script src="ThreeJs/three.js"></script>
+    <script src="ThreeJs/OrbitControls.js"></script>
+    <script src="ThreeJs/WebGL.js"></script>
+    <script src="Geometry/GetMapDetail.js"></script>
+    <script src="ThreeJs/STLLoader.js"></script>
+    <script src="ThreeJs/SVGRenderer.js"></script>
+    <!--<script src="ThreeJs/three.module.js"></script>-->
+
+    <script src="ThreeJs/DDSLoader.js"></script>
+    <script src="ThreeJs/MTLLoader.js"></script>
+    <script src="ThreeJs/OBJLoader.js"></script>
+    <script src="ThreeJs/SVGLoader.js"></script>
+
+    <script src="ThreeJs/inflate.min.js"></script>
+    <script src="ThreeJs/FBXLoader.js"></script>
+    <script src="ThreeJs/CSS2DRenderer.js"></script>
+    <script src="ThreeJs/CSS3DRenderer.js"></script>
+
+    <!--<script src="js/renderers/CSS3DRenderer.js"></script>-->
+    <!--<script src="ThreeJs/CSS3DRenderer.js"></script>-->
+
+
+    <script src="ThreeJs/lines/LineSegmentsGeometry.js"></script>
+    <script src="ThreeJs/lines/LineGeometry.js"></script>
+    <script src="ThreeJs/lines/WireframeGeometry2.js"></script>
+
+    <script src="ThreeJs/lines/LineMaterial.js"></script>
+
+    <script src="ThreeJs/lines/LineSegments2.js"></script>
+    <script src="ThreeJs/lines/Line2.js"></script>
+    <script src="ThreeJs/lines/Wireframe.js"></script>
+    <link href="css/showA.css" rel="stylesheet" />
+    <!--<link href="StyleOfHtml/showA.css" rel="stylesheet" />-->
+    <style>
+        .renderMap {
+            position: absolute;
+            left: 0px;
+            right: 0px;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .renderDom {
+            position: absolute;
+            left: 0px;
+            right: 0px;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 2;
+        }
+
+        .labelRenderer {
+            position: absolute;
+            top: 0px;
+            overflow: hidden;
+            z-index: 3;
+            left: 0px;
+            right: 0px;
+            width: 100%;
+            height: 100%;
+            /*labelRenderer .domElement.style.position = 'absolute';
+            labelRenderer .domElement.style.top = 0;
+            labelRenderer .domElement.style.overflow = 'hidden';
+            labelRenderer .domElement.style.z = 'hidden';*/
+        }
+
+        .label2Renderer {
+            position: absolute;
+            top: 0px;
+            overflow: hidden;
+            z-index: 4;
+            left: 0px;
+            right: 0px;
+            width: 100%;
+            height: 100%;
+            /*labelRenderer .domElement.style.position = 'absolute';
+            labelRenderer .domElement.style.top = 0;
+            labelRenderer .domElement.style.overflow = 'hidden';
+            labelRenderer .domElement.style.z = 'hidden';*/
+        }
+
+        .label {
+            color: #FFF;
+            font-family: sans-serif;
+            padding: 2px;
+            background: rgba( 0, 0, 0, .6 );
+            z-index: 6;
+        }
+
+        .label_MeasureLine {
+            color: #FFF;
+            font-family: sans-serif;
+            padding: 2px;
+            background: rgba( 0, 0, 0, .4 );
+            z-index: 6;
+            /*border: solid 4px #489dfb;*/
+            border-width: 4px;
+            padding: 3px;
+            border: solid;
+            border-image: linear-gradient(to right, #32ccfe 0%,rgba(0, 0, 0, 0.70) 70%,#32ccfe 100%);
+            border-image-slice: 1;
+        }
+
+        a {
+            color: #000000;
+        }
+
+        .biandianzhanTuPian {
+            width: 96px;
+            height: 96px;
+            background: rgba(0, 0, 0, 0.00);
+        }
+
+            .biandianzhanTuPian > img {
+                width: 100%;
+                height: 100%;
+            }
+
+        .labelbiandianzhan {
+            /*color: rgba(255, 255, 255, 0.92);*/
+            color: whitesmoke;
+            background: rgba(0, 0, 0, 0.37);
+            font-family: 'Microsoft YaHei';
+            padding: 5px;
+            min-width: 100px;
+            z-index: 6;
+            font-size: 18px;
+            border: solid 2px;
+            /*background-image: linear-gradient(#399953, #399953), linear-gradient(#fbb300, #fbb300), linear-gradient(#d53e33, #d53e33), linear-gradient(#377af5, #377af5);*/
+            /*animation: rotate 4s linear infinite;*/
+            border-image: linear-gradient(to right, #32ccfe 0%,rgba(0, 0, 0, 0.70) 70%,#32ccfe 100%);
+            border-image-slice: 1;
+            text-align: center;
+        }
+
+            .labelbiandianzhan.A {
+                color: red;
+            }
+
+            .labelbiandianzhan.B {
+                color: #FF8000;
+            }
+
+            .labelbiandianzhan.C {
+                color: red;
+            }
+
+            .labelbiandianzhan.D {
+                color: red;
+            }
+
+            .labelbiandianzhan.E {
+                color: red;
+            }
+
+            .labelbiandianzhan.F {
+                color: red;
+            }
+
+            .labelbiandianzhan.G {
+                color: red;
+            }
+
+            .labelbiandianzhan.l110 {
+                /*color: #FFF;*/
+            }
+
+        .labelline {
+            font-family: 'Microsoft YaHei';
+            padding: 2px;
+            background: rgba(51, 55, 79, 0.80);
+            z-index: 6;
+            font-size: 14px;
+            color: whitesmoke;
+            border: solid 1px;
+        }
+
+
+        @keyframes rotate {
+            100% {
+                transform: rotate(1turn);
+            }
+        }
+    </style>
+    <script src="Javascript/showAConfig.js"></script>
+    <script src="Javascript/showA.js?ss=331"></script>
+    <!--<script src="Javascript/showA.js"></script>-->
+    <script src="Javascript/showAData.js?ss=sssdaa1"></script>
+    <script src="Javascript/DataGet.js?xx=231aa"></script>
+    <script src="Javascript/SearchObj.js"></script>
+
+
+
+
+    <script src="Javascript/SearchObj.js?xx=20112xxx01"></script>
+    <script type="x-s">
+    </script>
+
+    <style>
+    </style>
+    <style>
+        .pointLabelElement {
+            width: 80px;
+        }
+
+            .pointLabelElement.cursor {
+                cursor: pointer;
+            }
+
+            .pointLabelElement > img {
+                text-align: center;
+                width: 100%;
+                max-width: 100%;
+                max-height: 48px;
+                height: 48px;
+            }
+
+            .pointLabelElement > div {
+                color: lightblue;
+                font-size: 16px;
+                text-align: center;
+                font-family: 'Microsoft YaHei';
+                text-shadow: black -.02em 0 0, black -.06em -.02em 0, black -.1em -.03em 0, black -.14em -.06em 0, black .02em .02em 0;
+            }
+
+            .pointLabelElement.displayNone {
+                display: none;
+            }
+
+        .pointLabelMicroStationElement {
+            width: 80px;
+            cursor: pointer;
+        }
+
+            .pointLabelMicroStationElement > img {
+                text-align: center;
+                width: 100%;
+                max-width: 50%;
+                max-height: 24px;
+                height: 24px;
+            }
+
+            .pointLabelMicroStationElement > div {
+                color: lightblue;
+                font-size: 12px;
+                text-align: center;
+                font-family: 'Microsoft YaHei';
+                text-shadow: black -.02em 0 0, black -.06em -.02em 0, black -.1em -.03em 0, black -.14em -.06em 0, black .02em .02em 0;
+            }
+
+            .pointLabelMicroStationElement.displayNone {
+                display: none;
+            }
+
+        .pointPeibian2 {
+            width: 80px;
+            cursor: pointer;
+        }
+
+            .pointPeibian2 > img {
+                text-align: center;
+                width: 25px;
+                max-width: 25px;
+                max-height: 25px;
+                height: 25px;
+            }
+
+                .pointPeibian2 > img:hover {
+                    background: rgba(0, 0, 0, 0.2)
+                }
+
+        .pointPeibian {
+            width: 80px;
+            cursor: pointer;
+        }
+
+            .pointPeibian > img {
+                text-align: center;
+                width: 25px;
+                max-width: 25px;
+                max-height: 25px;
+                height: 25px;
+            }
+
+                .pointPeibian > img:hover {
+                    background: rgba(0, 0, 0, 0.2)
+                }
+
+
+            .pointPeibian.displayNone {
+                display: none;
+            }
+
+            .pointPeibian.findByName > img {
+                animation: selectState 1s linear infinite;
+            }
+
+            .pointPeibian.findByError > img {
+                border-radius: 30%;
+                animation: selectError 1s linear infinite;
+            }
+
+        @keyframes selectState {
+            0% {
+                background: red;
+            }
+
+            50% {
+                background: yellow;
+            }
+
+            99% {
+                background: red;
+            }
+        }
+
+        @keyframes selectError {
+            0% {
+                background-image: linear-gradient(0deg, rgba(255, 0, 0, 0.5), rgba(255, 216, 0, 0.50));
+            }
+
+            25% {
+                background-image: linear-gradient(90deg, rgba(255, 0, 0, 0.5), rgba(255, 216, 0, 0.50));
+            }
+
+            50% {
+                background-image: linear-gradient(180deg, rgba(255, 0, 0, 0.5), rgba(255, 216, 0, 0.50));
+            }
+
+            75% {
+                background-image: linear-gradient(270deg, rgba(255, 0, 0, 0.5), rgba(255, 216, 0, 0.50));
+            }
+
+            100% {
+                background-image: linear-gradient(360deg, rgba(255, 0, 0, 0.5), rgba(255, 216, 0, 0.50));
+            }
+        }
+
+        .point-5G {
+            width: 24px;
+        }
+
+            .point-5G > img {
+                text-align: center;
+                width: 24px;
+                max-width: 24px;
+                max-height: 24px;
+                height: 24px;
+            }
+
+            .point-5G.displayNone {
+                display: none;
+            }
+    </style>
+</head>
+<body style="overflow:hidden;">
+    <!--<img src="Pic/hospital.svg" />-->
+    <!--<img src="Pic/airqualityindexframe_03.png" />-->
+    <!--<a href="ObjTag/shenggongsi/build1.obj">ObjTag/shenggongsi/build1.obj</a>-->
+    <script type="text/javascript">
+
+        var testTop = function () {
+            parent.postMessage(JSON.stringify({ command: 'setMap' }), '*');
+            testTop = function () { }
+
+        }
+
+
+    </script>
+    <!--<img src="Pic/nz.jpg" />-->
+    <!--<a href="DAL/MapImage.ashx">DAL/MapImage.ashx</a>-->
+    <!--<a href="kml/hosipital.kml">kml/hosipital.kml</a>-->
+
+    <div id="walkerIndexInput" class="walkerInput">
+        <textarea id="walkerIndexInputValue">11111111111111111111111</textarea>
+        <div style="float:right">
+            <button onclick="walkerIndexController.submit();">提交</button>
+            <button onclick="walkerIndexController.simulate();">模拟</button>
+        </div>
+    </div>
+
+    <div id="pointInfomationNotiry" class="infomationOutput">
+        <!--<textarea id="walkerIndexInputValue">11111111111111111111111</textarea>
+        <div style="float:right">
+            <button onclick="walkerIndexController.submit();">提交</button>
+            <button onclick="walkerIndexController.simulate();">模拟</button>
+        </div>-->
+    </div>
+
+    <div id="mainC" class="container" onclick="testTop();">
+        <!--<img  />-->
+        <!--<a href="DAL/MapImage.ashx">DAL/MapImage.ashx</a>-->
+        <img src="Pic/11.png" />
+    </div>
+    <!--<img src="Pic/eall19.jpg" />-->
+    <!--<img src="Pic/e10_3_6.jpg" />-->
+    <canvas id="canvasd" style="width:1px;height:1px;z-index:-1;overflow:hidden;" width="150" height="150"></canvas>
+
+    <!--<script src=""></script>-->
+    <input type="file" id="inputEle" style="display:none;">
+    <script type="text/javascript">
+
+        //function handleFiles() {
+        //    const fileList = this.files; /* now you can work with the file list */
+        //}
+    </script>
+
+
+    <style type="text/css">
+        .buttonOnMap {
+            box-shadow: inset 0px 39px 0px -24px #e67a73;
+            background-color: #e4685d;
+            border-radius: 4px;
+            border: 1px solid #ffffff;
+            display: inline-block;
+            cursor: pointer;
+            color: #ffffff;
+            font-family: Arial;
+            font-size: 15px;
+            padding: 6px 15px;
+            text-decoration: none;
+            text-shadow: 0px 1px 0px #b23e35;
+        }
+
+        .menuBox2 {
+            width: 4em;
+            height: 20px;
+            position: absolute;
+            right: 300px;
+            top: 50px;
+            position: absolute;
+            padding: 0;
+            margin: 0;
+            font-family: MicrosoftYaHei;
+            box-sizing: border-box;
+            user-select: none;
+            bottom: 30px;
+            z-index: 2;
+            border-radius: 3px;
+        }
+
+        el-radio-group {
+            font-size: 0;
+        }
+
+        el-radio-button {
+            font-size: 0;
+        }
+
+
+
+        .el-radio-button__orig-radio {
+            opacity: 0;
+            outline: 0;
+            position: absolute;
+            z-index: -1;
+        }
+
+        .el-radio-button__inner {
+            white-space: nowrap;
+            background: #fff;
+            border: 1px solid #dcdfe6;
+            font-weight: 500;
+            border-left: 0;
+            color: #606266;
+            -webkit-appearance: none;
+            text-align: center;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            outline: 0;
+            margin: 0;
+            position: relative;
+            cursor: pointer;
+            -webkit-transition: all .3s cubic-bezier(.645,.045,.355,1);
+            transition: all .3s cubic-bezier(.645,.045,.355,1);
+            padding: 4px 4px;
+            font-size: 14px;
+            border-radius: 5px;
+        }
+    </style>
+    <div></div>
+    <!--<div id="labelOperarateButtons" style="">
+        <a id="labelOperations" class="buttonOnMap">显示名称</a>
+    </div>-->
+
+
+    <div id="labelOperarateButtons" class="menuBox2" style="z-index:-1;">
+        <div class="el-radio-group">
+            <label role="radio" tabindex="-1" class="el-radio-button">
+                <span id="labelOperations" class="el-radio-button__inner">显示名称</span>
+            </label>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        init();
+        animate();
+        //updateMap();
+    </script>
+
+
+
+
+    <link href="css/footerStyle.css" rel="stylesheet" />
+    <footer id="panelFooter-5" class="chat_toolbar_footer">
+        <div class="chat_toolbar" id="toolbarA"  >
+            <ul class="nav_tab_head">
+
+                <li id="createTeamBtn" class="session position1of3">
+                    <a style="margin-top:5px;">
+                        <div class="icon">
+
+                        </div>
+                        <span style="display: block;
+    position: absolute;
+    bottom: 12px;
+    width: 100%;
+    font-size: 16px;"><b>任务</b><span style="background:red;border-radius:20px;">999</span></span>
+                    </a>
+                </li>
+                <li id="showFightBtn" class="session  position2of3" onclick="">
+                    <a style="margin-top:5px;">
+                        <div class="icon">
+
+                        </div>
+                        <span style="display: block;
+    position: absolute;
+    bottom: 12px;
+    width: 100%;
+    font-size: 16px;"><b>机器</b><span style="background:red;border-radius:20px;">999</span></span>
+                    </a>
+                </li>
+                <li class="session  position3of3">
+
+                    <a style="margin-top:5px;">
+                        <div class="icon">
+
+                        </div>
+                        <span style="display: block;
+    position: absolute;
+    bottom: 12px;
+    width: 100%;
+    font-size: 16px;"><b>超市</b><span style="background:red;border-radius:20px;">999</span></span>
+                    </a>
+                </li>
+            </ul> 
+
+        </div>
+
+
+    </footer>
+</body>
+</html>

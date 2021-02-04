@@ -1,0 +1,359 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style type="text/css">
+        @keyframes mymove {
+            0% {
+                background: rgba(255, 216, 0, 0.00);
+                border-color: yellowgreen;
+            }
+
+            50% {
+                background: rgba(255, 0, 220, 0.99);
+                border-color: #ff00dc;
+            }
+
+            100% {
+                background: rgba(255, 216, 0, 0.00);
+                border-color: yellowgreen;
+            }
+        }
+
+        .chatdialog {
+        }
+
+            .chatdialog.msg {
+                animation: mymove 1.9s infinite;
+                -webkit-animation: mymove 1.9s infinite;
+            }
+
+        .friendMsg {
+            animation: mymove 1.9s infinite;
+            -webkit-animation: mymove 1.9s infinite;
+        }
+    </style>
+</head>
+<body style="width:100%;height:100%;overflow:hidden;">
+    <div id="rootContainer" style="width: 100%; height: 100%; overflow: hidden;position:absolute;left:0px;top:0px;">
+        <div style="text-align:center;margin-top:2em">
+            <label>房间号</label><input id="roomNubInput" type="number" />
+        </div>
+        <div style="text-align:center;">
+            <button style="width: 5em;
+        height: 3em;
+        margin-top: 1em;">
+                加入
+            </button>
+        </div>
+    </div>
+    <div style="position: absolute;
+        width: 8em;
+        height: calc(6em + 48px);
+        z-index: 6;
+        left: 1em;
+        top: calc(50% - 20px - 2px - 3em);
+        font-size: 20px;
+        color: blue;
+        text-shadow: 1px 1px 1px #000000;
+        border-color:deepskyblue; 
+        ">
+        <div style="width: calc(100% - 2px);
+        text-align: center;
+        border: 1px solid deepskyblue;
+        border-radius: 0.3em;
+        margin-top: 4px;
+        margin-bottom: 4px;">
+            <span id="carASpan">啊啊啊啊啊啊啊</span>
+        </div>
+        <div style="        width: calc(100% - 2px);
+        text-align: center;
+        border: 1px solid deepskyblue;
+        border-radius: 0.3em;
+        margin-top: 4px;
+        margin-bottom: 4px;">
+            <span id="carBSpan">啊啊啊啊啊</span>
+        </div>
+        <div style="        width: calc(100% - 2px);
+        text-align: center;
+        border: 1px solid deepskyblue;
+        border-radius: 0.3em;
+        margin-top: 4px;
+        margin-bottom: 4px;">
+            <span id="carCSpan">啊啊啊</span>
+        </div>
+        <div style="        width: calc(100% - 2px);
+        text-align: center;
+        border: 1px solid deepskyblue;
+        border-radius: 0.3em;
+        margin-top: 4px;
+        margin-bottom: 4px;">
+            <span id="carDSpan">啊啊</span>
+        </div>
+        <div style="        width: calc(100% - 2px);
+        text-align: center;
+        border: 2px    inset #ffc403;
+        border-radius: 0.3em;
+        margin-top: 4px;
+        margin-bottom: 4px;">
+            <span id="carESpan">啊啊啊啊啊啊</span>
+        </div>
+        <div style="width:3em;text-align:center;border:1px solid gray;border-radius:0.3em;margin-top:4px;margin-bottom:4px;color:yellowgreen;">
+            <span>隐藏</span>
+        </div>
+    </div>
+
+    <div style="position: absolute;
+        width: 3em;
+        height: calc(3em + 24px);
+        z-index: 6;
+        left: 10em;
+        top: calc(50% - 20px - 2px - 3em);
+        font-size: 20px;
+        color: blue;
+        text-shadow: 1px 1px 1px #000000;
+        border-color:deepskyblue;
+        ">
+        <div style="        width: calc(100% - 2px);
+        text-align: center;
+        border: 2px inset #ffc403;
+        border-radius: 0.3em;
+        margin-top: 4px;
+        margin-bottom: 4px;">
+            <span id="carASpan">属性</span>
+        </div>
+        <div style="        width: calc(100% - 2px);
+        text-align: center;
+        border: 1px solid deepskyblue;
+        border-radius: 0.3em;
+        margin-top: 4px;
+        margin-bottom: 4px;">
+            <span id="carBSpan">任务</span>
+        </div>
+        <div style="        width: calc(100% - 2px);
+        text-align: center;
+        border: 1px solid deepskyblue;
+        border-radius: 0.3em;
+        margin-top: 4px;
+        margin-bottom: 4px;">
+            <span id="carCSpan">物品</span>
+        </div>
+
+
+    </div>
+
+    <div style="
+    position:absolute;
+    z-index:7;
+    right:20px;border:none;width:5em;color:green;top:calc(50% - 4em - 28px)">
+        <div style="width: calc(5em - 4px);
+        text-align: center;
+        border: 2px inset #ffc403;
+        border-radius: 0.3em;
+        margin-top: 4px;
+        margin-bottom: 4px;background:rgba(0, 191, 255, 0.6);">
+            <span id="carASpan">提升续航</span>
+        </div>
+        <div style="        width: calc(5em - 4px);
+        text-align: center;
+        border: 2px inset #ffc403;
+        border-radius: 0.3em;
+        margin-top: 4px;
+        margin-bottom: 4px;background:rgba(0, 191, 255, 0.6);">
+            <span id="carASpan">提升业务</span>
+        </div>
+        <div style="        width: calc(5em - 4px);
+        text-align: center;
+        border: 2px inset #ffc403;
+        border-radius: 0.3em;
+        margin-top: 4px;
+        margin-bottom: 4px;
+        background: rgba(0, 191, 255, 0.6);
+">
+            <span id="carASpan">提升容量</span>
+        </div>
+        <div style="        width: calc(5em - 4px);
+        text-align: center;
+        border: 2px inset #ffc403;
+        border-radius: 0.3em;
+        margin-top: 4px;
+        margin-bottom: 4px;
+        background: rgba(0, 191, 255, 0.6);
+">
+            <span id="carASpan">提升速度</span>
+        </div>
+        <div style="        width: calc(5em - 4px);
+        text-align: center;
+        border: 2px inset #ffc403;
+        border-radius: 0.3em;
+        margin-top: 4px;
+        margin-bottom: 4px;
+        background: rgba(0, 191, 255, 0.6);
+">
+            <span id="carASpan">收集金钱</span>
+        </div>
+        <div style="        width: calc(5em - 4px);
+        text-align: center;
+        border: 2px inset #ffc403;
+        border-radius: 0.3em;
+        margin-top: 4px;
+        margin-bottom: 4px;
+        background: rgba(0, 191, 255, 0.6);
+">
+            <span id="carASpan">收取税金</span>
+        </div>
+        <div style="        width: calc(5em - 4px);
+        text-align: center;
+        border: 2px inset #ffc403;
+        border-radius: 0.3em;
+        margin-top: 4px;
+        margin-bottom: 4px;
+        background: rgba(0, 191, 255, 0.6);
+">
+            <span id="carASpan">打压对手</span>
+        </div>
+    </div>
+
+    <div style="position:absolute;z-index:7;top:calc(100% - 2.5em - 8px);left:8px">
+
+        <img src="Pic/chatPng.png" class="chatdialog msg" style="border:solid 1px yellowgreen;border-radius:5px;height:calc(2.5em - 2px);width:auto;" />
+
+        <img src="Pic/trade.png" style="border:solid 1px yellowgreen;border-radius:2px;height:calc(2.5em - 2px);width:auto;" />
+
+    </div>
+
+    <div style="position:absolute;z-index:8;top:0px;width:12em; height:calc(100% - 60px);border:solid 1px red;text-align:center;background:rgba(104, 48, 8, 0.85);color:#83ffff; overflow-y:scroll;  ">
+        <div class="friendMsg">
+            玩家A
+        </div>
+        <div style="margin-bottom:0.25em;margin-top:0.25em">
+            玩家B
+        </div>
+    </div>
+
+    <!--<div style="position:absolute;z-index:8;top:calc(50% - 3em);width:12em; left:calc(50% - 6em);height:6em;border:solid 1px red;text-align:center;background:rgba(104, 48, 8, 0.85);color:#83ffff; overflow:hidden;  ">
+        <div style="background: yellowgreen;
+        margin-bottom: 0.25em;
+        margin-top: 0.25em;">
+            存
+        </div>
+        <div style="background: yellowgreen;
+        margin-bottom: 0.25em;
+        margin-top: 0.25em;">
+            取
+        </div>
+        <div style="background: yellowgreen;
+        margin-bottom: 0.25em;
+        margin-top: 0.25em;">
+            取消
+        </div>
+    </div>-->
+    <div style="position:absolute;z-index:8;top:calc(50% - 3em);width:24em; left:calc(50% - 6em);height:auto;border:solid 1px red;text-align:center;background:rgba(104, 48, 8, 0.85);color:#83ffff; overflow:hidden;  ">
+        <table style="width:100%;">
+            <tr>
+                <th>总资金</th>
+                <th>债务</th>
+                <th>可提现</th>
+            </tr>
+            <tr>
+                <td>10000</td>
+                <td>10000</td>
+                <td>10000</td>
+            </tr>
+        </table>
+        <div style="
+        margin-bottom: 0.25em;
+        margin-top: 0.25em;border:1px solid gray;">
+
+            <label>
+                --↓↓↓输入1打头的比特币地址↓↓↓--
+            </label>
+            <input type="text" style="width:calc(90% - 10px);margin-bottom:0.25em;background:rgba(255, 0, 0, 0.5);" />
+        </div>
+
+        <!--<div style="background: yellowgreen;
+        margin-bottom: 0.25em;
+        margin-top: 0.25em;">
+            存入1/5
+        </div>-->
+        <div style="background: yellowgreen;
+        margin-bottom: 0.25em;
+        margin-top: 0.25em;">
+            捐献一半
+        </div>
+        <div style="background: yellowgreen;
+        margin-bottom: 0.25em;
+        margin-top: 0.25em;">
+            全部捐献
+        </div>
+        <div style="background: yellowgreen;
+        margin-bottom: 0.25em;
+        margin-top: 0.25em;">
+            取出
+        </div>
+        <div style="background: yellowgreen;
+        margin-bottom: 0.25em;
+        margin-top: 0.25em;" onclick="moneyOperator.add();">
+            取消
+        </div>
+    </div>
+    <!--<script src="mainf.js"></script>-->
+
+    <div id="实施" style="z-index:4;position:absolute;top:4px;right:calc(50% - 100px - 1px);border:double 2px #000000;height:60px;width:200px;font-size:14px;color:white;text-align:center;">
+        <canvas id="chanleOfCarAbility" style="
+    width: 140px;
+        height: 60px;
+        position: absolute;
+        top: 0px;
+        left: 0px;opacity:0.7;" height="60" width="140">
+        </canvas>
+        <div style="        width: 140px;
+        height: calc(100% - 4px);
+        position: absolute;
+        top: 0px;
+        left: 0px;">
+            <div style="width:100%;height:calc(33.3%);background-color: transparent;">
+                89/100
+            </div>
+            <div style="        width: 100%;
+        height: calc(33.3%);
+        background-color: transparent;">
+                89/100
+            </div>
+            <div style="        width: 100%;
+        height: calc(33.3%);
+        background-color: transparent;">
+                50/100
+            </div>
+        </div>
+
+        <div style="vertical-align:middle;position:absolute;top:0px;left:140px;border:solid 1px red;width:58px;height:58px;background-color:rgba(0, 0, 0, 0.8);">
+            <span style="vertical-align:middle;width:100%;height:100%;line-height:60px;">50</span>
+        </div>
+        <script type="text/javascript">
+            var f = function () {
+                var c = document.getElementById("chanleOfCarAbility");
+                var ctx = c.getContext("2d");
+                ctx.fillStyle = "#800000";
+                ctx.fillRect(0, 0, 140, 20);
+                ctx.fillStyle = "#FF0000";
+                ctx.fillRect(0, 0, 60, 20);
+
+                ctx.fillStyle = "#008000";
+                ctx.fillRect(0, 20, 140, 40);
+                ctx.fillStyle = "#00FF00";
+                ctx.fillRect(0, 20, 70, 40);
+
+                ctx.fillStyle = "#000080";
+                ctx.fillRect(0, 40, 140, 60);
+                ctx.fillStyle = "#0000FF";
+                ctx.fillRect(0, 40, 75, 60);
+            }
+
+        </script>
+
+        <div>现金1.3K</div>
+    </div>
+</body>
+</html>

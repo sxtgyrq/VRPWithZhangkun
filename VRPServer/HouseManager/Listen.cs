@@ -134,6 +134,7 @@ namespace HouseManager
                                 {
                                     case "All":
                                         {
+
                                             //    public void getAll(out List<double[]> meshPoints, out List<object> listOfCrosses)
                                             List<double[]> meshPoints;
                                             List<object> listOfCrosses;
@@ -194,6 +195,13 @@ namespace HouseManager
                                 outPut = "ok";
                                 //await context.Response.WriteAsync("ok");
                             }; break;
+                        case "SetBust":
+                            {
+                                CommonClass.SetBust sa = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.SetBust>(notifyJson);
+                                var result = await BaseInfomation.rm.updateBust(sa);
+                                outPut = "ok";
+                                //await context.Response.WriteAsync("ok");
+                            }; break;
                         case "SetTax":
                             {
                                 CommonClass.SetTax st = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.SetTax>(notifyJson);
@@ -219,12 +227,29 @@ namespace HouseManager
                                 await BaseInfomation.rm.OrderToReturn(otr);
                                 outPut = "ok";
                             }; break;
-                        case "SaveMoney": 
+                        case "SaveMoney":
                             {
                                 CommonClass.SaveMoney saveMoney = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.SaveMoney>(notifyJson);
                                 await BaseInfomation.rm.SaveMoney(saveMoney);
                                 outPut = "ok";
-                            };break;
+                            }; break;
+                        case "OrderToSubsidize":
+                            {
+                                CommonClass.OrderToSubsidize ots = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.OrderToSubsidize>(notifyJson);
+                                await BaseInfomation.rm.OrderToSubsidize(ots);
+                                outPut = "ok";
+                            }; break;
+                        case "SetBustAttack":
+                            {
+                                CommonClass.SetAttack sa = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.SetAttack>(notifyJson);
+                                var result = await BaseInfomation.rm.updateAttack(sa);
+                                outPut = "ok";
+                                //await context.Response.WriteAsync("ok");
+                            }; break;
+                        case "GetFrequency":
+                            {
+                                outPut = BaseInfomation.rm.GetFrequency().ToString();
+                            }; break;
                     }
                 }
             }

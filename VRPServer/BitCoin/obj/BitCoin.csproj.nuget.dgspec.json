@@ -43,9 +43,9 @@
         "netcoreapp3.1": {
           "targetAlias": "netcoreapp3.1",
           "dependencies": {
-            "NBitcoin": {
+            "RIPEMD": {
               "target": "Package",
-              "version": "[5.0.73, )"
+              "version": "[4.3.0, )"
             }
           },
           "imports": [

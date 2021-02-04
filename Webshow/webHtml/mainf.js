@@ -130,7 +130,7 @@
                 lineGeometry.vertices.push(end);
                 var lineMaterial = new THREE.LineBasicMaterial({ color: color });
                 var line = new THREE.Line(lineGeometry, lineMaterial);
-                line.name = 'carRoad_' + key;
+                line.name = 'carRoad' + 'ABCDE'[i] + '_' + key;
                 line.userData = { objectType: 'carRoad', parent: key, index: (i + 0) };
                 objMain.carGroup.add(line);
 
@@ -227,7 +227,26 @@
             var span = document.createElement('span');
             span.innerText = '执行';
 
-            div3.onclick = function () {
+            //div3.onclick = function () {
+            //    if (objMain.Task.state == '') {
+            //        throw 'task not select';
+            //    }
+            //    else if (objMain.Task.carSelect == '') {
+            //        alert('请选择要执行此任务的车辆');
+            //    }
+            //    else {
+            //        objMain.ws.send(JSON.stringify({ 'c': 'Promote', 'pType': objMain.Task.state, 'car': objMain.Task.carSelect }));
+            //        objMain.Task.state = '';
+            //        objMain.Task.carSelect = '';
+            //        objMain.mainF.removeF.removePanle('carsSelectionPanel');
+            //        carAbility.clear();
+
+            //        objMain.mainF.removeF.clearGroup(objMain.promoteDiamond);
+            //        objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
+            //        endF();
+            //    }
+            //}
+            div3.addEventListener("click", function () {
                 if (objMain.Task.state == '') {
                     throw 'task not select';
                 }
@@ -245,7 +264,11 @@
                     objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
                     endF();
                 }
-            }
+            }, false);
+            // div3.addEventListener('',
+            //['click', 'touchmove'].forEach(function (e) {
+            //    div3.addEventListener(e, mouseMoveHandler);
+            //});
 
             div3.appendChild(span);
 
@@ -600,6 +623,41 @@
                 element.appendChild(div2);
                 element.appendChild(div3);
 
+                if (theLagestHoderKey.data[key] != undefined && theLagestHoderKey.data[key].ChangeTo == objMain.indexKey) {
+                    var div4 = document.createElement('div');
+                    div4.style.textAlign = 'center';
+                    div4.style.width = '5em';
+                    div4.style.border = '2px inset #ffc403';
+                    div4.style.borderRadius = '0.3em';
+                    div4.style.marginTop = '4px';
+                    div4.style.marginBottom = '4px';
+                    div4.style.position = 'relative';
+                    div4.style.left = 'calc(100% - 5em - 4px)';
+                    var spanText = document.createElement('span');
+                    spanText.innerText = '令其出场';
+                    div4.CustomTag = objMain.othersBasePoint[key];
+                    div4.onclick = function () {
+                        if (objMain.Task.state == '') {
+                            throw 'task not select';
+                        }
+                        else if (objMain.Task.carSelect == '') {
+                            alert('请选择要执行此任务的车辆');
+                        }
+                        else {
+                            objMain.ws.send(JSON.stringify({ 'c': 'Bust', 'car': objMain.Task.carSelect, 'TargetOwner': this.CustomTag.indexKey, 'Target': this.CustomTag.fPIndex }));
+                            // objMain.ws.send(JSON.stringify({ 'c': 'Donate', 'car': objMain.Task.carSelect, 'TargetOwner': this.CustomTag.indexKey, 'Target': this.CustomTag.fPIndex }));
+                            objMain.Task.state = '';
+                            objMain.Task.carSelect = '';
+                            objMain.mainF.removeF.removePanle('carsSelectionPanel');
+                            carAbility.clear();
+                            // objMain.mainF.removeF.clearGroup(objMain.collectGroup);
+                            objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
+
+                        }
+                    }
+                    div4.appendChild(spanText);
+                    element.appendChild(div4);
+                }
                 var object = new THREE.CSS2DObject(element);
                 var fp = objMain.othersBasePoint[key].basePoint;
                 object.position.set(MercatorGetXbyLongitude(fp.Longitude), 0, -MercatorGetYbyLatitude(fp.Latitde));
@@ -1033,6 +1091,38 @@
 
             }
         },
+        removeRole: function (roleID) {
+            var carRoadA_ID = 'carRoadA_' + roleID;
+            var carRoadB_ID = 'carRoadB_' + roleID;
+            var carRoadC_ID = 'carRoadC_' + roleID;
+            var carRoadD_ID = 'carRoadD_' + roleID;
+            var carRoadE_ID = 'carRoadE_' + roleID;
+
+            objMain.carGroup.remove(objMain.carGroup.getObjectByName(carRoadA_ID));
+            objMain.carGroup.remove(objMain.carGroup.getObjectByName(carRoadB_ID));
+            objMain.carGroup.remove(objMain.carGroup.getObjectByName(carRoadC_ID));
+            objMain.carGroup.remove(objMain.carGroup.getObjectByName(carRoadD_ID));
+            objMain.carGroup.remove(objMain.carGroup.getObjectByName(carRoadE_ID));
+
+            var carA_ID = 'carA_' + roleID;
+            var carB_ID = 'carB_' + roleID;
+            var carC_ID = 'carC_' + roleID;
+            var carD_ID = 'carD_' + roleID;
+            var carE_ID = 'carE_' + roleID;
+
+            objMain.carGroup.remove(objMain.carGroup.getObjectByName(carA_ID));
+            objMain.carGroup.remove(objMain.carGroup.getObjectByName(carB_ID));
+            objMain.carGroup.remove(objMain.carGroup.getObjectByName(carC_ID));
+            objMain.carGroup.remove(objMain.carGroup.getObjectByName(carD_ID));
+            objMain.carGroup.remove(objMain.carGroup.getObjectByName(carE_ID));
+
+
+            var approachId = 'approach_' + roleID;//;216596b5fddf7bc24f05bfebb2b1f10d
+            objMain.playerGroup.remove(objMain.playerGroup.getObjectByName(approachId));
+
+            var flagId = 'flag_' + roleID;//;216596b5fddf7bc24f05bfebb2b1f10d
+            objMain.playerGroup.remove(objMain.playerGroup.getObjectByName(flagId));
+        }
     },
     Task:
     {
@@ -1074,17 +1164,27 @@
             drawCarBtns(objMain.carsNames);
             objMain.GetPositionNotify.data = null;
             SysOperatePanel.draw();
+            frequencyShow.show();
         }
     },
     Tax: {},
     msg:
     {
 
-    }
+    },
+    FrequencyOfCollectReward: 0,
+    debug: false
 };
+
+
+
 var startA = function () {
     var connected = false;
-    var wsConnect = 'ws://127.0.0.1:11001/websocket';
+    var wsConnect = '';
+    if (objMain.debug)
+        wsConnect = 'ws://127.0.0.1:11001/websocket';
+    else
+        wsConnect = 'wss://www.nyrq123.com/websocket' + window.location.pathname.split('/')[1] + '/';
     var ws = new WebSocket(wsConnect);
     ws.onopen = function () {
         // Web Socket 已连接上，使用 send() 方法发送数据
@@ -1479,6 +1579,83 @@ var startA = function () {
                     moneyOperator.MoneyForSave = received_obj.MoneyForSave;
                     moneyOperator.updateMoneyForSave();
                 }; break;
+            case 'LeftMoneyInDB':
+                {
+                    subsidizeSys.LeftMoneyInDB[received_obj.address] = received_obj.Money;
+                    subsidizeSys.updateMoneyOfSumSubsidizing();
+                }; break;
+            case 'SupportNotify':
+                {
+                    subsidizeSys.SupportMoney = received_obj.Money;
+                    subsidizeSys.updateMoneyOfSumSubsidized();
+                }; break;
+            case 'TheLargestHolderChangedNotify':
+                {
+                    theLagestHoderKey.data[received_obj.operateKey] = received_obj;
+                }; break;
+            case 'OthersRemove':
+                {
+                    //alert('接收到OthersRemove');
+                    // removeRole(received_obj.othersKey);
+                    objMain.mainF.removeRole(received_obj.othersKey)
+                }; break;
+            case 'FrequencyNotify':
+                {
+                    //alert('接收到OthersRemove');
+                    // removeRole(received_obj.othersKey);
+                    //objMain.mainF.removeRole(received_obj.othersKey);
+                    objMain.FrequencyOfCollectReward = received_obj.frequency;
+                    frequencyShow.show();
+                }; break;
+            case 'SingleRoadPathData':
+                {
+                    // MapData.meshPoints.push(received_obj.meshPoints);
+                    for (var i = 0; i < received_obj.meshPoints.length; i++) {
+                        MapData.meshPoints.push(received_obj.meshPoints[i]);
+                    }
+                    var drawRoadInfomation = function () {
+
+                        objMain.mainF.removeF.clearGroup(objMain.roadGroup);
+                        //  objMain.F.clearGroup(
+                        var obj = MapData.meshPoints;
+
+                        var positions = [];
+                        var colors = [];
+                        for (var i = 0; i < obj.length; i++) {
+                            positions.push(
+                                MercatorGetXbyLongitude(obj[i][0]), 0, -MercatorGetYbyLatitude(obj[i][1]),
+                                MercatorGetXbyLongitude(obj[i][2]), 0, -MercatorGetYbyLatitude(obj[i][3]),
+                                MercatorGetXbyLongitude(obj[i][4]), 0, -MercatorGetYbyLatitude(obj[i][5]),
+                                MercatorGetXbyLongitude(obj[i][4]), 0, -MercatorGetYbyLatitude(obj[i][5]),
+                                MercatorGetXbyLongitude(obj[i][6]), 0, -MercatorGetYbyLatitude(obj[i][7]),
+                                MercatorGetXbyLongitude(obj[i][0]), 0, -MercatorGetYbyLatitude(obj[i][1]),
+
+                            );
+                        }
+                        function disposeArray() {
+
+                            this.array = null;
+
+                        }
+                        //  console.log('p', positions);
+                        //var vertices = new Float32Array(positions);
+                        var geometry = new THREE.BufferGeometry();
+                        geometry.addAttribute('position', new THREE.Float32BufferAttribute(positions, 3).onUpload(disposeArray));
+                        //geometry.addAttribute('color', new THREE.BufferAttribute(colors, 3).onUpload(disposeArray));
+                        geometry.computeBoundingSphere();
+                        //var material = new THREE.MeshBasicMaterial({ vertexColors: THREE.VertexColors });
+                        var material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+                        var mesh = new THREE.Mesh(geometry, material);
+
+                        objMain.roadGroup.add(mesh);
+
+
+                        var edges = new THREE.EdgesGeometry(geometry);
+                        var line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x0000FF }));
+                        objMain.roadGroup.add(line);
+                    };
+                    drawRoadInfomation();
+                }; break;
         }
     };
     ws.onclose = function () {
@@ -1670,13 +1847,7 @@ function animate() {
 }
 
 var selectSingleTeamJoinHtml = function () {
-    var text = "";
-    text += "   <div>";
-    text += "            <div style=\"width:calc(100% - 22px);height:calc((100% - 80px)/3);border:solid 1px green;left:10px;top:20px;position:absolute;\" onclick=\"buttonClick('single')\">开始</div>";
-    text += "            <div style=\"width:calc(100% - 22px);height:calc((100% - 80px)/3);border:solid 1px green;left:10px;top:calc((100% + 40px)/3);position:absolute;\" onclick=\"buttonClick('team')\">组队</div>";
-    text += "            <div style=\"width:calc(100% - 22px);height:calc((100% - 80px)/3);border:solid 1px green;left:10px;top:calc((100% + 10px)/3 * 2);position:absolute;\" onclick=\"buttonClick('join')\">加入</div>";
-    text += "        </div>";
-    document.getElementById('rootContainer').innerHTML = text;
+    document.getElementById('rootContainer').innerHTML = selectSingleTeamJoinHtmlF.drawHtml();
 }
 var set3DHtml = function () {
     //var text = "";
@@ -1760,45 +1931,8 @@ var set3DHtml = function () {
         objMain.controls.maxPolarAngle = Math.PI / 3;
     }
 
-    var drawRoadInfomation = function (obj) {
-        var obj = Map.roadAndCross.meshPoints;
 
-        var positions = [];
-        var colors = [];
-        for (var i = 0; i < obj.length; i++) {
-            positions.push(
-                MercatorGetXbyLongitude(obj[i][0]), 0, -MercatorGetYbyLatitude(obj[i][1]),
-                MercatorGetXbyLongitude(obj[i][2]), 0, -MercatorGetYbyLatitude(obj[i][3]),
-                MercatorGetXbyLongitude(obj[i][4]), 0, -MercatorGetYbyLatitude(obj[i][5]),
-                MercatorGetXbyLongitude(obj[i][4]), 0, -MercatorGetYbyLatitude(obj[i][5]),
-                MercatorGetXbyLongitude(obj[i][6]), 0, -MercatorGetYbyLatitude(obj[i][7]),
-                MercatorGetXbyLongitude(obj[i][0]), 0, -MercatorGetYbyLatitude(obj[i][1]),
-
-            );
-        }
-        function disposeArray() {
-
-            this.array = null;
-
-        }
-        //  console.log('p', positions);
-        //var vertices = new Float32Array(positions);
-        var geometry = new THREE.BufferGeometry();
-        geometry.addAttribute('position', new THREE.Float32BufferAttribute(positions, 3).onUpload(disposeArray));
-        //geometry.addAttribute('color', new THREE.BufferAttribute(colors, 3).onUpload(disposeArray));
-        geometry.computeBoundingSphere();
-        //var material = new THREE.MeshBasicMaterial({ vertexColors: THREE.VertexColors });
-        var material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-        var mesh = new THREE.Mesh(geometry, material);
-
-        objMain.roadGroup.add(mesh);
-
-
-        var edges = new THREE.EdgesGeometry(geometry);
-        var line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x0000FF }));
-        objMain.roadGroup.add(line);
-    };
-    drawRoadInfomation(Map.roadAndCross.meshPoints);
+    // drawRoadInfomation(Map.roadAndCross.meshPoints);
 }
 
 var setWaitingToStart = function () {
@@ -1951,10 +2085,11 @@ var token =
     CommandStart: '',
 
 };
-var Map =
+var MapData =
 {
     roadAndCrossJson: '',
-    roadAndCross: null
+    roadAndCross: null,
+    meshPoints: []
 };
 
 

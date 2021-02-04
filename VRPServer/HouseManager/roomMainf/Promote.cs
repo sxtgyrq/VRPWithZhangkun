@@ -216,7 +216,8 @@ namespace HouseManager
                 /*
                  * 从逻辑上，必须要保证car.ability.subsidize>0,player.SupportToPlay!=null
                  */
-                player.SupportToPlay.Money += car.ability.subsidize;
+                player.setSupportToPlayMoney(player.SupportToPlayMoney + car.ability.subsidize, ref notifyMsg);
+                //player.SupportToPlayMoney += car.ability.subsidize;
                 printState(player, car, $"返回基站，返还资助{car.ability.subsidize}");
             }
             car.Refresh(player, ref notifyMsg);
@@ -467,8 +468,10 @@ namespace HouseManager
 
             //var goPath = Program.dt.GetAFromB(fp1, fp2.FastenPositionID);
             //var returnPath = Program.dt.GetAFromB(fp2, baseFp.FastenPositionID);
-            var goPath = Program.dt.GetAFromB(from, to);
-            var returnPath = Program.dt.GetAFromB(to, player.StartFPIndex);
+            // var goPath = Program.dt.GetAFromB(from, to);
+            var goPath = this.GetAFromB(from, to, player, ref notifyMsg);
+            // var returnPath = Program.dt.GetAFromB(to, player.StartFPIndex);
+            var returnPath = this.GetAFromB(to, player.StartFPIndex, player, ref notifyMsg);
 
             var goMile = GetMile(goPath);
             var returnMile = GetMile(returnPath);

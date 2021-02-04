@@ -68,6 +68,10 @@ namespace HouseManager
                 {
                     ReturnThenSetComeBack(player, car, cmp, ref notifyMsg);
                 }
+                else if (cmp.changeType == "Bust" && car.state == CarState.roadForAttack && car.purpose == Purpose.attack)
+                {
+                    ReturnThenSetComeBack(player, car, cmp, ref notifyMsg);
+                }
                 else
                 {
 
@@ -98,96 +102,7 @@ namespace HouseManager
             }
         }
 
-        internal async void ClearPlayers()
-        {
-            return;
-            List<string> notifyMsg = new List<string>();
-            lock (this.PlayerLock)
-            {
-                List<string> keysOfAll = new List<string>();
-                List<string> keysNeedToClear = new List<string>();
-                foreach (var item in this._Players)
-                {
-
-                    if (item.Value.Bust)
-                    {
-                        keysNeedToClear.Add(item.Key);
-                    }
-                    else
-                    {
-                        keysOfAll.Add(item.Key);
-                    }
-                }
-
-
-
-                for (var i = 0; i < keysNeedToClear.Count; i++)
-                {
-                    List<int> indexAll = new List<int>()
-                    {
-                        0,1,2,3,4
-                    };
-                    var countAtBaseStation = (from item in indexAll
-                                              where
-                       this._Players[keysNeedToClear[i]].getCar(item).state == CarState.waitAtBaseStation
-                                              select item).Count();
-                    if (countAtBaseStation == 5)
-                    {
-                        this._Players.Remove(keysNeedToClear[i]);
-
-                        for (var j = 0; j < keysOfAll.Count; j++)
-                        {
-                            if (this._Players[keysOfAll[j]].others.ContainsKey(keysNeedToClear[i]))
-                            {
-                                this._Players[keysOfAll[j]].others.Remove(keysNeedToClear[i]);
-                            }
-                            if (this._Players[keysOfAll[j]].DebtsContainsKey(keysNeedToClear[i]))
-                            {
-                                this._Players[keysOfAll[j]].DebtsRemove(keysNeedToClear[i]);
-                            }
-
-                        }
-                        continue;
-                    }
-
-                    var needToSetReturn = (from item in indexAll
-                                           where
-                    this._Players[keysNeedToClear[i]].getCar(item).state == CarState.waitForCollectOrAttack ||
-                    this._Players[keysNeedToClear[i]].getCar(item).state == CarState.waitForTaxOrAttack ||
-                    this._Players[keysNeedToClear[i]].getCar(item).state == CarState.waitOnRoad
-                                           select item).ToList();
-                    for (var j = 0; j < needToSetReturn.Count; j++)
-                    {
-                        var carName = getCarName(needToSetReturn[j]);
-                        var car = this._Players[keysNeedToClear[i]].getCar(needToSetReturn[j]);
-                        var returnPath_Record = this._Players[keysNeedToClear[i]].returningRecord[carName];
-
-
-                        Thread th = new Thread(() => setReturn(0, new commandWithTime.returnning()
-                        {
-                            c = "returnning",
-                            key = keysNeedToClear[i],
-                            car = carName,
-                            returnPath = returnPath_Record,
-                            target = car.targetFpIndex,
-                            changeType = "sys-return",
-                        }));
-                        th.Start();
-                        //car.changeState++;//更改状态   
-                        //getAllCarInfomations(keysNeedToClear[i], ref notifyMsg);
-                    }
-                }
-
-            }
-
-            for (var i = 0; i < notifyMsg.Count; i += 2)
-            {
-                var url = notifyMsg[i];
-                var sendMsg = notifyMsg[i + 1];
-                Console.WriteLine($"url:{url}");
-                await Startup.sendMsg(url, sendMsg);
-            }
-        }
+       
 
 
         internal async Task<string> OrderToReturn(OrderToReturn otr)
@@ -315,7 +230,8 @@ namespace HouseManager
 
                     if (car.ability.subsidize > 0)
                     {
-                        player.SupportToPlay.Money += car.ability.subsidize;
+                        player.setSupportToPlayMoney(player.SupportToPlayMoney + car.ability.subsidize, ref notifyMsg);
+                        //player.SupportToPlay.Money += car.ability.subsidize;
                     }
                     if (!string.IsNullOrEmpty(car.ability.diamondInCar))
                     {

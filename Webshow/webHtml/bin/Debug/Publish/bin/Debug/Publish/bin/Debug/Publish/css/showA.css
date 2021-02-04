@@ -1,0 +1,54 @@
+﻿body {
+}
+
+.container {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    margin-top: 0px;
+}
+
+.walkerInput {
+    width: calc(100% - 700px);
+    height: 40px;
+    left: 350px;
+    position: absolute;
+    top: calc(50% - 20px);
+    left: 350px;
+    margin-top: 0px;
+}
+
+    .walkerInput.top {
+        z-index: 10;
+    }
+
+    .walkerInput.below {
+        z-index: -1;
+    }
+
+    .walkerInput > textarea {
+        width: 100%;
+        height: 100%;
+    }
+
+.infomationOutput {
+    width: 383px;
+    height: 209px;
+    left: 0;
+    position: absolute; 
+}
+
+    .infomationOutput.top {
+        z-index: 9;
+    }
+
+    .infomationOutput.below {
+        z-index: -1;
+    }
+
+    /*.infomationOutput > textarea {
+        width: 100%;
+        height: 100%;
+    }*/

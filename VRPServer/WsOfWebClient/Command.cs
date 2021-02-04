@@ -55,6 +55,13 @@ namespace WsOfWebClient
         public string car { get; set; }
     }
 
+    public class Bust : Attack
+    {
+        public int Target { get; set; }
+        public string TargetOwner { get; set; }
+        public string car { get; set; }
+    }
+
     public class Tax : CommonClass.Command
     {
         public int Target { get; set; }
@@ -77,6 +84,15 @@ namespace WsOfWebClient
         //    objMain.ws.send(JSON.stringify({ c: 'Donate', dType: type, address: address }));
         public string dType { get; set; }
         public string address { get; set; }
+
+    }
+
+    public class GetSubsidize : CommonClass.Command
+    {
+        //    objMain.ws.send(JSON.stringify({ c: 'Donate', dType: type, address: address }));
+        public string signature { get; set; }
+        public string address { get; set; }
+        public long value { get; set; }
 
     }
 

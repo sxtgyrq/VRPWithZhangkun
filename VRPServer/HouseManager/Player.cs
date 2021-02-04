@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CommonClass;
+using Renci.SshNet.Security;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -110,7 +112,53 @@ namespace HouseManager
             this.SupportToPlay = null;
         }
 
-        public Dictionary<string, OtherPlayers> others { get; set; }
+        internal void initializeOthers()
+        {
+            this.others = new Dictionary<string, OtherPlayers>();
+        }
+
+        public OtherPlayers getOthers(string key)
+        {
+            return this.others[key];
+        }
+
+        Dictionary<string, OtherPlayers> others = new Dictionary<string, OtherPlayers>();
+
+        public bool othersContainsKey(string key)
+        {
+            return this.others.ContainsKey(key);
+        }
+        internal void othersAdd(string key, OtherPlayers otherPlayer)
+        {
+            this.others.Add(key, otherPlayer);
+        }
+        // public delegate void SysRemovePlayerByKey(string key, ref List<string> msgsWithUrl);
+        // public SysRemovePlayerByKey SysRemovePlayerByKeyF;
+
+        internal void othersRemove(string key, ref List<string> notifyMsg)
+        {
+            if (this.others.ContainsKey(key))
+            {
+                //  SysRemovePlayerByKeyF(key, ref notifyMsg);
+
+                var url = this.FromUrl;
+
+                OthersRemove or = new OthersRemove()
+                {
+                    c = "OthersRemove",
+                    WebSocketID = this.WebSocketID,
+                    othersKey = key
+                };
+
+                var sendMsg = Newtonsoft.Json.JsonConvert.SerializeObject(or);
+                notifyMsg.Add(url);
+                notifyMsg.Add(sendMsg);
+
+                this.others.Remove(key);
+            }
+        }
+
+
 
         /// <summary>
         /// 能力提升宝石的状态，用于前台刷新
@@ -133,6 +181,8 @@ namespace HouseManager
             //throw new NotImplementedException();
         }
 
+
+
         /// <summary>
         /// 单位是分
         /// </summary>
@@ -151,6 +201,24 @@ namespace HouseManager
             //    this._Money = value;
             //}
         }
+
+        public delegate void TheLargestHolderKeyChangedF(string keyFrom, string keyTo, string roleKey, ref List<string> notifyMsg);
+        public TheLargestHolderKeyChangedF TheLargestHolderKeyChanged;
+
+
+
+        /// <summary>
+        /// 最大股东,收三个因素印象，钱，债，比值（责任）
+        /// </summary>
+        public string TheLargestHolderKey { get; private set; }
+
+
+
+        internal void InitializeTheLargestHolder()
+        {
+            this.TheLargestHolderKey = this.Key;
+        }
+
         public void MoneySet(long value, ref List<string> notifyMsg)
         {
             if (value < 0)
@@ -160,6 +228,31 @@ namespace HouseManager
             this._Money = value;
             MoneyChanged(this, this.Money, ref notifyMsg);
             this.SetMoneyCanSave(this, ref notifyMsg);
+
+            GetTheLargestHolderKey(ref notifyMsg);
+        }
+
+        private void GetTheLargestHolderKey(ref List<string> notifyMsg)
+        {
+            var valueToCal = this.Key;
+            long moneyToCalculate = this.Money;
+            foreach (var item in this.Debts)
+            {
+                if (this.Magnify(item.Value) > moneyToCalculate)
+                {
+                    valueToCal = item.Key;
+                    moneyToCalculate = item.Value;
+                }
+            }
+
+            if (valueToCal != this.TheLargestHolderKey)
+            {
+                if (TheLargestHolderKeyChanged != null)
+                    TheLargestHolderKeyChanged(this.TheLargestHolderKey, valueToCal, this.Key, ref notifyMsg);
+                this.TheLargestHolderKey = valueToCal;
+                Console.WriteLine($"最大股权人发生了变化{this.TheLargestHolderKey}->{valueToCal}");
+            }
+            // throw new NotImplementedException();
         }
 
         /// <summary>
@@ -181,7 +274,7 @@ namespace HouseManager
         /// <summary>
         /// 玩家，总债务！
         /// </summary>
-        long sumDebets
+        public long sumDebets
         {
             get
             {
@@ -208,7 +301,7 @@ namespace HouseManager
         /// <summary>
         /// 表征玩家玩耍是不是有外部支持！
         /// </summary>
-        public Support SupportToPlay { get; private set; }
+        Support SupportToPlay { get; set; }
         public class Support
         {
             long _Money = 0;
@@ -232,6 +325,41 @@ namespace HouseManager
             }
         }
 
+        public delegate void SupportChanged(Player player, Support money, ref List<string> msgsWithUrl);
+        public SupportChanged SupportChangedF;
+        public long SupportToPlayMoney
+        {
+            get
+            {
+                if (this.SupportToPlay == null)
+                {
+                    return 0;
+                }
+                return SupportToPlay.Money;
+            }
+        }
+        internal void setSupportToPlayMoney(long newValue, ref List<string> notifyMsg)
+        {
+            if (this.SupportToPlay == null)
+            {
+                this.SupportToPlay = new Support()
+                {
+                    Money = 0
+                };
+            }
+            if (this.SupportToPlay.Money != newValue)
+            {
+                this.SupportToPlay.Money = newValue;
+                this.SupportChangedF(this, this.SupportToPlay, ref notifyMsg);
+            }
+
+
+        }
+        internal void RunSupportChangedF(ref List<string> notifyMsgs)
+        {
+            this.SupportChangedF(this, this.SupportToPlay, ref notifyMsgs);
+            //throw new NotImplementedException();
+        }
         /// <summary>
         /// 专款专用，扶持的资金，进扶持的账户，赚的钱，进赚着的账户
         /// </summary>
@@ -283,7 +411,7 @@ namespace HouseManager
         {
             get { return 100; }
         }
-        long brokenParameterT1Value = 90;
+        long brokenParameterT1Value = 900000;
         /// <summary>
         /// 用于计算破产相关参数
         /// </summary>
@@ -342,8 +470,16 @@ namespace HouseManager
         /// </summary>
         public bool Bust
         {
-            get; set;
+            get; private set;
         }
+        public delegate void BustChanged(Player player, bool bustValue, ref List<string> msgsWithUrl);
+        public BustChanged BustChangedF;
+        internal void SetBust(bool v, ref List<string> notifyMsg)
+        {
+            this.Bust = v;
+            BustChangedF(this, this.Bust, ref notifyMsg);
+        }
+
         internal bool DebtsContainsKey(string key)
         {
             return this.Debts.ContainsKey(key);
@@ -364,6 +500,8 @@ namespace HouseManager
                 this.Debts.Add(key, attack);
             }
             SetMoneyCanSave(this, ref notifyMsg);
+
+            this.GetTheLargestHolderKey(ref notifyMsg);
             // SetMoneyCanSave(ref notifyMsg);
         }
 
@@ -435,6 +573,8 @@ namespace HouseManager
 
 
 
+
+
         /// <summary>
         /// 记录待收税金！
         /// </summary>
@@ -490,18 +630,33 @@ namespace HouseManager
         public delegate void TaxChangedF(Player player, int Position, long AddValue, ref List<string> msgsWithUrl);
         public TaxChangedF TaxChanged { get; internal set; }
 
+
+
         internal long DebtsGet(string key)
         {
             return this.Debts[key];
         }
 
-        internal void SetDebts(string key, long v)
+        internal void SetDebts(string key, long v, ref List<string> notifyMsg)
         {
             this.Debts[key] = v;
+            this.GetTheLargestHolderKey(ref notifyMsg);
         }
 
-        internal void DebtsRemove(string key)
+        internal void DebtsRemove(string key, ref List<string> notifyMsg)
         {
+            var url = this.FromUrl;
+
+            DebtsRemove dr = new DebtsRemove()
+            {
+                c = "DebtsRemove",
+                WebSocketID = this.WebSocketID,
+                othersKey = key
+            };
+
+            var sendMsg = Newtonsoft.Json.JsonConvert.SerializeObject(dr);
+            notifyMsg.Add(url);
+            notifyMsg.Add(sendMsg);
             this.Debts.Remove(key);
         }
 
@@ -519,8 +674,41 @@ namespace HouseManager
         internal long Magnify(long value)
         {
             return value * this.brokenParameterT1 / this.brokenParameterT2;
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
+
+        public delegate void DrawSingleRoad(Player player, string roadCode, ref List<string> notifyMsg);
+        public DrawSingleRoad DrawSingleRoadF;
+        Dictionary<string, bool> usedRoad = new Dictionary<string, bool>();
+        internal void addUsedRoad(string roadCode, ref List<string> notifyMsgs)
+        {
+            if (this.usedRoad.ContainsKey(roadCode)) { }
+            else
+            {
+                this.usedRoad.Add(roadCode, true);
+                this.DrawSingleRoadF(this, roadCode, ref notifyMsgs);
+            }
+        }
+
+        public List<string> usedRoadsList
+        {
+            get
+            {
+                var result = new List<string>();
+                foreach (var item in this.usedRoad)
+                {
+                    result.Add(item.Key);
+                }
+                return result;
+            }
+        }
+        //Dictionary<string, bool> usedFps = new Dictionary<string, bool>();
+        //internal void addUsedFps(string fpCode, ref List<string> notifyMsgs)
+        //{
+        //    if (this.usedFps.ContainsKey(fpCode)) { }
+        //    else
+        //        this.usedFps.Add(fpCode, true);
+        //}
     }
     public class OtherPlayers
     {

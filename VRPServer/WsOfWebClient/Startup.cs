@@ -381,6 +381,30 @@ namespace WsOfWebClient
                                         await Room.Donate(s, donate);
                                     }
                                 }; break;
+                            case "GetSubsidize": 
+                                {
+                                    if (s.Ls == LoginState.OnLine)
+                                    {
+                                        GetSubsidize getSubsidize = Newtonsoft.Json.JsonConvert.DeserializeObject<GetSubsidize>(returnResult.result);
+                                        await Room.GetSubsidize(s, getSubsidize);
+                                    }
+                                };break;
+                            case "OrderToSubsidize":
+                                {
+                                    if (s.Ls == LoginState.OnLine)
+                                    {
+                                        GetSubsidize getSubsidize = Newtonsoft.Json.JsonConvert.DeserializeObject<GetSubsidize>(returnResult.result);
+                                        await Room.GetSubsidize(s, getSubsidize);
+                                    }
+                                }; break;
+                            case "Bust": 
+                                {
+                                    if (s.Ls == LoginState.OnLine)
+                                    {
+                                        Bust bust = Newtonsoft.Json.JsonConvert.DeserializeObject<Bust>(returnResult.result);
+                                        await Room.setBust(s, bust);
+                                    }
+                                };break;
                         }
                     }
                     catch (Exception e)

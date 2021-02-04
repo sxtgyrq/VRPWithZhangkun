@@ -14,6 +14,9 @@ namespace HouseManager
         public static bool Debug = false;
         static void Main(string[] args)
         {
+            var version = "1.0.0";
+            Console.WriteLine($"版本号：{version}");
+
             Program.startTime = DateTime.Now;
             namal();
             startTaskForAwait();
@@ -42,11 +45,18 @@ namespace HouseManager
                         tcpPort = num;
                     }
                 }
+
+
+                Data.SetRootPath();
+
                 Thread startTcpServer = new Thread(() => Listen.IpAndPort(ip, tcpPort));
                 startTcpServer.Start();
 
                 Thread startMonitorTcpServer = new Thread(() => Listen.IpAndPortMonitor(ip, 30000 - tcpPort));
                 startMonitorTcpServer.Start();
+
+                Thread th = new Thread(() => PlayersSysOperate());
+                th.Start();
                 //int tcpServerPort = 30000 - websocketPort;
                 //ConnectInfo.HostIP = ip;
                 //ConnectInfo.webSocketPort = websocketPort;
@@ -77,11 +87,15 @@ namespace HouseManager
             //  Console.WriteLine("Hello World!");
         }
 
-        private static void ClearPlayers()
+        private static void PlayersSysOperate()
         {
-            //Thread.Sleep(30 * 1000);
-            //BaseInfomation.rm.ClearPlayers();
-            //throw new NotImplementedException();
+            while (true)
+            {
+                Thread.Sleep(60 * 1000);
+                BaseInfomation.rm.SetReturn();
+                BaseInfomation.rm.ClearPlayers();
+                BaseInfomation.rm.UpdatePlayerFatigueDegree();
+            }
         }
 
         static void startTaskForAwait()

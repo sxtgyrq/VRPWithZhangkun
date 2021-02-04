@@ -4,6 +4,7 @@ F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\FileUpload\bin\De
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\FileUpload\bin\Debug\netcoreapp3.1\FileUpload.runtimeconfig.dev.json
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\FileUpload\bin\Debug\netcoreapp3.1\FileUpload.dll
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\FileUpload\bin\Debug\netcoreapp3.1\FileUpload.pdb
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\FileUpload\obj\Debug\netcoreapp3.1\FileUpload.csprojAssemblyReference.cache
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\FileUpload\obj\Debug\netcoreapp3.1\FileUpload.AssemblyInfoInputs.cache
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\FileUpload\obj\Debug\netcoreapp3.1\FileUpload.AssemblyInfo.cs
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\FileUpload\obj\Debug\netcoreapp3.1\FileUpload.csproj.CoreCompileInputs.cache

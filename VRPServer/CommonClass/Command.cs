@@ -44,10 +44,55 @@ namespace CommonClass
         public long tax { get; set; }
         public int target { get; set; }
     }
+    public class FrequencyNotify : CommandNotify
+    {
+        //public Model.FastonPosition fp { get; set; }
+        //public long tax { get; set; }
+        //public int target { get; set; }
+        public int frequency { get; set; }
+    }
     public class MoneyForSaveNotify : CommandNotify
     {
         public long MoneyForSave { get; set; }
     }
+
+    public class OthersRemove : CommandNotify
+    {
+        public string othersKey;
+    }
+
+    public class DebtsRemove : CommandNotify
+    {
+        public string othersKey;
+    }
+
+    public class BustStateNotify : CommandNotify
+    {
+        public bool Bust { get; set; }
+        public string Key { get; set; }
+    }
+
+    public class TheLargestHolderChangedNotify : CommandNotify
+    {
+        public string operateKey { get; set; }
+        public string ChangeTo { get; set; }
+        public string operateName { get; set; }
+        public string nameTo { get; set; }
+    }
+    public class SingleRoadPathData : CommandNotify
+    {
+        public List<double[]> meshPoints { get; set; }
+    }
+    public class SupportNotify : CommandNotify
+    {
+        public long Money { get; set; }
+    }
+    public class LeftMoneyInDB : CommandNotify
+    {
+        public long Money { get; set; }
+        public string address { get; set; }
+    }
+
     public class BradCastAnimateOfCar : CommandNotify
     {
         public string carID;
@@ -134,6 +179,10 @@ namespace CommonClass
         public string[] CarsNames { get; set; }
     }
 
+    public class GetFrequency : Command
+    { 
+    }
+
     public class PlayerCheck : PlayerAdd { }
 
     public class GetPosition : Command
@@ -167,6 +216,14 @@ namespace CommonClass
         public string targetOwner { get; set; }
         public int target { get; set; }
     }
+
+    public class SetBust : Command
+    {
+        public string Key { get; set; }
+        public string car { get; set; }
+        public string targetOwner { get; set; }
+        public int target { get; set; }
+    }
     public class SetTax : Command
     {
         public string Key { get; set; }
@@ -185,6 +242,14 @@ namespace CommonClass
     {
         public string Key { get; set; }
         public string car { get; set; }
+    }
+
+    public class OrderToSubsidize : Command
+    {
+        public string Key { get; set; }
+        public string address { get; set; }
+        public string signature { get; set; }
+        public long value { get; set; }
     }
     public class SaveMoney : Command
     {

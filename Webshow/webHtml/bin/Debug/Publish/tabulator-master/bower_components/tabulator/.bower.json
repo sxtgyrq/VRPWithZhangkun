@@ -1,0 +1,50 @@
+{
+  "name": "tabulator",
+  "main": "dist/js/tabulator.js",
+  "version": "4.7.2",
+  "description": "Interactive table generation JavaScript library",
+  "keywords": [
+    "table",
+    "grid",
+    "datagrid",
+    "tabulator",
+    "editable",
+    "cookie",
+    "jquery",
+    "jqueryui",
+    "sort",
+    "format",
+    "resizable",
+    "list",
+    "scrollable",
+    "ajax",
+    "json",
+    "widget",
+    "jquery",
+    "react",
+    "angular",
+    "vue"
+  ],
+  "authors": [
+    "Oli Folkerd"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/olifolkerd/tabulator",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "_release": "4.7.2",
+  "_resolution": {
+    "type": "version",
+    "tag": "4.7.2",
+    "commit": "673498817be34f9e229901de950959aedf819019"
+  },
+  "_source": "https://github.com/olifolkerd/tabulator.git",
+  "_target": "^4.7.2",
+  "_originalSource": "tabulator",
+  "_direct": true
+}

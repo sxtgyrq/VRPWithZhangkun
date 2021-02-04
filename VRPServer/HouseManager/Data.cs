@@ -44,6 +44,8 @@ namespace HouseManager
             Console.WriteLine($"{this._road.Count}_{this._allFp.Count}");
         }
 
+
+
         static List<OssModel.FastonPosition> GetAllFp(string fpDictionary)
         {
             //  throw new Exception("");
@@ -194,8 +196,23 @@ namespace HouseManager
             ////Console.WriteLine($"计算时间{(dt2 - dt1).TotalSeconds}");
             //return json;
         }
+        public static void SetRootPath()
+        {
+            var rootPathDefault = "F:\\MyProject\\VRPWithZhangkun\\MainApp\\DBPublish\\";
+            Console.WriteLine("你好，请输入线路数据的路径，其默认值如下：");
+            Console.WriteLine(rootPathDefault);
 
-        static string rootPath = "F:\\MyProject\\VRPWithZhangkun\\MainApp\\DBPublish\\";
+            var input = Console.ReadLine().Trim();
+            if (string.IsNullOrEmpty(input))
+            {
+                Data.PathDataAll = rootPathDefault;
+            }
+            else
+            {
+                Data.PathDataAll = input;
+            }
+        }
+        static string PathDataAll = "";
         public List<OssModel.MapGo.nyrqPosition> GetAFromB(int start, int end)
         {
             if (start == end)
@@ -274,7 +291,7 @@ namespace HouseManager
 
         private static byte[] GetDataOfPath(int dataIndex, int startPositionInDB, int length)
         {
-            using (var fileStream = new FileStream($"{rootPath}bigData{dataIndex}.rqdt", FileMode.OpenOrCreate))
+            using (var fileStream = new FileStream($"{PathDataAll}bigData{dataIndex}.rqdt", FileMode.OpenOrCreate))
             {
                 var data = new byte[length];
                 fileStream.Seek(startPositionInDB, SeekOrigin.Begin);
@@ -285,7 +302,7 @@ namespace HouseManager
 
         private static bool Read(ref int startPosition, out byte[] data)
         {
-            using (var fileStream = new FileStream($"{rootPath}contentofdata", FileMode.OpenOrCreate))
+            using (var fileStream = new FileStream($"{PathDataAll}contentofdata", FileMode.OpenOrCreate))
             {
                 data = new byte[8];
                 if (startPosition < fileStream.Length)
@@ -494,6 +511,39 @@ namespace HouseManager
             }
         }
 
+        internal void getSingle(string roadCode, out List<double[]> meshPoints)
+        {
+            Dictionary<string, bool> Cs = new Dictionary<string, bool>();
+            //listOfCrosses = new List<object>();
+            Dictionary<string, Dictionary<int, OssModel.SaveRoad.RoadInfo>> result;
+
+            Program.dt.GetData(out result);
+            meshPoints = new List<double[]>();
+            //        //   List<int> colors = new List<int>();
+            //  foreach (var item in result)
+            {
+                foreach (var itemj in result[roadCode])
+                {
+                    var value = itemj.Value;
+                    var ps = getRoadRectangle(value, result[roadCode]);
+                    meshPoints.Add(ps);
+                    //for (var i = 0; i < value.Cross1.Length; i++)
+                    //{
+                    //    var cross = value.Cross1[i];
+                    //    var key = cross.RoadCode1.CompareTo(cross.RoadCode2) > 0 ?
+                    //        $"{cross.RoadCode1}_{cross.RoadOrder1}_{cross.RoadCode2}_{cross.RoadOrder2}" :
+                    //        $"{cross.RoadCode2}_{cross.RoadOrder2}_{cross.RoadCode1}_{cross.RoadOrder1}";
+                    //    if (Cs.ContainsKey(key)) { }
+                    //    else
+                    //    {
+                    //        Cs.Add(key, false);
+                    //        listOfCrosses.Add(new { lon = cross.BDLongitude, lat = cross.BDLatitude, state = cross.CrossState });
+                    //    }
+                    //}
+                }
+            }
+        }
+
         const double roadZoomValue = 0.0000003;
         private static double[] getRoadRectangle(OssModel.SaveRoad.RoadInfo value, Dictionary<int, OssModel.SaveRoad.RoadInfo> result)
         {
@@ -626,10 +676,10 @@ namespace HouseManager
             }
             return new double[]
             {
-              Math.Round(  point1[0],9),Math.Round(point1[1],9),
-             Math.Round(   point2[0],9),Math.Round(point2[1],9),
-             Math.Round(   point3[0],9),Math.Round(point3[1],9),
-             Math.Round(   point4[0],9),Math.Round(point4[1],9)
+              Math.Round(  point1[0],7),Math.Round(point1[1],7),
+             Math.Round(   point2[0],7),Math.Round(point2[1],7),
+             Math.Round(   point3[0],7),Math.Round(point3[1],7),
+             Math.Round(   point4[0],7),Math.Round(point4[1],7)
             };
         }
 

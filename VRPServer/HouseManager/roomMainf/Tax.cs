@@ -132,7 +132,8 @@ namespace HouseManager
                 {
                     if (this._Players.ContainsKey(st.Key))
                     {
-                        if (this._Players[st.Key].TaxContainsKey(st.target))
+                        if (this._Players[st.Key].Bust) { }
+                        else if (this._Players[st.Key].TaxContainsKey(st.target))
                         {
                             var player = this._Players[st.Key];
                             var car = this._Players[st.Key].getCar(carIndex);
@@ -273,8 +274,10 @@ namespace HouseManager
             var fp2 = Program.dt.GetFpByIndex(to);
             var baseFp = Program.dt.GetFpByIndex(player.StartFPIndex);
 
-            var goPath = Program.dt.GetAFromB(from, to);
-            var returnPath = Program.dt.GetAFromB(to, player.StartFPIndex);
+            // var goPath = Program.dt.GetAFromB(from, to);
+            var goPath = this.GetAFromB(from, to, player, ref notifyMsg);
+            // var returnPath = Program.dt.GetAFromB(to, player.StartFPIndex);
+            var returnPath = this.GetAFromB(to, player.StartFPIndex, player, ref notifyMsg);
 
             var goMile = GetMile(goPath);
             var returnMile = GetMile(returnPath);
@@ -377,7 +380,7 @@ namespace HouseManager
                 //   car.ability.costBusiness += tax;
                 // AbilityChanged(player, car, ref notifyMsg, "business");
 
-               // player.TaxInPosition[car.targetFpIndex] -= tax;
+                // player.TaxInPosition[car.targetFpIndex] -= tax;
                 player.SetTaxByPositionIndex(car.targetFpIndex, player.GetTaxByPositionIndex(car.targetFpIndex) - tax, ref notifyMsg);
 
                 //if (player.TaxInPosition[car.targetFpIndex] == 0)

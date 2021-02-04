@@ -184,8 +184,10 @@ namespace HouseManager
             var fp2 = Program.dt.GetFpByIndex(to);
             var fbBase = Program.dt.GetFpByIndex(player.StartFPIndex);
             //var goPath = Program.dt.GetAFromB(fp1, fp2.FastenPositionID);
-            var goPath = Program.dt.GetAFromB(from, to);
-            var returnPath = Program.dt.GetAFromB(to, player.StartFPIndex);
+            //var goPath = Program.dt.GetAFromB(from, to);
+            var goPath = this.GetAFromB(from, to, player, ref notifyMsg);
+            //var returnPath = Program.dt.GetAFromB(to, player.StartFPIndex);
+            var returnPath = this.GetAFromB(to, player.StartFPIndex, player, ref notifyMsg);
             var goMile = GetMile(goPath);
             var returnMile = GetMile(returnPath);
             if (car.ability.leftMile >= goMile + returnMile)
@@ -364,7 +366,7 @@ namespace HouseManager
             if (pa.target == this.getCollectPositionTo())
             {
                 int taxPostion = this.getCollectPositionTo();
-                long sumCollect = this.CollectReWard;
+                long sumCollect = DealWithTheFrequcy(this.CollectReWard);
                 var selfGet = sumCollect;
                 long sumDebet = 0;
 
@@ -373,6 +375,9 @@ namespace HouseManager
                 {
                     sumDebet += player.Magnify(item.Value);
                 }
+
+
+
                 if (sumDebet > 0)
                 {
                     Dictionary<string, long> profiles = new Dictionary<string, long>();
@@ -425,6 +430,7 @@ namespace HouseManager
                     //car.ability.costVolume += selfGet;
                     car.ability.setCostVolume(car.ability.costVolume + selfGet, player, car, ref notifyMsg);
                     //AbilityChanged(player, car, ref notifyMsg, "volume");
+                    addFrequencyRecord(ref notifyMsg);
                 }
                 this.collectPosition = this.GetRandomPosition();
                 needUpdateCollectState = true;
@@ -464,6 +470,8 @@ namespace HouseManager
                 throw new Exception("");
             }
         }
+
+
 
         //private void AlibityChanged(long m, Player player, Car car, ref List<string> notifyMsg, string pType)
         //{

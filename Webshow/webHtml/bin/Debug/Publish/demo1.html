@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style type="text/css">
+        .arrow {
+            width: 20px;
+            height: 4px;
+            margin: 0 auto 7px;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-bottom: 4px solid #343c99;
+            transform: rotate(45deg);
+            transform-origin: left;
+        }
+
+            .arrow:after {
+                content: '';
+                display: block;
+                width: 100%;
+                height: 100%;
+                border-left: 4px solid transparent;
+                border-right: 4px solid transparent;
+                border-top: 4px solid #343c99;
+                position: absolute;
+                right: -10px;
+                top: -14px;
+                transform: rotate(90deg);
+                transform-origin: bottom;
+            }
+    </style>
+</head>
+<body>
+    <div style="width:10em;border:2px solid #ff0000;border-top-left-radius:0.5em;background-color:rgba(255, 255, 255, 0.5);color:#1504f6;">
+
+        <div>
+            <b>到<span style="color:#05ffba">xxxx</span>花费<span>0.03</span>购买红宝石。</b>
+
+        </div>
+        <div style="
+        width:3em;
+        text-align: center;
+        border: 2px inset #ffc403;
+        border-radius: 0.3em;
+        margin-top: 4px;
+        margin-bottom: 4px;
+        position:relative;
+       /* float:right;*/
+       left:calc(100% - 3em - 4px);">
+            <span id="carASpan">执行</span>
+
+        </div>
+        <div class="arrow"></div> 
+    </div>
+
+   
+</body>
+</html>

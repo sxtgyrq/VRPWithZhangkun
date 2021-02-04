@@ -55,7 +55,7 @@ namespace HouseManager
                         CreateTime = DateTime.Now,
                         ActiveTime = DateTime.Now,
                         StartFPIndex = -1,
-                        others = new Dictionary<string, OtherPlayers>(),
+                        //others = new Dictionary<string, OtherPlayers>(),
                         PromoteState = new Dictionary<string, int>()
                         {
                             {"mile",-1},
@@ -66,7 +66,7 @@ namespace HouseManager
                         Collect = -1,
                         //Debts = new Dictionary<string, long>(),
                         //Money = 500 * 100,
-                        Bust = false,
+                        //  Bust = false,
                         //TaxInPosition = new Dictionary<int, long>(),
                         returningRecord = new Dictionary<string, List<Model.MapGo.nyrqPosition>>()
                         {
@@ -86,6 +86,8 @@ namespace HouseManager
                         }
                     });
                     this._Players[addItem.Key].initializeCars(addItem.CarsNames, this);
+                    this._Players[addItem.Key].initializeOthers();
+                    // this._Players[addItem.Key].SysRemovePlayerByKeyF = BaseInfomation.rm.SysRemovePlayerByKey;
                     //System.Random rm = new System.Random(DateTime.Now.GetHashCode());
 
                     int fpIndex = this.GetRandomPosition(); // this.rm.Next(0, Program.dt.GetFpCount());
@@ -97,17 +99,25 @@ namespace HouseManager
                     this._Players[addItem.Key].TaxInPositionInit();// = RoomMain.TaxAdded;
                     this._Players[addItem.Key].InitializeDebt();
 
+
                     //SetMoneyCanSave 在InitializeDebt 之后，MoneySet之前
                     this._Players[addItem.Key].SetMoneyCanSave = RoomMain.SetMoneyCanSave;
                     this._Players[addItem.Key].MoneyChanged = RoomMain.MoneyChanged;
                     var notifyMsgs = new List<string>();
                     this._Players[addItem.Key].MoneySet(500 * 100, ref notifyMsgs);
 
+                    this._Players[addItem.Key].SupportChangedF = RoomMain.SupportChanged;
 
-
+                    this._Players[addItem.Key].TheLargestHolderKeyChanged = this.TheLargestHolderKeyChanged;
+                    this._Players[addItem.Key].InitializeTheLargestHolder();
 
                     // this._Players[addItem.Key].Money
 
+                    this._Players[addItem.Key].BustChangedF = this.BustChangedF;
+                    this._Players[addItem.Key].SetBust(false, ref notifyMsgs);
+
+                    this._Players[addItem.Key].DrawSingleRoadF = this.DrawSingleRoadF;
+                    this._Players[addItem.Key].addUsedRoad(Program.dt.GetFpByIndex(fpIndex).RoadCode, ref notifyMsgs);
                 }
             }
 
@@ -123,6 +133,6 @@ namespace HouseManager
             //  throw new NotImplementedException();
         }
 
-
+       
     }
 }

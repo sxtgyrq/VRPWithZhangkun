@@ -1,0 +1,341 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <title></title>
+    <style type="text/css">
+        .container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            margin-top: 0px;
+        }
+
+        .renderDom {
+            position: absolute;
+            left: 0px;
+            right: 0px;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 2;
+        }
+
+        .labelRenderer {
+            position: absolute;
+            top: 0px;
+            overflow: hidden;
+            z-index: 3;
+            left: 0px;
+            right: 0px;
+            width: 100%;
+            height: 100%;
+            /*labelRenderer .domElement.style.position = 'absolute';
+            labelRenderer .domElement.style.top = 0;
+            labelRenderer .domElement.style.overflow = 'hidden';
+            labelRenderer .domElement.style.z = 'hidden';*/
+        }
+        /*
+
+        */
+        @keyframes mymove {
+            0% {
+                background: rgba(255, 216, 0, 0.00);
+                border-color: yellowgreen;
+            }
+
+            50% {
+                background: rgba(255, 0, 220, 0.99);
+                border-color: #ff00dc;
+            }
+
+            100% {
+                background: rgba(255, 216, 0, 0.00);
+                border-color: yellowgreen;
+            }
+        }
+
+        .chatdialog {
+        }
+
+            .chatdialog.msg {
+                animation: mymove 1.9s infinite;
+                -webkit-animation: mymove 1.9s infinite;
+            }
+
+        .friendMsg {
+            animation: mymove 1.9s infinite;
+            -webkit-animation: mymove 1.9s infinite;
+        }
+
+        #abilityCanvasContainer {
+            z-index: 4;
+            position: absolute;
+            top: 4px;
+            right: calc(50% - 100px - 1px);
+            border: double 2px rgba(247, 245, 126, 0.28);
+            height: 60px;
+            width: 200px;
+            font-size: 14px;
+            color: white;
+            text-align: center;
+            border-radius: 3px;
+        }
+
+        #chanleOfCarAbility {
+            width: 140px;
+            height: 60px;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            opacity: 0.6;
+        }
+
+        #TextOfCarAbility {
+            width: 140px;
+            height: calc(100%);
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .TextOfCarAbilityItem {
+            width: 100%;
+            height: calc(33.3%);
+            background-color: transparent;
+            text-align: center;
+        }
+
+        .speedValueContainer {
+            vertical-align: middle;
+            position: absolute;
+            top: 0px;
+            left: 140px;
+            border: solid 1px red;
+            width: 58px;
+            height: 58px;
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+
+            .speedValueContainer > span {
+                vertical-align: middle;
+                width: 100%;
+                height: 100%;
+                line-height: 60px;
+            }
+    </style>
+    <script src="ThreeJs/three.js"></script>
+    <script src="ThreeJs/CSS2DRenderer.js"></script>
+    <script src="Geometry/GetMapDetail.js"></script>
+    <script src="ThreeJs/OrbitControls.js"></script>
+    <script src="ThreeJs/WebGL.js"></script>
+    <!--<script src="ThreeJs/GLTFBase64Loader.js"></script>-->
+    <script src="ThreeJs/MTLLoader.js"></script>
+
+    <script src="ThreeJs/OBJLoader.js"></script>
+    <link href="css/ChatHtml.css" rel="stylesheet" />
+    <link href="css/mainSet.css" rel="stylesheet" />
+
+</head>
+<body style="width:100%;height:100%;">
+    <div id="rootContainer" style="width: 100%; height: 100%; overflow: hidden;position:absolute;left:0px;top:0px;">
+
+    </div>
+    <script src="theLargestHolderKeyChanged.js"></script>
+    <script src="frequencyShow.js"></script>
+    <script src="selectSingleTeamJoinHtml.js"></script>
+    <script src="bitcoin/signandverify.js"></script>
+    <script src="bitcoinCheck.js"></script>
+    <script src="moneySys.js"></script>
+    <script src="subsidize.js"></script>
+    <script src="carAbility.js"></script>
+    <script src="dialogSys.js"></script>
+    <script src="mainf.js?xx=22"></script>
+
+
+    <!--<div id="dialog" class="dialog show">
+        <div class="dialogPanel1">
+            <header id="panelHeader-5" class="dialogPanelheader">
+
+                <button id="panelLeftButtonGoBack" class="dialogPanelLeftButton">
+                    <span class="dialogBtn_text">返回</span>
+                </button>
+
+                <h1 id="panelTitleDialogTo" class="dialogPanelTitleName" style="padding-left:2em;" onclick="gotoOtherRolePage();">
+                    ☭玩家AAAeee
+
+                </h1>
+
+
+
+            </header>
+            <div id="panelBodyShowMsg" class="dialogPanel_body" onscroll="getHeight(this);">
+
+
+
+                <div class="dialogChat_content_group self  " _sender_uin="1322410987">
+
+
+
+                    <p class="dialogChat_nick"> <a>哈希码</a></p>
+
+
+                    <p class="chat_content ">你好好好</p>
+                </div>
+                <div class="dialogChat_content_group buddy" _sender_uin="1322410987">
+
+
+
+                    <p class="dialogChat_nick"> <a>不好</a></p>
+
+
+                    <p class="chat_content ">你好好好</p>
+                </div>
+
+                <div class="dialogChat_content_group self  " _sender_uin="1322410987">
+
+
+
+                    <p class="dialogChat_nick"> <a>哈希码</a></p>
+
+
+                    <p class="chat_content ">你好好好</p>
+                </div>
+                <div class="dialogChat_content_group buddy" _sender_uin="1322410987">
+
+
+
+                    <p class="dialogChat_nick"> <a>不好</a></p>
+
+
+                    <p class="chat_content ">你好好好</p>
+                </div>
+                <div class="dialogChat_content_group self  " _sender_uin="1322410987">
+
+
+
+                    <p class="dialogChat_nick"> <a>哈希码</a></p>
+
+
+                    <p class="chat_content ">你好好好</p>
+                </div>
+                <div class="dialogChat_content_group buddy" _sender_uin="1322410987">
+
+
+
+                    <p class="dialogChat_nick"> <a>不好</a></p>
+
+
+                    <p class="chat_content ">你好好好</p>
+                </div>
+                <div class="dialogChat_content_group self  " _sender_uin="1322410987">
+
+
+
+                    <p class="dialogChat_nick"> <a>哈希码</a></p>
+
+
+                    <p class="chat_content ">你好好好</p>
+                </div>
+                <div class="dialogChat_content_group buddy" _sender_uin="1322410987">
+
+
+
+                    <p class="dialogChat_nick"> <a>不好</a></p>
+
+
+                    <p class="chat_content ">你好好好</p>
+                </div>
+                <div class="dialogChat_content_group self  " _sender_uin="1322410987">
+
+
+
+                    <p class="dialogChat_nick"> <a>哈希码</a></p>
+
+
+                    <p class="chat_content ">你好好好</p>
+                </div>
+                <div class="dialogChat_content_group buddy" _sender_uin="1322410987">
+
+
+
+                    <p class="dialogChat_nick"> <a>不好</a></p>
+
+
+                    <p class="chat_content ">你好好好</p>
+                </div>
+                <div class="dialogChat_content_group self  " _sender_uin="1322410987">
+
+
+
+                    <p class="dialogChat_nick"> <a>哈希码</a></p>
+
+
+                    <p class="chat_content ">你好好好</p>
+                </div>
+                <div class="dialogChat_content_group buddy" _sender_uin="1322410987">
+
+
+
+                    <p class="dialogChat_nick"> <a>不好</a></p>
+
+
+                    <p class="chat_content ">你好好好</p>
+                </div>
+                <div class="dialogChat_content_group self  " _sender_uin="1322410987">
+
+
+
+                    <p class="dialogChat_nick"> <a>哈希码</a></p>
+
+
+                    <p class="chat_content ">你好好好</p>
+                </div>
+                <div class="dialogChat_content_group buddy" _sender_uin="1322410987">
+
+
+
+                    <p class="dialogChat_nick"> <a>不好</a></p>
+
+
+                    <p class="chat_content ">你好好好</p>
+                </div>
+            </div>
+
+            <footer id="panelFooter-5" class="dialogChat_toolbar_footer">
+                <ul>
+                    <li class="dialogSession left">
+                        <a style="margin-top:5px;">
+
+                            <span style="display: block;
+    bottom: 4px;
+    width: 100%;
+    font-size: 28px;">✚</span>
+                        </a>
+                    </li>
+                    <li class="dialogSession input">
+                        <textarea class="dialogChat_textareaStyle" maxlength="120"></textarea>
+
+                    </li>
+                    <li class="dialogSession right">
+                        <a style="margin-top:5px;">
+
+                            <span style="display: block;
+    bottom: 4px;
+    width: 100%;
+    font-size: 28px;">发送</span>
+                        </a>
+                    </li>
+                </ul>
+
+            </footer>
+        </div>
+    </div>-->
+</body>
+</html>
