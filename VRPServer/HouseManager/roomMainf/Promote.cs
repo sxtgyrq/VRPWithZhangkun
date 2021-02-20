@@ -128,7 +128,7 @@ namespace HouseManager
                                                                     {
                                                                         WebNotify(player, $"资金不够,{car.name}被安排返航！！！");
                                                                         printState(player, car, "在路上走的车，想找宝石，钱不够啊，必须立即返回！");
-                                                                        Console.WriteLine($"宝石的价格{this.promotePrice[sp.pType]}，钱不够啊， {car.ability.subsidize},{car.ability.costBusiness},{car.ability.costVolume}！");
+                                                                        Console.WriteLine($"宝石的价格{this.promotePrice[sp.pType]}，钱不够啊,{car.ability.costBusiness},{car.ability.costVolume}！");
 #warning 在路上，由于资金不够，这里没有能测到。
                                                                         setReturnWhenPromoteFailed(sp, car);
                                                                     }
@@ -211,15 +211,15 @@ namespace HouseManager
                 printState(player, car, $"返回基站，通过leftBusiness，是流动资金增加{car.ability.leftBusiness}");
             if (car.ability.leftVolume > 0)
                 printState(player, car, $"返回基站，通过leftBusiness，是流动资金增加{car.ability.leftVolume}");
-            if (car.ability.subsidize > 0)
-            {
-                /*
-                 * 从逻辑上，必须要保证car.ability.subsidize>0,player.SupportToPlay!=null
-                 */
-                player.setSupportToPlayMoney(player.SupportToPlayMoney + car.ability.subsidize, ref notifyMsg);
-                //player.SupportToPlayMoney += car.ability.subsidize;
-                printState(player, car, $"返回基站，返还资助{car.ability.subsidize}");
-            }
+            //if (car.ability.subsidize > 0)
+            //{
+            //    /*
+            //     * 从逻辑上，必须要保证car.ability.subsidize>0,player.SupportToPlay!=null
+            //     */
+            //    player.setSupportToPlayMoney(player.SupportToPlayMoney + car.ability.subsidize, ref notifyMsg);
+            //    //player.SupportToPlayMoney += car.ability.subsidize;
+            //    printState(player, car, $"返回基站，返还资助{car.ability.subsidize}");
+            //}
             car.Refresh(player, ref notifyMsg);
 
             if (!string.IsNullOrEmpty(car.ability.diamondInCar))
@@ -258,17 +258,24 @@ namespace HouseManager
             {
                 //     var m1 = player.GetMoneyCanSave();
 
-                long moneyFromSupport, moneyFromEarn;
-                player.PayWithSupport(needMoney, out moneyFromSupport, out moneyFromEarn, ref notifyMsg);
+                //   long moneyFromSupport, moneyFromEarn;
 
+                if (player.Money - needMoney < 0)
+                {
+                    throw new Exception("逻辑错误");
+                }
+                player.MoneySet(player.Money - needMoney, ref notifyMsg);
+                //player.PayWithSupport(needMoney, out moneyFromSupport, out moneyFromEarn, ref notifyMsg);
+
+                //   player.
                 //car.ability.subsidize += moneyFromSupport;
-                if (moneyFromSupport > 0)
-                    car.ability.setSubsidize(car.ability.subsidize + moneyFromSupport, player, car, ref notifyMsg);
+                //if (moneyFromSupport > 0)
+                //    car.ability.setSubsidize(car.ability.subsidize + moneyFromSupport, player, car, ref notifyMsg);
 
                 //  car.ability.costBusiness += moneyFromEarn;/*这里没有总量限制*/
-                if (moneyFromEarn > 0)
-                    car.ability.setCostBusiness(car.ability.costBusiness + moneyFromEarn, player, car, ref notifyMsg);
-                if (moneyFromEarn > 0) { }
+                // if (moneyFromEarn > 0)
+                car.ability.setCostBusiness(car.ability.costBusiness + needMoney, player, car, ref notifyMsg);
+                //     if (moneyFromEarn > 0) { }
                 //AbilityChanged(player, car, ref notifyMsg, "business");
                 // car.ability.getMoneyWithSupport(moneyFromSupport, moneyFromEarn);
 
@@ -365,7 +372,7 @@ namespace HouseManager
                                 throw new Exception("钱不够，还让执行setDiamondOwner");
                             }
                             Console.WriteLine($"需要用钱支付");
-                            printState(player, car, $"支付前：subsidize:{car.ability.subsidize},costBusiness:{car.ability.costBusiness},costVolume:{car.ability.costVolume},needMoney:{needMoney}");
+                            printState(player, car, $"支付前：costBusiness:{car.ability.costBusiness},costVolume:{car.ability.costVolume},needMoney:{needMoney}");
 
                             //var costBusiness1 = car.ability.costBusiness;
                             // bool needToUpdateCostBussiness;
@@ -373,7 +380,7 @@ namespace HouseManager
                             //if (needToUpdateCostBussiness)
                             //    AbilityChanged(player, car, ref notifyMsg, "business");
 
-                            printState(player, car, $"支付后：subsidize:{car.ability.subsidize},costBusiness:{car.ability.costBusiness},costVolume:{car.ability.costVolume},needMoney:{needMoney}");
+                            printState(player, car, $"支付后：costBusiness:{car.ability.costBusiness},costVolume:{car.ability.costVolume},needMoney:{needMoney}");
 
                             setPromtePosition(dor.changeType);
                             //this.promoteMilePosition = GetRandomPosition();

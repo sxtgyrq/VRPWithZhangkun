@@ -36,7 +36,7 @@ namespace WsOfWebClient.BLL
                     var reqResult = await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[playerCheck.RoomIndex], sendMsg);
                     if (reqResult.ToLower() == "ok")
                     {
-
+                        s.roomIndex = playerCheck.RoomIndex;
                         return new CheckIsOKResult()
                         {
                             CheckOK = true,

@@ -228,11 +228,11 @@ namespace HouseManager
                     //player.Money += car.ability.costBusiness;
                     //player.Money += car.ability.costVolume;
 
-                    if (car.ability.subsidize > 0)
-                    {
-                        player.setSupportToPlayMoney(player.SupportToPlayMoney + car.ability.subsidize, ref notifyMsg);
-                        //player.SupportToPlay.Money += car.ability.subsidize;
-                    }
+                    //if (car.ability.subsidize > 0)
+                    //{
+                    //    player.setSupportToPlayMoney(player.SupportToPlayMoney + car.ability.subsidize, ref notifyMsg);
+                    //    //player.SupportToPlay.Money += car.ability.subsidize;
+                    //}
                     if (!string.IsNullOrEmpty(car.ability.diamondInCar))
                     {
                         player.PromoteDiamondCount[car.ability.diamondInCar]++;

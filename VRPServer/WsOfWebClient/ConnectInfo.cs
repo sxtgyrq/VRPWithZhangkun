@@ -13,7 +13,7 @@ namespace WsOfWebClient
         public static object connectedWs_LockObj = new object();
         public static Dictionary<int, WebSocket> connectedWs = new Dictionary<int, WebSocket>();
 
-       // public static HttpClient Client = new HttpClient();
+        // public static HttpClient Client = new HttpClient();
 
         static string _mapRoadAndCrossJson = "";
         public static string mapRoadAndCrossJson
@@ -50,6 +50,12 @@ namespace WsOfWebClient
         public static string[] RMB20 = new string[] { };
         public static string[] RMB10 = new string[] { };
         public static string[] RMB5 = new string[] { };
+
+        //   public static string LeaveGameModel = "";
+        public static string[] LeaveGameModel = new string[] { };
+
+        public static string[] ProfileModel = new string[] { };
+
         internal static int webSocketPort;
         internal static int tcpServerPort;
     }

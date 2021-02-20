@@ -106,7 +106,7 @@ namespace HouseManager
                     var notifyMsgs = new List<string>();
                     this._Players[addItem.Key].MoneySet(500 * 100, ref notifyMsgs);
 
-                    this._Players[addItem.Key].SupportChangedF = RoomMain.SupportChanged;
+                    // this._Players[addItem.Key].SupportChangedF = RoomMain.SupportChanged;
 
                     this._Players[addItem.Key].TheLargestHolderKeyChanged = this.TheLargestHolderKeyChanged;
                     this._Players[addItem.Key].InitializeTheLargestHolder();
@@ -133,6 +133,6 @@ namespace HouseManager
             //  throw new NotImplementedException();
         }
 
-       
+
     }
 }

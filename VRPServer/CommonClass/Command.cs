@@ -55,6 +55,10 @@ namespace CommonClass
     {
         public long MoneyForSave { get; set; }
     }
+    public class MoneyNotify : CommandNotify
+    {
+        public long Money { get; set; }
+    }
 
     public class OthersRemove : CommandNotify
     {
@@ -180,7 +184,7 @@ namespace CommonClass
     }
 
     public class GetFrequency : Command
-    { 
+    {
     }
 
     public class PlayerCheck : PlayerAdd { }

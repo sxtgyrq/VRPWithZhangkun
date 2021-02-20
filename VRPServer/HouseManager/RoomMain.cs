@@ -613,7 +613,7 @@ namespace HouseManager
                     BroadCoastFrequency(player, ref notifyMsgs);
                     player.SetMoneyCanSave(player, ref notifyMsgs);
 
-                    player.RunSupportChangedF(ref notifyMsgs);
+                    // player.RunSupportChangedF(ref notifyMsgs);
                     //player.this._Players[addItem.Key].SetMoneyCanSave = RoomMain.SetMoneyCanSave;
                     //MoneyCanSaveChanged(player, player.MoneyForSave, ref notifyMsgs);
 
@@ -632,6 +632,9 @@ namespace HouseManager
                     {
                         this.DrawSingleRoadF(player, list[i], ref notifyMsgs);
                     }
+
+                    //this._Players[getPosition.Key];
+                    this._Players[getPosition.Key].MoneyChanged(this._Players[getPosition.Key], this._Players[getPosition.Key].Money, ref notifyMsgs);
 
                     result = new GetPositionResult()
                     {

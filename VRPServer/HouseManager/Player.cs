@@ -102,7 +102,7 @@ namespace HouseManager
                 car.ability.VolumeChanged = RoomMain.AbilityChanged2_0;
                 car.ability.SpeedChanged = RoomMain.AbilityChanged2_0;
 
-                car.ability.SubsidizeChanged = RoomMain.SubsidizeChanged;
+                // car.ability.SubsidizeChanged = RoomMain.SubsidizeChanged;
                 car.ability.DiamondInCarChanged = RoomMain.DiamondInCarChanged;
 
                 this._Cars.Add(car);
@@ -294,7 +294,7 @@ namespace HouseManager
             get
             {
                 //总钱+外部扶持为可用户购买宝石的钱！
-                return this.Money + (this.SupportToPlay == null ? 0 : this.SupportToPlay.Money);
+                return this.Money;// + (this.SupportToPlay == null ? 0 : this.SupportToPlay.Money);
             }
         }
 
@@ -304,88 +304,91 @@ namespace HouseManager
         Support SupportToPlay { get; set; }
         public class Support
         {
-            long _Money = 0;
-            /// <summary>
-            /// 单位是分
-            /// </summary>
-            public long Money
-            {
-                get
-                {
-                    return this._Money;
-                }
-                set
-                {
-                    if (value < 0)
-                    {
-                        throw new Exception("金钱怎么能负，为何不做判断？");
-                    }
-                    this._Money = value;
-                }
-            }
+            //long _Money = 0;
+            ///// <summary>
+            ///// 单位是分
+            ///// </summary>
+            //public long Money
+            //{
+            //    get
+            //    {
+            //        return this._Money;
+            //    }
+            //    set
+            //    {
+            //        if (value < 0)
+            //        {
+            //            throw new Exception("金钱怎么能负，为何不做判断？");
+            //        }
+            //        this._Money = value;
+            //    }
+            //}
         }
 
-        public delegate void SupportChanged(Player player, Support money, ref List<string> msgsWithUrl);
-        public SupportChanged SupportChangedF;
-        public long SupportToPlayMoney
-        {
-            get
-            {
-                if (this.SupportToPlay == null)
-                {
-                    return 0;
-                }
-                return SupportToPlay.Money;
-            }
-        }
-        internal void setSupportToPlayMoney(long newValue, ref List<string> notifyMsg)
-        {
-            if (this.SupportToPlay == null)
-            {
-                this.SupportToPlay = new Support()
-                {
-                    Money = 0
-                };
-            }
-            if (this.SupportToPlay.Money != newValue)
-            {
-                this.SupportToPlay.Money = newValue;
-                this.SupportChangedF(this, this.SupportToPlay, ref notifyMsg);
-            }
+        //public delegate void SupportChanged(Player player, Support money, ref List<string> msgsWithUrl);
+        //public SupportChanged SupportChangedF;
+        //public long SupportToPlayMoney
+        //{
+        //    get
+        //    {
+        //        if (this.SupportToPlay == null)
+        //        {
+        //            return 0;
+        //        }
+        //        return SupportToPlay.Money;
+        //    }
+        //}
+        //internal void setSupportToPlayMoney(long newValue, ref List<string> notifyMsg)
+        //{
+
+        //    if (this.SupportToPlay == null)
+        //    {
+        //        this.SupportToPlay = new Support()
+        //        {
+        //            Money = 0
+        //        };
+        //    }
+        //    if (this.SupportToPlay.Money != newValue)
+        //    {
+        //        this.SupportToPlay.Money = newValue;
+        //        this.SupportChangedF(this, this.SupportToPlay, ref notifyMsg);
+        //    }
 
 
-        }
-        internal void RunSupportChangedF(ref List<string> notifyMsgs)
-        {
-            this.SupportChangedF(this, this.SupportToPlay, ref notifyMsgs);
-            //throw new NotImplementedException();
-        }
-        /// <summary>
-        /// 专款专用，扶持的资金，进扶持的账户，赚的钱，进赚着的账户
-        /// </summary>
-        /// <param name="needMoney">总共需要的钱</param>
-        /// <param name="moneyFromSupport">用于扶持的钱</param>
-        /// <param name="moneyFromEarn">从自己腰包里掏出的钱</param>
-        internal void PayWithSupport(long needMoney, out long moneyFromSupport, out long moneyFromEarn, ref List<string> notifyMsg)
-        {
-            if (this.SupportToPlay != null)
-            {
-                moneyFromSupport = Math.Min(needMoney, this.SupportToPlay.Money);
-            }
-            else
-            {
-                moneyFromSupport = 0;
-            }
-            //  Console.WriteLine($"{needMoney}{moneyFromSupport}{}");
-            moneyFromEarn = needMoney - moneyFromSupport;
-            if (this.SupportToPlay != null)
-                this.SupportToPlay.Money -= moneyFromSupport;
-            if (moneyFromEarn > 0)
-            {
-                this.MoneySet(this.Money - moneyFromEarn, ref notifyMsg);
-            }
-            //this.Money -= moneyFromEarn;
-        }
+        //}
+        //internal void RunSupportChangedF(ref List<string> notifyMsgs)
+        //{
+        //    this.SupportChangedF(this, this.SupportToPlay, ref notifyMsgs);
+        //    //throw new NotImplementedException();
+        //}
+        ///// <summary>
+        ///// 专款专用，扶持的资金，进扶持的账户，赚的钱，进赚着的账户
+        ///// </summary>
+        ///// <param name="needMoney">总共需要的钱</param>
+        ///// <param name="moneyFromSupport">用于扶持的钱</param>
+        ///// <param name="moneyFromEarn">从自己腰包里掏出的钱</param>
+        //internal void PayWithSupport(long needMoney, out long moneyFromSupport, out long moneyFromEarn, ref List<string> notifyMsg)
+        //{
+
+
+        //    if (this.SupportToPlay != null)
+        //    {
+        //        moneyFromSupport = Math.Min(needMoney, this.SupportToPlay.Money);
+        //    }
+        //    else
+        //    {
+        //        moneyFromSupport = 0;
+        //    }
+        //    //  Console.WriteLine($"{needMoney}{moneyFromSupport}{}");
+        //    moneyFromEarn = needMoney - moneyFromSupport;
+        //    if (this.SupportToPlay != null)
+        //        this.SupportToPlay.Money -= moneyFromSupport;
+        //    if (moneyFromEarn > 0)
+        //    {
+        //        this.MoneySet(this.Money - moneyFromEarn, ref notifyMsg);
+        //    }
+        //    //this.Money -= moneyFromEarn;
+        //}
         /// <summary>
         /// 玩家欠其他玩家的债！
         /// </summary>
@@ -946,33 +949,33 @@ namespace HouseManager
     public class AbilityAndState
     {
 
-        long _subsidize = 0;
+        //long _subsidize = 0;
         /// <summary>
         /// 资助用于提升能力的钱。专款专用。如果没有用完，还是将这个资金返回player的 subsidize账户。这个资金不能用于攻击。
         /// 单位为分
         /// </summary>
-        public long subsidize
-        {
-            get { return this._subsidize; }
-            //private set
-            //{
-            //    if (value < 0)
-            //    {
-            //        throw new Exception("错误的输入");
-            //    }
-            //    this._subsidize = value;
-            //}
-        }
+        //public long subsidize
+        //{
+        //    get { return this._subsidize; }
+        //    //private set
+        //    //{
+        //    //    if (value < 0)
+        //    //    {
+        //    //        throw new Exception("错误的输入");
+        //    //    }
+        //    //    this._subsidize = value;
+        //    //}
+        //}
 
-        public delegate void SubsidizeChangedF(Player player, Car car, ref List<string> notifyMsgs, long subsidize);
-        public SubsidizeChangedF SubsidizeChanged;
-        public void setSubsidize(long subsidizeInput, Player player, Car car, ref List<string> notifyMsg)
-        {
-            this._subsidize = subsidizeInput;
-            this.SubsidizeChanged(player, car, ref notifyMsg, this.subsidize);
-            //this._costMiles = costMileInput;
-            //MileChanged(player, car, ref notifyMsg, "mile");
-        }
+        //public delegate void SubsidizeChangedF(Player player, Car car, ref List<string> notifyMsgs, long subsidize);
+        //public SubsidizeChangedF SubsidizeChanged;
+        //public void setSubsidize(long subsidizeInput, Player player, Car car, ref List<string> notifyMsg)
+        //{
+        //    this._subsidize = subsidizeInput;
+        //    this.SubsidizeChanged(player, car, ref notifyMsg, this.subsidize);
+        //    //this._costMiles = costMileInput;
+        //    //MileChanged(player, car, ref notifyMsg, "mile");
+        //}
 
 
         Dictionary<string, List<DateTime>> Data { get; set; }
@@ -1094,7 +1097,7 @@ namespace HouseManager
             this._costVolume = 0;//this.costVolume = 0;
             this._costBusiness = 0;
             this._diamondInCar = "";
-            this._subsidize = 0; ;
+            // this._subsidize = 0; ;
             //this.costBusiness = 0;
             //this.diamondInCar = "";
             //this.subsidize = 0;
@@ -1125,7 +1128,7 @@ namespace HouseManager
             //this.costVolume = 0;
             this.setDiamondInCar("", player, car, ref notifyMsg);
             //  this.diamondInCar = "";
-            this.setSubsidize(0, player, car, ref notifyMsg);
+            //  this.setSubsidize(0, player, car, ref notifyMsg);
             //   this.subsidize = 0;
         }
 
@@ -1159,16 +1162,16 @@ namespace HouseManager
         /// <param name="needMoney"></param>
         internal void payForPromote(long needMoney, Player player, Car car, ref List<string> notifyMsgs)
         {
-            var pay1 = Math.Min(needMoney, this.subsidize);
+            //var pay1 = needMoney;// Math.Min(needMoney, this.subsidize);
             // this.subsidize -= pay1;
 
-            var subsidizeNew = this.subsidize - pay1;
-            if (subsidizeNew != this.subsidize)
-            {
-                this.setSubsidize(subsidizeNew, player, car, ref notifyMsgs);
-            }
+            //var subsidizeNew = this.subsidize - pay1;
+            //if (subsidizeNew != this.subsidize)
+            //{
+            //    this.setSubsidize(subsidizeNew, player, car, ref notifyMsgs);
+            //}
 
-            needMoney -= pay1;
+            //   needMoney -= pay1;
 
             var pay2 = Math.Min(needMoney, this.costBusiness);
             // this.costBusiness -= pay2;
@@ -1253,7 +1256,7 @@ namespace HouseManager
         {
             get
             {
-                return this.costBusiness + this.subsidize;
+                return this.costBusiness;//+ this.subsidize;
             }
         }
         public long SumMoneyCanForAttack

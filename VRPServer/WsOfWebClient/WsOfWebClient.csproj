@@ -50,7 +50,31 @@
     <None Update="Car_E.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Car_O.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Car_O2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="diamond.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="leavegame\leavegame.mtl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="leavegame\leavegame.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="leavegame\potimage.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="model\fenghong\ff.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="model\fenghong\fh.mtl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="model\fenghong\fh.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="rmb\rmb.jpg">

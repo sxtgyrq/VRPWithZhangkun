@@ -13,11 +13,13 @@ namespace TcpFunction
     {
         public static async Task<string> SendInmationToUrlAndGetRes(string roomUrl, string sendMsg)
         {
+
             var startTime = DateTime.Now;
             string result = "";
             bool isRight = true;
             for (var kk = 0; kk < 100000; kk++)
             {
+                //TcpClient tc = new TcpClient();
                 using (TcpClient tc = new TcpClient())
                 {
                     IPAddress ipa;
@@ -86,7 +88,7 @@ namespace TcpFunction
                                     if (length2 != bytesRead)
                                     {
                                         throw new Exception("");
-                                    } 
+                                    }
                                     await Common.SendDataMd5(bytes, ns);
                                     isRight = await Common.ReveiveRight(ns);
 
@@ -102,11 +104,6 @@ namespace TcpFunction
                                     await Common.SendWrong(ns);
                                     await Common.ReveiveEnd(ns);
                                 }
-
-
-
-
-                                ns.Close();
                             }
                         }
                         else
@@ -121,12 +118,14 @@ namespace TcpFunction
                         Console.WriteLine("result");
                         throw new Exception($"{result}");
                     }
-                    tc.Client.Dispose();
-                    tc.Client.Close();
-                    tc.Close();
+
+                    //tc.Client.Dispose();
+                    //tc.Client.Close();
+                    //tc.Close();
                 }
                 if (isRight)
                 {
+                    //Thread Th = new Thread(() => CloseTcp(tc));
                     break;
                 }
                 else
@@ -141,7 +140,6 @@ namespace TcpFunction
             Console.WriteLine($"------------------------------------");
             return result;
         }
-
 
 
         public delegate Task<string> DealWith(string notifyJson);
@@ -225,11 +223,11 @@ namespace TcpFunction
                         {
                             await Common.SendEnd(stream);
                         }
-                        stream.Close();
+                        //stream.Close();
                     }
-                    client.Client.Dispose();
-                    client.Client.Close();
-                    client.Close();
+                    //client.Client.Dispose();
+                    //client.Client.Close();
+                    //client.Close();
                 }
             }
         }
@@ -292,7 +290,6 @@ namespace TcpFunction
                                     //var md5 = CommonClass.Random.GetMD5HashByteFromBytes(sendData);
                                     //await ns.WriteAsync(md5,0, sendData.Length);
                                 }
-                                ns.Close();
                             }
                         }
                         else
@@ -304,9 +301,6 @@ namespace TcpFunction
                     {
                         Console.WriteLine($"{controllerUrl} 有问题！");
                     }
-                    tc.Client.Dispose();
-                    tc.Client.Close();
-                    tc.Close();
                 }
                 if (isRight)
                 {
@@ -366,11 +360,11 @@ namespace TcpFunction
                         }
                         //  while (!await Common.ReveiveEnd(stream));
 
-                        stream.Close();
+                       // stream.Close();
                     }
-                    client.Client.Dispose();
-                    client.Client.Close();
-                    client.Close();
+                    //client.Client.Dispose();
+                    //client.Client.Close();
+                    //client.Close();
                 }
                 //  client.Client.
                 Console.WriteLine($"notify receive:{notifyJson}");
@@ -523,3 +517,4 @@ namespace TcpFunction
         }
     }
 }
+

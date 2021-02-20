@@ -240,7 +240,7 @@ namespace WsOfWebClient
 
                 if (ConnectInfo.RobotBase64.Length == 0)
                 {
-                    string obj, mtl, carA, carB, carC, carD, carE;
+                    string obj, mtl, carA, carB, carC, carD, carE, carO, carO2;
                     {
                         var bytes = File.ReadAllBytes("Car_A.png");
                         var Base64 = Convert.ToBase64String(bytes);
@@ -267,12 +267,22 @@ namespace WsOfWebClient
                         carE = Base64;
                     }
                     {
+                        var bytes = File.ReadAllBytes("Car_O.png");
+                        var Base64 = Convert.ToBase64String(bytes);
+                        carO = Base64;
+                    }
+                    {
+                        var bytes = File.ReadAllBytes("Car_O2.png");
+                        var Base64 = Convert.ToBase64String(bytes);
+                        carO2 = Base64;
+                    }
+                    {
                         mtl = File.ReadAllText("Car1.mtl"); ;
                     }
                     {
                         obj = File.ReadAllText("Car1.obj"); ;
                     }
-                    ConnectInfo.RobotBase64 = new string[] { obj, mtl, carA, carB, carC, carD, carE };
+                    ConnectInfo.RobotBase64 = new string[] { obj, mtl, carA, carB, carC, carD, carE, carO, carO2 };
                 }
                 else
                 {
@@ -309,7 +319,22 @@ namespace WsOfWebClient
                         return null;
                     }
                 }
-
+                {
+                    var checkIsOk = await leaveGameIcon(webSocket);
+                    if (checkIsOk) { }
+                    else
+                    {
+                        return null;
+                    }
+                }
+                {
+                    var checkIsOk = await ProfileIcon(webSocket);
+                    if (checkIsOk) { }
+                    else
+                    {
+                        return null;
+                    }
+                }
 
                 if (string.IsNullOrEmpty(ConnectInfo.DiamondObj))
                 {
@@ -350,6 +375,80 @@ namespace WsOfWebClient
                 await initializeOperation(s);
             }
             return result;
+        }
+
+        private static async Task<bool> ProfileIcon(WebSocket webSocket)
+        {
+            if (ConnectInfo.ProfileModel.Length == 0)
+            {
+                string obj;
+                obj = File.ReadAllText("model/fenghong/fh.obj");
+                string mtl;
+                mtl = File.ReadAllText("model/fenghong/fh.mtl");
+                string ffImage;
+                {
+                    var bytes = File.ReadAllBytes("model/fenghong/ff.jpg");
+                    var Base64 = Convert.ToBase64String(bytes);
+                    ffImage = Base64;
+                }
+                ConnectInfo.ProfileModel = new string[]
+                {
+                    obj,mtl,"ff.jpg",ffImage
+                };
+            }
+            {
+                var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new
+                {
+                    c = "SetProfileIcon",
+                    data = ConnectInfo.ProfileModel,
+                });
+                var sendData = Encoding.ASCII.GetBytes(msg);
+                await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+
+            }
+            var checkIsOk = await CheckRespon(webSocket, "ProfileIcon");
+            if (checkIsOk) { return true; }
+            else
+            {
+                return false;
+            }
+        }
+
+        private static async Task<bool> leaveGameIcon(WebSocket webSocket)
+        {
+            if (ConnectInfo.LeaveGameModel.Length == 0)
+            {
+                string obj;
+                obj = File.ReadAllText("leavegame/leavegame.obj");
+                string mtl;
+                mtl = File.ReadAllText("leavegame/leavegame.mtl");
+                string potimage;
+                {
+                    var bytes = File.ReadAllBytes("leavegame/potimage.jpg");
+                    var Base64 = Convert.ToBase64String(bytes);
+                    potimage = Base64;
+                }
+                ConnectInfo.LeaveGameModel = new string[]
+                {
+                    obj,mtl,"potimage.jpg",potimage
+                };
+            }
+            {
+                var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new
+                {
+                    c = "SetLeaveGameIcon",
+                    data = ConnectInfo.LeaveGameModel,
+                });
+                var sendData = Encoding.ASCII.GetBytes(msg);
+                await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+
+            }
+            var checkIsOk = await CheckRespon(webSocket, "SetLeaveGameIcon");
+            if (checkIsOk) { return true; }
+            else
+            {
+                return false;
+            }
         }
 
         /// <summary>

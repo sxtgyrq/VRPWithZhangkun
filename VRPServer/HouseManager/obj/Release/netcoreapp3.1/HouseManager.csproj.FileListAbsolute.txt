@@ -48,3 +48,4 @@ F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\HouseManager\bin\
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\HouseManager\bin\Release\netcoreapp3.1\RIPEMD.dll
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\HouseManager\bin\Release\netcoreapp3.1\BitCoin.dll
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\HouseManager\bin\Release\netcoreapp3.1\BitCoin.pdb
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\HouseManager\bin\Release\netcoreapp3.1\SuperSocket.ClientEngine.dll

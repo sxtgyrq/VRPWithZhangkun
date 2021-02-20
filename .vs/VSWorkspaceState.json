@@ -2,13 +2,9 @@
   "ExpandedNodes": [
     "",
     "\\VRPServer",
-    "\\WebFileOnly",
-    "\\Webshow",
-    "\\Webshow\\WebApplication1",
-    "\\Webshow\\webHtml",
-    "\\Webshow\\webHtml\\bitcoin",
-    "\\Webshow\\webHtml\\JavaScript"
+    "\\VRPServer\\Server",
+    "\\Webshow\\WebApplication1"
   ],
-  "SelectedNode": "\\Webshow\\WebApplication1\\WebApplication1.sln",
+  "SelectedNode": "\\VRPServer\\Server\\Server.sln",
   "PreviewInSolutionExplorer": false
 }

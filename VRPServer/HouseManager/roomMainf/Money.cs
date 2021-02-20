@@ -9,8 +9,20 @@ namespace HouseManager
 {
     public partial class RoomMain
     {
-        private static void MoneyChanged(Player player, long money, ref List<string> msgsWithUrl)
+        private static void MoneyChanged(Player player, long money, ref List<string> notifyMsg)
         {
+            var url = player.FromUrl;
+
+            MoneyNotify mn = new MoneyNotify()
+            {
+                c = "MoneyNotify",
+                WebSocketID = player.WebSocketID,
+                Money = money
+            };
+
+            var sendMsg = Newtonsoft.Json.JsonConvert.SerializeObject(mn);
+            notifyMsg.Add(url);
+            notifyMsg.Add(sendMsg);
             // throw new NotImplementedException();
         }
         //private void MoneyCanSaveChanged(Player player, long Money, ref List<string> msgsWithUrl)
@@ -179,7 +191,8 @@ namespace HouseManager
                             DalOfAddress.MoneyGet.GetSubsidizeAndLeft(ots.address, ots.value, out subsidizeGet, out subsidizeLeft);
 
                             var player = this._Players[ots.Key];
-                            player.setSupportToPlayMoney(player.SupportToPlayMoney + subsidizeGet, ref notifyMsg);
+                            player.MoneySet(player.Money + subsidizeGet, ref notifyMsg);
+                            //  player.setSupportToPlayMoney(player.SupportToPlayMoney + subsidizeGet, ref notifyMsg);
 
                             SendLeftMoney(player, subsidizeLeft, ots.address, ref notifyMsg);
                             //player.SupportToPlay.
@@ -214,23 +227,23 @@ namespace HouseManager
             notifyMsg.Add(sendMsg);
         }
 
-        private static void SupportChanged(Player player, Player.Support support, ref List<string> notifyMsg)
-        {
-            if (support != null)
-            {
-                var url = player.FromUrl;
+        //private static void SupportChanged(Player player, Player.Support support, ref List<string> notifyMsg)
+        //{
+        //    //if (support != null)
+        //    //{
+        //    //    var url = player.FromUrl;
 
-                SupportNotify tn = new SupportNotify()
-                {
-                    c = "SupportNotify",
-                    WebSocketID = player.WebSocketID,
-                    Money = support.Money
-                };
+        //    //    SupportNotify tn = new SupportNotify()
+        //    //    {
+        //    //        c = "SupportNotify",
+        //    //        WebSocketID = player.WebSocketID,
+        //    //        Money = support.Money
+        //    //    };
 
-                var sendMsg = Newtonsoft.Json.JsonConvert.SerializeObject(tn);
-                notifyMsg.Add(url);
-                notifyMsg.Add(sendMsg);
-            }
-        }
+        //    //    var sendMsg = Newtonsoft.Json.JsonConvert.SerializeObject(tn);
+        //    //    notifyMsg.Add(url);
+        //    //    notifyMsg.Add(sendMsg);
+        //    //}
+        //}
     }
 }
