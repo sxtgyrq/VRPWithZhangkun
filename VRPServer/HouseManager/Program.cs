@@ -87,14 +87,17 @@ namespace HouseManager
             //  Console.WriteLine("Hello World!");
         }
 
+        static int count = 0;
         private static void PlayersSysOperate()
         {
             while (true)
             {
+                count++;
                 Thread.Sleep(60 * 1000);
                 BaseInfomation.rm.SetReturn();
                 BaseInfomation.rm.ClearPlayers();
                 BaseInfomation.rm.UpdatePlayerFatigueDegree();
+                //BaseInfomation.rm.GetTax();
             }
         }
 

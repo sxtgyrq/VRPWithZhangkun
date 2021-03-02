@@ -92,7 +92,7 @@ namespace HouseManager
 
                     int fpIndex = this.GetRandomPosition(); // this.rm.Next(0, Program.dt.GetFpCount());
 
-                    this._FpOwner.Add(fpIndex, addItem.Key);
+                    // this._FpOwner.Add(fpIndex, addItem.Key);
                     this._Players[addItem.Key].StartFPIndex = fpIndex;
 
                     this._Players[addItem.Key].TaxChanged = RoomMain.TaxAdded;

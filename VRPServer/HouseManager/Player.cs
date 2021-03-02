@@ -33,6 +33,9 @@ namespace HouseManager
             }
         }
         public DateTime CreateTime { get; internal set; }
+
+
+
         public DateTime ActiveTime { get; internal set; }
         public int StartFPIndex { get; internal set; }
 
@@ -68,6 +71,9 @@ namespace HouseManager
             throw new Exception($"{carName}的非法调用");
             // return this._Cars[carIndex];
         }
+
+
+
         List<Car> _Cars = new List<Car>();
         internal void initializeCars(string[] carsNames, RoomMain roomMain)
         {
@@ -203,6 +209,9 @@ namespace HouseManager
         }
 
         public delegate void TheLargestHolderKeyChangedF(string keyFrom, string keyTo, string roleKey, ref List<string> notifyMsg);
+
+
+
         public TheLargestHolderKeyChangedF TheLargestHolderKeyChanged;
 
 
@@ -283,6 +292,7 @@ namespace HouseManager
                 {
                     debets += item.Value;
                 }
+
                 return debets;
             }
         }
@@ -414,7 +424,7 @@ namespace HouseManager
         {
             get { return 100; }
         }
-        long brokenParameterT1Value = 900000;
+        long brokenParameterT1Value = 100;
         /// <summary>
         /// 用于计算破产相关参数
         /// </summary>
@@ -428,6 +438,13 @@ namespace HouseManager
             {
                 brokenParameterT1Value = value;
             }
+        }
+
+        internal void setBrokenParameterT1(long v, ref List<string> notifyMsg)
+        {
+            this.brokenParameterT1 = v;
+            GetTheLargestHolderKey(ref notifyMsg);
+            //  throw new NotImplementedException();
         }
         ///// <summary>
         ///// 返回使玩家破产需要的资金！
@@ -463,8 +480,18 @@ namespace HouseManager
         {
             get
             {
-                return Math.Max(1, this.Money - this.sumDebets * brokenParameterT1 / brokenParameterT2);
+                if (this.Money > 0)
+                {
+                    return Math.Max(1, this.Money - this.sumDebets * brokenParameterT1 / brokenParameterT2);
+                }
+                else if (this.Money == 0)
+                    return this.Money;//;Math.Max(0, this.Money - this.sumDebets * brokenParameterT1 / brokenParameterT2);
+                else
+                {
+                    throw new Exception("");
+                }
             }
+
             //get { return  }
         }
 
@@ -502,6 +529,8 @@ namespace HouseManager
             {
                 this.Debts.Add(key, attack);
             }
+           ;
+            this.MoneySet(this.Money + attack, ref notifyMsg);
             SetMoneyCanSave(this, ref notifyMsg);
 
             this.GetTheLargestHolderKey(ref notifyMsg);
@@ -514,8 +543,11 @@ namespace HouseManager
         Dictionary<int, long> TaxInPosition { get; set; }
         public long GetTaxByPositionIndex(int position)
         {
-            return this.TaxInPosition[position];
+            if (this.TaxInPosition.ContainsKey(position))
+                return this.TaxInPosition[position];
+            else return 0;
         }
+
         public void SetTaxByPositionIndex(int taxPostion, long taxValue, ref List<string> notifyMsg)
         {
             if (this.TaxInPosition.ContainsKey(taxPostion))
@@ -535,6 +567,22 @@ namespace HouseManager
             {
                 throw new Exception("错误！");
             }
+        }
+        public long getAllBonus()
+        {
+            long sum = 0;
+            foreach (var item in this.TaxInPosition)
+            {
+                sum += item.Value;
+            }
+            return sum;
+            //throw new NotImplementedException();
+        }
+        internal long getTaxByBonus()
+        {
+            long allBonus = this.getAllBonus();
+            //var tax=this.
+            throw new NotImplementedException();
         }
         public List<int> TaxInPositionForeach()
         {
@@ -1108,10 +1156,10 @@ namespace HouseManager
         public void Refresh(Player player, Car car, ref List<string> notifyMsg)
         {
 
-            this.Data["mile"].RemoveAll(item => (item - this.CreateTime).TotalMinutes > 120);
-            this.Data["business"].RemoveAll(item => (item - this.CreateTime).TotalMinutes > 120);
-            this.Data["volume"].RemoveAll(item => (item - this.CreateTime).TotalMinutes > 120);
-            this.Data["speed"].RemoveAll(item => (item - this.CreateTime).TotalMinutes > 120);
+            //this.Data["mile"].RemoveAll(item => (item - this.CreateTime).TotalMinutes > 120);
+            //this.Data["business"].RemoveAll(item => (item - this.CreateTime).TotalMinutes > 120);
+            //this.Data["volume"].RemoveAll(item => (item - this.CreateTime).TotalMinutes > 120);
+            //this.Data["speed"].RemoveAll(item => (item - this.CreateTime).TotalMinutes > 120);
             this._costMiles = 0;
             this._costBusiness = 0;
             this._costVolume = 0;
@@ -1206,7 +1254,7 @@ namespace HouseManager
         {
             get
             {
-                return this.Data["mile"].Count * 30 + 350;
+                return this.Data["mile"].Count * 10 + 350;
             }
         }
         public long leftMile
@@ -1239,15 +1287,15 @@ namespace HouseManager
         /// <summary>
         /// 小车能携带的金钱数量！单位为分，即1/100元。
         /// </summary>
-        public long Business { get { return (this.Data["business"].Count * 10 + 100) * 100; } }
+        public long Business { get { return (this.Data["business"].Count * 10 + 200) * 100; } }
         /// <summary>
         /// 小车能装载的最大容量，默认为100鼋！单位为分，即1/100元。
         /// </summary>
-        public long Volume { get { return (this.Data["volume"].Count * 10 + 100) * 100; } }
+        public long Volume { get { return (this.Data["volume"].Count * 10 + 500) * 100; } }
         /// <summary>
         /// 小车能跑的最快速度！
         /// </summary>
-        public int Speed { get { return this.Data["speed"].Count * 5 + 50; } }
+        public int Speed { get { return this.Data["speed"].Count * 2 + 50; } }
 
         /// <summary>
         /// 单位为分，是身上business（业务） subsidize（资助）的和。

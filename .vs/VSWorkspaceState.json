@@ -3,8 +3,9 @@
     "",
     "\\VRPServer",
     "\\VRPServer\\Server",
+    "\\Webshow",
     "\\Webshow\\WebApplication1"
   ],
-  "SelectedNode": "\\VRPServer\\Server\\Server.sln",
+  "SelectedNode": "\\README.md",
   "PreviewInSolutionExplorer": false
 }
