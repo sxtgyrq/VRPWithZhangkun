@@ -25,7 +25,7 @@ namespace HouseManager
             lock (PlayerLock)
             {
                 this._Players = new Dictionary<string, Player>();
-                this._FpOwner = new Dictionary<int, string>();
+                //    this._FpOwner = new Dictionary<int, string>();
                 //this._PlayerFp = new Dictionary<string, int>();
             }
             LookFor();
@@ -69,7 +69,7 @@ namespace HouseManager
         /// <summary>
         /// 商店-玩家索引。key，代表所在位置的 商店index，value（string）代表player.key
         /// </summary>
-        Dictionary<int, string> _FpOwner { get; set; }
+      //  Dictionary<int, string> _FpOwner { get; set; }
 
 
 
@@ -357,7 +357,7 @@ namespace HouseManager
         private bool FpIsUsing(int fpIndex)
         {
 
-            var A = this._FpOwner.ContainsKey(fpIndex)
+            var A = false
                   || fpIndex == this._promoteMilePosition
                   || fpIndex == this._promoteBusinessPosition
                   || fpIndex == this._promoteVolumePosition

@@ -407,6 +407,28 @@ namespace HouseManager
                     //getAllCarInfomations(pa.key, ref notifyMsg);
                 }
             }
+            else
+            {
+                var tax = 0;  
+                printState(player, car, $"{Program.dt.GetFpByIndex(car.targetFpIndex).FastenPositionName}收取{tax}");
+                 
+                car.ability.setCostMiles(car.ability.costMiles + pa.costMile, player, car, ref notifyMsg);
+
+                //AbilityChanged(player, car, ref notifyMsg, "mile");
+
+                carParkOnRoad(pa.target, ref car, player, ref notifyMsg);
+                //  SendSingleTax(player.Key, car.targetFpIndex, ref notifyMsg);
+                if (car.purpose == Purpose.tax && car.state == CarState.roadForTax)
+                {
+                    car.setState(player, ref notifyMsg, CarState.waitForTaxOrAttack);
+                    //car.state = CarState.waitForTaxOrAttack;
+                    this._Players[pa.key].returningRecord[pa.car] = pa.returnPath;
+
+                    //第二步，更改状态
+                    //car.changeState++;
+                    //getAllCarInfomations(pa.key, ref notifyMsg);
+                }
+            }
         }
 
         private int getFromWhenDoCollectTax(Player player, Car car)

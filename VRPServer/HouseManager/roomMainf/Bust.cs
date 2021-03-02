@@ -54,8 +54,6 @@ namespace HouseManager
                                         {
                                             if (car.purpose == Purpose.@null)
                                             {
-                                                var moneyIsEnoughToStart = giveMoneyFromPlayerToCarForAttack(player, car, ref notifyMsg);
-                                                if (moneyIsEnoughToStart)
                                                 {
 
                                                     //var state = CheckTargetState(sa.targetOwner);
@@ -95,13 +93,13 @@ namespace HouseManager
                                                     //    throw new Exception($"{state.ToString()}未注册！");
                                                     //}
                                                 }
-                                                else
-                                                {
-#warning 前端要提示
-                                                    Console.WriteLine($"金钱不足以展开攻击！");
-                                                    //carsBustFailedThenMustReturn(car, player, sb, ref notifyMsg);
-                                                    carsBustFailedThenMustReturn(car, player, sb, ref notifyMsg);
-                                                }
+                                                //                                                else
+                                                //                                                {
+                                                //#warning 前端要提示
+                                                //                                                    Console.WriteLine($"金钱不足以展开攻击！");
+                                                //                                                    //carsBustFailedThenMustReturn(car, player, sb, ref notifyMsg);
+                                                //                                                    carsBustFailedThenMustReturn(car, player, sb, ref notifyMsg);
+                                                //                                                }
                                             }
                                         }; break;
 
@@ -125,10 +123,36 @@ namespace HouseManager
             }
         }
 
-        //更新玩家的衰老程度！
-        internal void UpdatePlayerFatigueDegree()
+        //更新玩家的贡献率！
+        internal async void UpdatePlayerFatigueDegree()
         {
-            return;
+            List<string> notifyMsg = new List<string>();
+            lock (this.PlayerLock)
+            {
+                List<string> keysOfAll = new List<string>();
+                foreach (var item in this._Players)
+                {
+                    if (!item.Value.Bust)
+                    {
+                        keysOfAll.Add(item.Key);
+                    }
+                }
+                for (var i = 0; i < keysOfAll.Count; i++)
+                {
+                    this._Players[keysOfAll[i]].setBrokenParameterT1(this._Players[keysOfAll[i]].brokenParameterT1 + 1, ref notifyMsg);
+                }
+
+            }
+
+            for (var i = 0; i < notifyMsg.Count; i += 2)
+            {
+                var url = notifyMsg[i];
+                var sendMsg = notifyMsg[i + 1];
+                //   Console.WriteLine($"url:{url}");
+                await Startup.sendMsg(url, sendMsg);
+            }
+
+            //    return;
             //List<string> notifyMsg = new List<string>();
             //lock (this.PlayerLock)
             //{
@@ -356,10 +380,10 @@ namespace HouseManager
                     {
                         throw new Exception($"错误的purpose:{car.purpose}");
                     }
-                    else if (car.ability.costBusiness + car.ability.costVolume <= 0)
+                    else if (car.ability.costBusiness != 0)
                     {
-#warning 出来攻击时，costBusiness>0
-                        throw new Exception($"错误的car.ability.costBusiness :{car.ability.costBusiness }");
+
+                        throw new Exception($"执行破产业务时，错误的car.ability.costBusiness :{car.ability.costBusiness }");
                     }
                     else
                     {
@@ -370,8 +394,8 @@ namespace HouseManager
                          * 这三种情况都要考虑到。
                          */
 
-                        var attackMoney = car.ability.costBusiness + car.ability.costVolume;
-                        Console.WriteLine($"player:{player.Key},car{bustSet.car},attackMoney:{attackMoney}");
+                        var attackMoney = 0;
+                        Console.WriteLine($"player:{player.Key},car{bustSet.car},bustMoney:{0}");
                         if (this._Players.ContainsKey(bustSet.victim))
                         {
                             var victim = this._Players[bustSet.victim];
@@ -414,7 +438,7 @@ namespace HouseManager
 
                                             //AbilityChanged(player, car, ref notifyMsg, "volume");
                                         }
-                                        attackMoney = car.ability.costBusiness + car.ability.costVolume;
+                                        // attackMoney = car.ability.costBusiness + car.ability.costVolume;
                                         k++;
                                         if (k > 1000)
                                         {
@@ -473,14 +497,17 @@ namespace HouseManager
                                     {
                                         keys.Add(item.Key);
                                     }
-                                    for (var i = 0; i < keys.Count; i++)
+                                    if (victim.sumDebets > 0)
                                     {
-                                        copy[keys[i]] = money * copy[keys[i]] / victim.sumDebets;
+                                        for (var i = 0; i < keys.Count; i++)
+                                        {
+                                            copy[keys[i]] = money * copy[keys[i]] / victim.sumDebets;
 
-                                    }
-                                    for (var i = 0; i < keys.Count; i++)
-                                    {
-                                        this._Players[keys[i]].AddTax(victim.StartFPIndex, Math.Max(1, copy[keys[i]]), ref notifyMsg);
+                                        }
+                                        for (var i = 0; i < keys.Count; i++)
+                                        {
+                                            this._Players[keys[i]].AddTax(victim.StartFPIndex, Math.Max(1, copy[keys[i]]), ref notifyMsg);
+                                        }
                                     }
                                 }
 
