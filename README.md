@@ -5,9 +5,9 @@
 用VS2019下载本项目。 
 </p>
 <p>
-Step A--本项目尽量在visual studio2019+ 、 .netCore 3.1条件下运行。-- 
+Step A--本项目尽量在visual studio2019+ 、 .netCore 3.1条件下运行。 
 </p>
-![StepA](https://www.nyrq123.com/img/fileStep/step1.png)
+![Image text](https://www.nyrq123.com/img/fileStep/step1.png)
 Step B--
 
 程序展示:
