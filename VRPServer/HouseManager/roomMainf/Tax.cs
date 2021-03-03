@@ -365,12 +365,7 @@ namespace HouseManager
             if (car.targetFpIndex == -1)
             {
                 throw new Exception("这个地点应该是执行税收和即将要等待的地点！");
-            }
-            if (player.TaxContainsKey(car.targetFpIndex)) { }
-            else
-            {
-                throw new Exception("没有判断是否包含地点");
-            }
+            } 
             if (player.GetTaxByPositionIndex(car.targetFpIndex) > 0)
             {
                 //确定税收的值

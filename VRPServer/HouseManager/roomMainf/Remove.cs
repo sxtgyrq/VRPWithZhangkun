@@ -129,7 +129,7 @@ namespace HouseManager
                         {
                             this._Players[keysOfAll[j]].DebtsRemove(keysNeedToClear[i], ref notifyMsg);
                         }
-
+                       // if (this._Players[keysOfAll[j]].(keysNeedToClear[i])).
                     }
                     continue;
                 }

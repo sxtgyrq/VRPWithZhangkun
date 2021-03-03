@@ -368,68 +368,47 @@ namespace HouseManager
                 int taxPostion = this.getCollectPositionTo();
                 long sumCollect = DealWithTheFrequcy(this.CollectReWard);
                 var selfGet = sumCollect;
-                long sumDebet = 0;
+                //  long sumDebet = 0;
 
-                var DebtsCopy = player.DebtsCopy;
-                foreach (var item in DebtsCopy)
+
+                var shares = GetShares(player);//获取股份
+
+                Dictionary<string, long> profiles = new Dictionary<string, long>();
+                foreach (var item in shares)
                 {
-                    sumDebet += player.Magnify(item.Value);
-                }
-
-
-
-                if (sumDebet > 0)
-                {
-                    Dictionary<string, long> profiles = new Dictionary<string, long>();
-
-                    // long sumDebts = 0;
-                    //foreach (var item in DebtsCopy)
-                    //{
-                    //    sumDebts += Magnify(item.Value);
-                    //}
-                    sumDebet += player.Money;
-                    sumDebet = Math.Max(1, sumDebet);
-
-                    foreach (var item in DebtsCopy)
+                    if (item.Key != player.Key)
                     {
-                        if (item.Value > 0)
-                        {
-                            var profileOfOther = player.Magnify(item.Value) * sumCollect / sumDebet;
-                            profileOfOther = Math.Max(profileOfOther, 1);
-                            profiles.Add(item.Key, profileOfOther);
-                            printState(player, car, $"{player.PlayerName}({player.Key})通过收集，在{Program.dt.GetFpByIndex(taxPostion).FastenPositionName}，给{this._Players[item.Key].PlayerName}创造利润");
-                            selfGet -= profileOfOther;
-                        }
-                        else
-                        {
-                            throw new Exception("出现item.Value <= 0");
-                        }
+                        var profileOfOther = item.Value * sumCollect / Player.ShareBaseValue;
+                        profileOfOther = Math.Max(profileOfOther, 1);
+                        profiles.Add(item.Key, profileOfOther);
+                        printState(player, car, $"{player.PlayerName}({player.Key})通过收集，在{Program.dt.GetFpByIndex(taxPostion).FastenPositionName}，给{this._Players[item.Key].PlayerName}创造利润");
+                        selfGet -= profileOfOther;
                     }
-                    foreach (var item in profiles)
+                }
+                foreach (var item in profiles)
+                {
+                    if (this._Players.ContainsKey(item.Key))
                     {
-                        if (this._Players.ContainsKey(item.Key))
+                        var sumTax = item.Value;
+                        var Shares = this._Players[item.Key].Shares;
+                        foreach (var shareItem in shares)
                         {
-                            this._Players[item.Key].AddTax(taxPostion, item.Value, ref notifyMsg);
-                            //   SendSingleTax(item.Key, taxPostion, ref notifyMsg);
+                            var itemTax = shareItem.Value * sumTax / Player.ShareBaseValue;
+                            itemTax = Math.Max(1, itemTax);
+                            this._Players[shareItem.Key].AddTax(taxPostion, itemTax, ref notifyMsg);
                         }
-                        else
-                        {
-#warning 这里要确保删除player单个对象时，把其他player中的关于本player的记录进行删除
-                            //↑↑↑这个需要安排模拟测试↑↑↑
-                            throw new Exception("系统错误！");
-                        }
+
+                    }
+                    else
+                    {
+                        //#warning 这里要确保删除player单个对象时，把其他player中的关于本player的记录进行删除
+                        //↑↑↑这个需要安排模拟测试↑↑↑
+                        throw new Exception("系统错误！");
                     }
                 }
                 {
-                    /*
-                     * Collect 用 costVolume
-                     * GetTax 用 costBussiness
-                     */
                     selfGet = Math.Max(1, selfGet);
-
-                    //car.ability.costVolume += selfGet;
                     car.ability.setCostVolume(car.ability.costVolume + selfGet, player, car, ref notifyMsg);
-                    //AbilityChanged(player, car, ref notifyMsg, "volume");
                     addFrequencyRecord(ref notifyMsg);
                 }
                 this.collectPosition = this.GetRandomPosition();
@@ -470,6 +449,8 @@ namespace HouseManager
                 throw new Exception("");
             }
         }
+
+
 
 
 

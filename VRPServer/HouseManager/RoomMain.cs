@@ -121,6 +121,11 @@ namespace HouseManager
             return obj;
         }
 
+        /// <summary>
+        /// 新增其他玩家信息，且这些信息是用于web前台展现的。不能用于战斗计分。
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="msgsWithUrl"></param>
         private void AddOtherPlayer(string key, ref List<string> msgsWithUrl)
         {
             var players = getGetAllPlayer();
@@ -153,6 +158,8 @@ namespace HouseManager
                     }
                 }
             }
+
+
         }
 
         private void addPlayerRecord(Player self, Player other, ref List<string> msgsWithUrl)
@@ -167,7 +174,11 @@ namespace HouseManager
             }
             else
             {
-                self.othersAdd(other.Key, new OtherPlayers());
+                var otherPlayer = new OtherPlayers(self.Key, other.Key);
+                otherPlayer.brokenParameterT1RecordChangedF = self.brokenParameterT1RecordChanged;
+                self.othersAdd(other.Key, otherPlayer);
+                otherPlayer.setBrokenParameterT1Record(other.brokenParameterT1, ref msgsWithUrl);
+
                 var fp = Program.dt.GetFpByIndex(other.StartFPIndex);
                 // fromUrl = this._Players[getPosition.Key].FromUrl;
                 var webSocketID = self.WebSocketID;
@@ -596,6 +607,7 @@ namespace HouseManager
                      * 这已经走查过，在AddNewPlayer、UpdatePlayer时，others都进行了初始化
                      */
                     AddOtherPlayer(getPosition.Key, ref notifyMsgs);
+                    this.brokenParameterT1RecordChanged(getPosition.Key, getPosition.Key, this._Players[getPosition.Key].brokenParameterT1, ref notifyMsgs);
                     GetAllCarInfomationsWhenInitialize(getPosition.Key, ref notifyMsgs);
                     //getAllCarInfomations(getPosition.Key, ref notifyMsgs);
                     OpenMore = this._Players[getPosition.Key].OpenMore;
@@ -843,48 +855,7 @@ namespace HouseManager
                 }
         }
 
-        private void addPlayerCarRecord(Player self, Player other, ref List<string> msgsWithUrl)
-        {
-            //这是发送给self的消息
-            //throw new NotImplementedException();
-            if (self.othersContainsKey(other.Key))
-            {
-                for (var indexOfCar = 0; indexOfCar < 5; indexOfCar++)
-                {
-                    if (self.getOthers(other.Key).getCarState(indexOfCar) == other.getCar(indexOfCar).changeState)
-                    {
 
-                    }
-                    else
-                    {
-                        if (other.getCar(indexOfCar).animateData == null)
-                        {
-
-                        }
-                        else
-                        {
-                            var result = new
-                            {
-                                deltaT = Convert.ToInt32((DateTime.Now - other.getCar(indexOfCar).animateData.recordTime).TotalMilliseconds),
-                                animateData = other.getCar(indexOfCar).animateData.animateData
-                            };
-                            var obj = new BradCastAnimateOfOthersCar
-                            {
-                                c = "BradCastAnimateOfOthersCar",
-                                Animate = result,
-                                WebSocketID = self.WebSocketID,
-                                carID = getCarName(indexOfCar) + "_" + other.Key,
-                                parentID = other.Key,
-                            };
-                            var json = Newtonsoft.Json.JsonConvert.SerializeObject(obj);
-                            msgsWithUrl.Add(self.FromUrl);
-                            msgsWithUrl.Add(json);
-                        }
-                        self.getOthers(other.Key).setCarState(indexOfCar, other.getCar(indexOfCar).changeState);
-                    }
-                }
-            }
-        }
 
         private string getCarName(int index)
         {

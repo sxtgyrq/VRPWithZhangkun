@@ -139,7 +139,23 @@ namespace HouseManager
                 }
                 for (var i = 0; i < keysOfAll.Count; i++)
                 {
-                    this._Players[keysOfAll[i]].setBrokenParameterT1(this._Players[keysOfAll[i]].brokenParameterT1 + 1, ref notifyMsg);
+                    var recordValue = this._Players[keysOfAll[i]].brokenParameterT1 + 1;
+                    this._Players[keysOfAll[i]].setBrokenParameterT1(recordValue, ref notifyMsg);
+
+                    for (var j = 0; j < keysOfAll.Count; j++)
+                    {
+                        if (i != j)
+                        {
+                            if (this._Players[keysOfAll[j]].othersContainsKey(keysOfAll[i]))
+                            {
+                                var other = this._Players[keysOfAll[j]].GetOthers(keysOfAll[i]);
+                                if (other.brokenParameterT1Record != recordValue)
+                                {
+                                    other.setBrokenParameterT1Record(recordValue, ref notifyMsg);
+                                }
+                            }
+                        }
+                    }
                 }
 
             }
@@ -490,7 +506,10 @@ namespace HouseManager
                                 }
                                 {
                                     /*分配财富*/
-                                    var money = victim.Money;
+                                    var money = Math.Max(victim.Money - 500, 0);
+
+                                    var shares = victim.Shares;
+
                                     List<string> keys = new List<string>();
                                     var copy = victim.DebtsCopy;
                                     foreach (var item in copy)

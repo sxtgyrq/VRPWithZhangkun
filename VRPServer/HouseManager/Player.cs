@@ -2,6 +2,7 @@
 using Renci.SshNet.Security;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace HouseManager
@@ -123,7 +124,7 @@ namespace HouseManager
             this.others = new Dictionary<string, OtherPlayers>();
         }
 
-        public OtherPlayers getOthers(string key)
+        public OtherPlayers GetOthers(string key)
         {
             return this.others[key];
         }
@@ -178,6 +179,9 @@ namespace HouseManager
         }
 
         public delegate void MoneyChangedF(Player player, long money, ref List<string> msgsWithUrl);
+
+
+
         public MoneyChangedF MoneyChanged;
         long _Money = 0;
 
@@ -424,7 +428,7 @@ namespace HouseManager
         {
             get { return 100; }
         }
-        long brokenParameterT1Value = 100;
+        long brokenParameterT1Value = 80;
         /// <summary>
         /// 用于计算破产相关参数
         /// </summary>
@@ -434,20 +438,19 @@ namespace HouseManager
             {
                 return brokenParameterT1Value;
             }
-            private set
-            {
-                brokenParameterT1Value = value;
-            }
         }
-
+        internal OtherPlayers.BrokenParameterT1RecordChanged brokenParameterT1RecordChanged;
         internal void setBrokenParameterT1(long v, ref List<string> notifyMsg)
         {
             var m1 = this.MoneyForSave;
-            this.brokenParameterT1 = v;
+            this.brokenParameterT1Value = v;
+            brokenParameterT1RecordChanged(this.Key, this.Key, v, ref notifyMsg);
             var m2 = this.MoneyForSave;
             GetTheLargestHolderKey(ref notifyMsg);
             if (m1 != m2)
                 this.SetMoneyCanSave(this, ref notifyMsg);
+
+
         }
         ///// <summary>
         ///// 返回使玩家破产需要的资金！
@@ -738,6 +741,8 @@ namespace HouseManager
         public delegate void DrawSingleRoad(Player player, string roadCode, ref List<string> notifyMsg);
         public DrawSingleRoad DrawSingleRoadF;
         Dictionary<string, bool> usedRoad = new Dictionary<string, bool>();
+
+
         internal void addUsedRoad(string roadCode, ref List<string> notifyMsgs)
         {
             if (this.usedRoad.ContainsKey(roadCode)) { }
@@ -760,29 +765,83 @@ namespace HouseManager
                 return result;
             }
         }
-        //Dictionary<string, bool> usedFps = new Dictionary<string, bool>();
-        //internal void addUsedFps(string fpCode, ref List<string> notifyMsgs)
-        //{
-        //    if (this.usedFps.ContainsKey(fpCode)) { }
-        //    else
-        //        this.usedFps.Add(fpCode, true);
-        //}
+
+        public const long ShareBaseValue = 10000;
+        /// <summary>
+        /// 获取所有债主的股份，这里包括自己的股份，获取的单位是万分之一
+        /// </summary>
+        /// <param name="player"></param>
+        /// <returns></returns>
+        public Dictionary<string, long> Shares
+        {
+            get
+            {
+                Player player = this;
+                long sumShares = 0;
+                var DebtsCopy = player.DebtsCopy;
+                foreach (var item in DebtsCopy)
+                {
+                    sumShares += player.Magnify(item.Value);
+                }
+                sumShares += player.Money;
+
+                Dictionary<string, long> result = new Dictionary<string, long>();
+                foreach (var item in DebtsCopy)
+                {
+                    result.Add(item.Key, Math.Max(1, ShareBaseValue * player.Magnify(item.Value) / sumShares));
+                }
+                var selfValues = ShareBaseValue - result.Values.Sum();
+                result.Add(player.Key, Math.Max(1, selfValues));
+                return result;
+            }
+        }
     }
     public class OtherPlayers
     {
-        public OtherPlayers()
+        string selfKey, otherKey;
+
+        public OtherPlayers(string selfKeyInput, string otherKeyInput)
         {
+            this.selfKey = selfKeyInput;
+            this.otherKey = otherKeyInput;
             this.carAChangeState = -1;
             this.carBChangeState = -1;
             this.carCChangeState = -1;
             this.carDChangeState = -1;
             this.carEChangeState = -1;
+            this._brokenParameterT1Record = -1;
         }
         public int carAChangeState { get; private set; }
         public int carBChangeState { get; private set; }
         public int carCChangeState { get; private set; }
         public int carDChangeState { get; private set; }
         public int carEChangeState { get; private set; }
+
+        long _brokenParameterT1Record { get; set; }
+        public long brokenParameterT1Record
+        {
+            get
+            {
+                return this._brokenParameterT1Record;
+            }
+        }
+        public void setBrokenParameterT1Record(long value, ref List<string> notifyMsg)
+        {
+            this._brokenParameterT1Record = value;
+            brokenParameterT1RecordChangedF(selfKey, otherKey, value, ref notifyMsg);
+        }
+        /// <summary>
+        /// 告诉自己，别人的社会责任发生变化了
+        /// </summary>
+        /// <param name="msgToPlayerKey"></param>
+        /// <param name="contentKey"></param>
+        /// <param name="value"></param>
+        /// <param name="notifyMsg"></param>
+        public delegate void BrokenParameterT1RecordChanged(string msgToPlayerKey, string contentKey, long value, ref List<string> notifyMsg);
+        /// <summary>
+        /// 此方法的目的是告诉自己，别人的社会责任发生变化了
+        /// </summary>
+        public BrokenParameterT1RecordChanged brokenParameterT1RecordChangedF;
 
         internal int getCarState(int v)
         {
@@ -850,6 +909,8 @@ namespace HouseManager
                     };
             }
         }
+
+
     }
 
 
@@ -934,6 +995,9 @@ namespace HouseManager
         public int targetFpIndex { get; set; }
 
 
+        /// <summary>
+        /// 此函数主要用于动画变化！
+        /// </summary>
         int _changeState = 0;
         public int changeState { get { return this._changeState; } }
         public SetAnimateChangedF SetAnimateChanged;
@@ -1261,7 +1325,7 @@ namespace HouseManager
         {
             get
             {
-                return this.Data["mile"].Count * 10 + 350;
+                return this.Data["mile"].Count * 7 + 350;
             }
         }
         public long leftMile
@@ -1294,11 +1358,11 @@ namespace HouseManager
         /// <summary>
         /// 小车能携带的金钱数量！单位为分，即1/100元。
         /// </summary>
-        public long Business { get { return (this.Data["business"].Count * 10 + 200) * 100; } }
+        public long Business { get { return (this.Data["business"].Count * 500 + 10000); } }
         /// <summary>
-        /// 小车能装载的最大容量，默认为100鼋！单位为分，即1/100元。
+        /// 小车能装载的最大容量，默认为10000分，即1/100元。
         /// </summary>
-        public long Volume { get { return (this.Data["volume"].Count * 10 + 500) * 100; } }
+        public long Volume { get { return (this.Data["volume"].Count * 500 + 10000); } }
         /// <summary>
         /// 小车能跑的最快速度！
         /// </summary>

@@ -27,6 +27,7 @@ F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\HouseManager\bin\
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\HouseManager\bin\Debug\netcoreapp3.1\RIPEMD.dll
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\HouseManager\bin\Debug\netcoreapp3.1\Renci.SshNet.dll
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\HouseManager\bin\Debug\netcoreapp3.1\SshNet.Security.Cryptography.dll
+F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\HouseManager\bin\Debug\netcoreapp3.1\SuperSocket.ClientEngine.dll
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\HouseManager\bin\Debug\netcoreapp3.1\System.Configuration.ConfigurationManager.dll
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\HouseManager\bin\Debug\netcoreapp3.1\System.Security.Cryptography.ProtectedData.dll
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\HouseManager\bin\Debug\netcoreapp3.1\runtimes\win\lib\netstandard2.0\System.Security.Cryptography.ProtectedData.dll
@@ -48,4 +49,3 @@ F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\HouseManager\obj\
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\HouseManager\obj\Debug\netcoreapp3.1\HouseManager.dll
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\HouseManager\obj\Debug\netcoreapp3.1\HouseManager.pdb
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\HouseManager\obj\Debug\netcoreapp3.1\HouseManager.genruntimeconfig.cache
-F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\HouseManager\bin\Debug\netcoreapp3.1\SuperSocket.ClientEngine.dll

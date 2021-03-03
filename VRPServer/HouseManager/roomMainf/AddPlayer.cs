@@ -118,6 +118,9 @@ namespace HouseManager
 
                     this._Players[addItem.Key].DrawSingleRoadF = this.DrawSingleRoadF;
                     this._Players[addItem.Key].addUsedRoad(Program.dt.GetFpByIndex(fpIndex).RoadCode, ref notifyMsgs);
+
+                    this._Players[addItem.Key].brokenParameterT1RecordChanged = this.brokenParameterT1RecordChanged;
+                    //  this._Players[addItem.Key].DrawSingleRoadF = this.DrawSingleRoadF;
                 }
             }
 
@@ -133,6 +136,6 @@ namespace HouseManager
             //  throw new NotImplementedException();
         }
 
-
+        
     }
 }

@@ -152,7 +152,7 @@ namespace HouseManager
                                         }; break;
                                     case CarState.waitForTaxOrAttack:
                                         {
-                                            if (car.purpose == Purpose.collect)
+                                            if (car.purpose == Purpose.tax)
                                             {
                                                 var state = CheckTargetState(sa.targetOwner);
                                                 if (state == CarStateForBeAttacked.CanBeAttacked)
@@ -188,7 +188,7 @@ namespace HouseManager
                                         }; break;
                                     case CarState.waitForCollectOrAttack:
                                         {
-                                            if (car.purpose == Purpose.tax)
+                                            if (car.purpose == Purpose.collect)
                                             {
                                                 var state = CheckTargetState(sa.targetOwner);
                                                 if (state == CarStateForBeAttacked.CanBeAttacked)
@@ -620,6 +620,9 @@ namespace HouseManager
         /// <param name="dor"></param>
         private async void setDebt(int startT, commandWithTime.debtOwner dOwner)
         {
+            /*
+             * 先还钱，再借给钱！
+             */
             lock (this.PlayerLock)
             {
                 var player = this._Players[dOwner.key];
@@ -733,20 +736,10 @@ namespace HouseManager
                                     }
 
                                 }
-#warning 这里乱得很！！！
-                                //var lastDebt = victim.LastDebt;
-                                //if (attackMoney >= lastDebt)
-                                //{
-                                //    victim.Bust = true;
 
-                                //}
-                                //else
-                                //{
 
-                                //}
                                 {
-                                    //执行 攻击动作！ 
-                                    // if (attackMoney > 0)
+                                    //执行 攻击动作！  
                                     {
                                         var attack = car.ability.costBusiness;
                                         if (attack > 0)
@@ -764,14 +757,7 @@ namespace HouseManager
                                             victim.AddDebts(player.Key, attack, ref notifyMsg);
                                             car.ability.setCostVolume(car.ability.costVolume - attack, player, car, ref notifyMsg);
                                         }
-                                        //car.ability.costVolume -= attack;
-                                        //AbilityChanged(player, car, ref notifyMsg, "volume");
                                     }
-                                }
-                                //  var m2 = victim.GetMoneyCanSave();
-                                // if (m1 != m2)
-                                {
-                                    //   MoneyCanSaveChanged(victim, m2, ref notifyMsg);
                                 }
 
                             }
@@ -779,37 +765,7 @@ namespace HouseManager
                             {
                                 //这种情况也有可能存在。
                             }
-                            //                            if (victim.Bust)
-                            //                            {
-                            //#warning 这里要开始系统帮助玩家自动还债进程！
-                            //                                /*
-                            //                                 * 1期工程，直接偿还账务。
-                            //                                 * 2期工程，做执行动画。
-                            //                                 */
-                            //                                victim.BustTime = DateTime.Now;
-                            //                                var keys = new List<string>();
-                            //                                foreach (var item in victim.Debts)
-                            //                                {
-                            //                                    keys.Add(item.Key);
-                            //                                    //if(this._Players.ContainsKey(item))
-                            //                                }
-                            //                                for (var i = 0; i < keys.Count; i++)
-                            //                                {
-                            //                                    if (this._Players.ContainsKey(keys[i]))
-                            //                                    {
-                            //                                        if (!this._Players[keys[i]].Bust)
-                            //                                            this._Players[keys[i]].Money += Math.Max(0, victim.Debts[keys[i]]);
-                            //                                        victim.Debts[keys[i]] = 0;
 
-                            //#warning 这里要提示。破产，你获取了多少资金。
-                            //                                    }
-                            //                                }
-                            //                                victim.Debts = new Dictionary<string, long>();
-                            //                                //for (var i = 0; i < victim.Debts.Count; i++)
-                            //                                //{
-                            //                                //    victim.Debts
-                            //                                //}
-                            //                            }
                         }
                         else
                         {

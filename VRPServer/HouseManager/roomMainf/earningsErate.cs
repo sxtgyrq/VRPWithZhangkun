@@ -34,6 +34,10 @@ namespace HouseManager
         //        return this.frequency;
         //    }
         //  }
+        /// <summary>
+        /// 频率变化，要广播！，这里的频率变化，代表奖励倍数！
+        /// </summary>
+        /// <param name="notifyMsg"></param>
         void addFrequencyRecord(ref List<string> notifyMsg)
         {
             var a = this.frequency + 0;

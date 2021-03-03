@@ -1269,6 +1269,7 @@ var objMain =
             objMain.mainF.initilizeCars(objMain.basePoint, 'green', objMain.indexKey);
             drawCarBtns(objMain.carsNames);
 
+
             objMain.GetPositionNotify.data = null;
             SysOperatePanel.draw();
             frequencyShow.show();
@@ -1281,8 +1282,8 @@ var objMain =
 
     },
     FrequencyOfCollectReward: 0,
-    panOrRotate: 'rotate'
-
+    panOrRotate: 'rotate',
+    carState: {}
 };
 
 
@@ -1870,6 +1871,35 @@ var startA = function () {
                 {
                     objMain.Money = received_obj.Money;
                     moneyShow.show();
+                }; break;
+            case 'BradCastSocialResponsibility':
+                {
+                    SocialResponsibility.data[received_obj.otherKey] = received_obj.socialResponsibility;
+                    //SocialResponsibility.data.add
+                    if (objMain.indexKey == received_obj.otherKey) {
+                        SocialResponsibility.show();
+                    }
+                }; break;
+            case 'GetName':
+                {
+                    if (document.getElementById('playerNameTextArea') != undefined) {
+                        document.getElementById('playerNameTextArea').value = received_obj.name;
+                    }
+                }; break;
+            case 'GetCarsName':
+                {
+                    for (var i = 0; i < 5; i++) {
+                        var iName = 'car' + (i + 1) + 'NameTextArea';
+                        if (document.getElementById(iName) != undefined) {
+                            document.getElementById(iName).value = received_obj.names[i];
+                        }
+                    }
+
+                }; break;
+            case 'BradCarState':
+                {
+                    objMain.carState[received_obj.carID] = received_obj.State;
+                    objNotify.notifyCar(received_obj.carID, received_obj.State);
                 }; break;
         }
     };
@@ -2834,6 +2864,7 @@ var set3DHtml = function () {
         }
     };
 
+    objNotify.carNotifyShow();
 }
 
 var setWaitingToStart = function () {
@@ -2967,17 +2998,36 @@ var buttonClick = function (v) {
             case 'single':
                 {
                     objMain.ws.send(JSON.stringify({ c: 'JoinGameSingle' }));
+                    objMain.receivedState = '';
                 }; break;
             case 'team':
                 {
                     objMain.ws.send(JSON.stringify({ c: 'CreateTeam' }));
+                    objMain.receivedState = '';
                 }; break;
             case 'join':
                 {
                     objMain.ws.send(JSON.stringify({ c: 'JoinTeam' }));
+                    objMain.receivedState = '';
                 }; break;
+            case 'setName':
+                {
+                    // objMain.ws.send(JSON.stringify({ c: 'JoinTeam' }));
+                    objMain.receivedState = 'setName';
+                    selectSingleTeamJoinHtmlF.setNameHtmlShow();
+                    objMain.ws.send(JSON.stringify({ c: 'GetName' }));
+                }; break;
+            case 'setCarsName':
+                {
+                    // objMain.ws.send(JSON.stringify({ c: 'JoinTeam' }));
+                    objMain.receivedState = 'setCarsName';
+                    selectSingleTeamJoinHtmlF.setCarsNameHtmlShow();
+                    objMain.ws.send(JSON.stringify({ c: 'GetCarsName' }));
+                }; break;
+
+
         }
-        objMain.receivedState = '';
+        // objMain.receivedState = '';
     }
     var bgm = document.getElementById('backGroudMusick');
     bgm.load();

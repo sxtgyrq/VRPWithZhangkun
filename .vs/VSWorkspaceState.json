@@ -1,8 +1,11 @@
 {
   "ExpandedNodes": [
     "",
-    "\\VRPServer\\Server"
+    "\\VRPServer",
+    "\\VRPServer\\Server",
+    "\\Webshow",
+    "\\Webshow\\WebApplication1"
   ],
-  "SelectedNode": "\\README.md",
+  "SelectedNode": "\\Webshow\\WebApplication1\\WebApplication1.sln",
   "PreviewInSolutionExplorer": false
 }

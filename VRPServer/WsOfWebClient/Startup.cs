@@ -137,8 +137,8 @@ namespace WsOfWebClient
                 removeWsIsNotOnline();
                 addWs(webSocket, s.WebsocketID);
 
-                var carsNames = new string[] { "车1,", "车2,", "车3,", "车4,", "车5," };
-                var playerName = "玩家1";
+                var carsNames = new string[] { "车1", "车2", "车3", "车4", "车5" };
+                var playerName = "玩家" + DateTime.Now.GetHashCode() % 10000;
                 //if(s.Ls== LoginState.)
 
                 do
@@ -284,9 +284,31 @@ namespace WsOfWebClient
                                         }
                                     }
                                 }; break;
-                            case "setCarName":
+                            case "SetCarsName":
                                 {
-
+                                    if (s.Ls == LoginState.selectSingleTeamJoin)
+                                    {
+                                        SetCarsName setCarsName = Newtonsoft.Json.JsonConvert.DeserializeObject<SetCarsName>(returnResult.result);
+                                        for (var i = 0; i < 5; i++)
+                                        {
+                                            if (!string.IsNullOrEmpty(setCarsName.Names[i]))
+                                            {
+                                                if (setCarsName.Names[i].Trim().Length >= 2 && setCarsName.Names[i].Trim().Length < 7)
+                                                {
+                                                    carsNames[i] = setCarsName.Names[i].Trim();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }; break;
+                            case "GetCarsName":
+                                {
+                                    if (s.Ls == LoginState.selectSingleTeamJoin)
+                                    {
+                                        var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { c = "GetCarsName", names = carsNames });
+                                        var sendData = Encoding.UTF8.GetBytes(msg);
+                                        await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+                                    }
                                 }; break;
                             case "SetPlayerName":
                                 {
@@ -297,21 +319,31 @@ namespace WsOfWebClient
                                         playerName = setPlayerName.Name;
                                     }
                                 }; break;
-                            case "SetCarName":
+                            case "GetName":
                                 {
                                     if (s.Ls == LoginState.selectSingleTeamJoin)
+
                                     {
-                                        SetCarName setCarName = Newtonsoft.Json.JsonConvert.DeserializeObject<SetCarName>(returnResult.result);
-                                        if (setCarName.Name.Trim().Length < 7 && setCarName.Name.Trim().Length > 1)
-                                        {
-                                            if (setCarName.CarIndex >= 0 && setCarName.CarIndex < 5)
-                                            {
-                                                carsNames[setCarName.CarIndex] = setCarName.Name;
-                                            }
-                                        }
-                                        //playerName = setPlayerName.Name;
+                                        var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { c = "GetName", name = playerName });
+                                        var sendData = Encoding.UTF8.GetBytes(msg);
+                                        await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
                                     }
                                 }; break;
+                            //case "SetCarName":
+                            //    {
+                            //        if (s.Ls == LoginState.selectSingleTeamJoin)
+                            //        {
+                            //            SetCarName setCarName = Newtonsoft.Json.JsonConvert.DeserializeObject<SetCarName>(returnResult.result);
+                            //            if (setCarName.Name.Trim().Length < 7 && setCarName.Name.Trim().Length > 1)
+                            //            {
+                            //                if (setCarName.CarIndex >= 0 && setCarName.CarIndex < 5)
+                            //                {
+                            //                    carsNames[setCarName.CarIndex] = setCarName.Name;
+                            //                }
+                            //            }
+                            //            //playerName = setPlayerName.Name;
+                            //        }
+                            //    }; break;
                             case "Promote":
                                 {
                                     if (s.Ls == LoginState.OnLine)
@@ -381,14 +413,14 @@ namespace WsOfWebClient
                                         await Room.Donate(s, donate);
                                     }
                                 }; break;
-                            case "GetSubsidize": 
+                            case "GetSubsidize":
                                 {
                                     if (s.Ls == LoginState.OnLine)
                                     {
                                         GetSubsidize getSubsidize = Newtonsoft.Json.JsonConvert.DeserializeObject<GetSubsidize>(returnResult.result);
                                         await Room.GetSubsidize(s, getSubsidize);
                                     }
-                                };break;
+                                }; break;
                             case "OrderToSubsidize":
                                 {
                                     if (s.Ls == LoginState.OnLine)
@@ -397,14 +429,14 @@ namespace WsOfWebClient
                                         await Room.GetSubsidize(s, getSubsidize);
                                     }
                                 }; break;
-                            case "Bust": 
+                            case "Bust":
                                 {
                                     if (s.Ls == LoginState.OnLine)
                                     {
                                         Bust bust = Newtonsoft.Json.JsonConvert.DeserializeObject<Bust>(returnResult.result);
                                         await Room.setBust(s, bust);
                                     }
-                                };break;
+                                }; break;
                         }
                     }
                     catch (Exception e)

@@ -130,6 +130,36 @@
                 height: 100%;
                 line-height: 60px;
             }
+
+        @keyframes isWaiting {
+            0% {
+                background: rgba(0, 0, 0, 0.00);
+            }
+
+            50% {
+                background: rgba(0,191,255, 0.5);
+            }
+
+            100% {
+                background: rgba(0, 0, 0, 0.00);
+            }
+        }
+
+        .carState {
+            border: 1px solid transparent;
+            width: calc(100% - 2px);
+            height: calc(1em + 6px);
+            text-align: center;
+            border-radius: calc(50% - 1px);
+            margin-top: 4px;
+            margin-bottom: 4px;
+        }
+
+            .carState.wait {
+                animation: isWaiting 1.9s infinite;
+                -webkit-animation: isWaiting 1.9s infinite;
+                border: 1px solid deepskyblue;
+            }
     </style>
     <script src="ThreeJs/three.js"></script>
     <script src="ThreeJs/CSS2DRenderer.js"></script>
@@ -153,6 +183,7 @@
     <div id="rootContainer" style="width: 100%; height: 100%; overflow: hidden;position:absolute;left:0px;top:0px;">
 
     </div>
+    <script src="SocialResponsibility.js"></script>
     <script src="theLargestHolderKeyChanged.js"></script>
     <script src="Tax.js"></script>
     <script src="frequencyShow.js"></script>
@@ -163,6 +194,7 @@
     <script src="subsidize.js"></script>
     <script src="carAbility.js"></script>
     <script src="dialogSys.js"></script>
+    <script src="notify.js"></script>
     <script src="mainf.js?xx=22"></script>
 
 

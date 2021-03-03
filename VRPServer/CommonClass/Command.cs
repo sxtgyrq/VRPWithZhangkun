@@ -155,6 +155,12 @@ namespace CommonClass
         public decimal CostMile { get; set; }
         public int LeftMile { get; set; }
     }
+    public class BradCastSocialResponsibility : CommandNotify
+    {
+        public long socialResponsibility { get; set; }
+        public string key { get; set; }
+        public string otherKey { get; set; }
+    }
     public class BradCastPromoteInfoDetail : CommandNotify
     {
         /// <summary>
