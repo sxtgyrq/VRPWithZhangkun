@@ -3,6 +3,7 @@
 *.pdb
 *.exe
 /VRPServer/HouseManager/bin/
+/VRPServer/HouseManager/bin/
 /VRPServer/TestAllPath/bin/
 /.vs
 /VRPServer/WsOfWebClient/bin/
