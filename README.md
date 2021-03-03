@@ -6,7 +6,12 @@ https://www.nyrq123.com/taiyuan/htmlmain.html
 
 打赏地址
 1NyrqneGRxTpCohjJdwKruM88JyARB2Ljr
-打赏二维码
+打赏二维码如下：
 ![Image text](https://www.nyrq123.com/img/1NyrqneGRxTpCohjJdwKruM88JyARB2Ljr_qrCode.png)
+
+或者微信打赏
+![Image text](https://www.nyrq123.com/img/wechatqrcode.jpg)
+
+
 
 
