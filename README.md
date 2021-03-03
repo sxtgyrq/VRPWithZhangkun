@@ -1,10 +1,13 @@
 # VRPWithZhangkun
-与张焜用人工智能方法解决VRP问题进行交流学习
+与各位用人工智能方法交流学习
 
+<p>
 用VS2019下载本项目。
+</p>
+<p>
 Step A--本项目尽量在visual studio2019+ 、 .netCore 3.1条件下运行。--
 ![Image text](https://www.nyrq123.com/img/fileStep/step1.png)
-
+</p>
 Step B--
 
 程序展示:
