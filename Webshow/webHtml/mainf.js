@@ -31,7 +31,7 @@ TaskClass.prototype.__defineSetter__("carSelect", function (val) {
 
 var objMain =
 {
-    debug: false,
+    debug: true,
     indexKey: '',
     displayName: '',
     MoneyForSave: 0,
