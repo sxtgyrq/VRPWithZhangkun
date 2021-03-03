@@ -442,9 +442,12 @@ namespace HouseManager
 
         internal void setBrokenParameterT1(long v, ref List<string> notifyMsg)
         {
+            var m1 = this.MoneyForSave;
             this.brokenParameterT1 = v;
+            var m2 = this.MoneyForSave;
             GetTheLargestHolderKey(ref notifyMsg);
-            //  throw new NotImplementedException();
+            if (m1 != m2)
+                this.SetMoneyCanSave(this, ref notifyMsg);
         }
         ///// <summary>
         ///// 返回使玩家破产需要的资金！
@@ -480,16 +483,17 @@ namespace HouseManager
         {
             get
             {
-                if (this.Money > 0)
-                {
-                    return Math.Max(1, this.Money - this.sumDebets * brokenParameterT1 / brokenParameterT2);
-                }
-                else if (this.Money == 0)
-                    return this.Money;//;Math.Max(0, this.Money - this.sumDebets * brokenParameterT1 / brokenParameterT2);
-                else
-                {
-                    throw new Exception("");
-                }
+                return this.Money;
+                //if (this.Money > 0)
+                //{
+                //    return Math.Max(1, this.Money - this.sumDebets * brokenParameterT1 / brokenParameterT2);
+                //}
+                //else if (this.Money == 0)
+                //    return this.Money;//;Math.Max(0, this.Money - this.sumDebets * brokenParameterT1 / brokenParameterT2);
+                //else
+                //{
+                //    throw new Exception("");
+                //}
             }
 
             //get { return  }
@@ -651,7 +655,10 @@ namespace HouseManager
         {
             get
             {
-                return Math.Max(0, this.Money - intializedMoney - this.sumDebets * brokenParameterT1 / brokenParameterT2 * 2);
+                if (this.brokenParameterT1 < brokenParameterT2)
+                    return Math.Max(0, this.Money - intializedMoney - this.sumDebets * 2);
+                else
+                    return Math.Max(0, this.Money - intializedMoney - this.sumDebets * brokenParameterT1 / brokenParameterT2 * 2);
             }
         }
         public delegate void SetMoneyCanSaveF(Player player, ref List<string> notifyMsg);

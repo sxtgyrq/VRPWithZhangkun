@@ -32,44 +32,41 @@ namespace HouseManager
                 List<string> notifyMsg = new List<string>();
                 lock (this.PlayerLock)
                 {
-                    var carIndex = getCarIndex(sa.car);
-                    var player = this._Players[sa.Key];
-                    var car = player.getCar(carIndex);
-                    if (player.Bust)
+                    if (this._Players.ContainsKey(sa.Key))
                     {
-                        WebNotify(player, "您已破产");
-                        return $"{player.Key} go bust!";
-#warning 这里要提示前台，已经进行破产清算了。
-                    }
-                    else
-                    {
-
-
-                        if (this._Players.ContainsKey(sa.Key))
+                        var carIndex = getCarIndex(sa.car);
+                        var player = this._Players[sa.Key];
+                        var car = player.getCar(carIndex);
+                        if (player.Bust)
                         {
-
-                            //if(sp.pType=="mi")
-                            switch (sa.pType)
-                            {
-                                case "mile":
-                                case "business":
-                                case "volume":
-                                case "speed":
-                                    {
-                                        if (player.PromoteDiamondCount[sa.pType] > 0)
-                                        {
-                                            car.ability.AbilityAdd(sa.pType, player, car, ref notifyMsg);
-                                            player.PromoteDiamondCount[sa.pType]--; 
-                                            SendPromoteCountOfPlayer(sa.pType, player, ref notifyMsg);
-                                        }
-                                    }; break;
-                            }
+                            WebNotify(player, "您已破产");
+                            return $"{player.Key} go bust!";
+#warning 这里要提示前台，已经进行破产清算了。
                         }
                         else
                         {
-                            return $"not has player-{sa.Key}!";
+                                switch (sa.pType)
+                                {
+                                    case "mile":
+                                    case "business":
+                                    case "volume":
+                                    case "speed":
+                                        {
+                                            if (player.PromoteDiamondCount[sa.pType] > 0)
+                                            {
+                                                car.ability.AbilityAdd(sa.pType, player, car, ref notifyMsg);
+                                                player.PromoteDiamondCount[sa.pType]--;
+                                                SendPromoteCountOfPlayer(sa.pType, player, ref notifyMsg);
+                                            }
+                                        }; break;
+                                }
                         }
                     }
+                    else 
+                    {
+                         return $"not has player-{sa.Key}!";
+                    }
+
                 }
                 for (var i = 0; i < notifyMsg.Count; i += 2)
                 {
