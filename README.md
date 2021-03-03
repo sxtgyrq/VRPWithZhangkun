@@ -28,7 +28,7 @@ https://www.nyrq123.com/taiyuan/htmlmain.html
 或者微信打赏
 </p>
 
-![Image text](https://www.nyrq123.com/img/wechatqrcode.jpg)
+![Image text](https://www.nyrq123.com/img/wechatqrcode2.jpg)
 
 666
 
