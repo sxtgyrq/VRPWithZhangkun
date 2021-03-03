@@ -200,6 +200,7 @@ namespace HouseManager
         {
             var rootPathDefault = "F:\\MyProject\\VRPWithZhangkun\\MainApp\\DBPublish\\";
             Console.WriteLine("你好，请输入线路数据的路径，其默认值如下：");
+            Console.WriteLine("即bigData0.rqdt 与contentofdata 所在的目录");
             Console.WriteLine(rootPathDefault);
 
             var input = Console.ReadLine().Trim();
