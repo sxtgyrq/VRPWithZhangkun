@@ -14,7 +14,7 @@ namespace HouseManager
         public static bool Debug = false;
         static void Main(string[] args)
         {
-            var version = "1.0.0";
+            var version = "1.0.1";
             Console.WriteLine($"版本号：{version}");
 
             Program.startTime = DateTime.Now;
