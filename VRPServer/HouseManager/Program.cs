@@ -14,7 +14,8 @@ namespace HouseManager
         public static bool Debug = false;
         static void Main(string[] args)
         {
-            var version = "1.0.1";
+            var version = "1.0.2";
+            Console.WriteLine($"解决了收税后不能攻击的问题！");
             Console.WriteLine($"版本号：{version}");
 
             Program.startTime = DateTime.Now;

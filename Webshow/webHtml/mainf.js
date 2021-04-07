@@ -31,7 +31,7 @@ TaskClass.prototype.__defineSetter__("carSelect", function (val) {
 
 var objMain =
 {
-    debug: false,
+    debug: true,
     indexKey: '',
     displayName: '',
     MoneyForSave: 0,
@@ -253,7 +253,6 @@ var objMain =
                     color = '#000000';
                     colorName = '黑';
                 }; break;
-
             }
             element.style.border = '2px solid ' + color;
             element.style.borderTopLeftRadius = '0.5em';
@@ -570,7 +569,8 @@ var objMain =
                     objMain.ws.send(JSON.stringify({ 'c': 'Collect', 'cType': 'findWork', 'car': objMain.Task.carSelect }));
                     objMain.Task.state = '';
                     objMain.Task.carSelect = '';
-                    objMain.mainF.removeF.removePanle('carsSelectionPanel');
+                    carBtns.clearBtnInFrame();
+                    // objMain.mainF.removeF.removePanle('carsSelectionPanel');
                     carAbility.clear();
                     // objMain.mainF.removeF.clearGroup(objMain.collectGroup);
                     objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
@@ -646,7 +646,8 @@ var objMain =
                         objMain.ws.send(JSON.stringify({ 'c': 'Attack', 'car': objMain.Task.carSelect, 'TargetOwner': this.CustomTag.indexKey, 'Target': this.CustomTag.fPIndex }));
                         objMain.Task.state = '';
                         objMain.Task.carSelect = '';
-                        objMain.mainF.removeF.removePanle('carsSelectionPanel');
+                        carBtns.clearBtnInFrame();
+                        //objMain.mainF.removeF.removePanle('carsSelectionPanel');
                         carAbility.clear();
                         // objMain.mainF.removeF.clearGroup(objMain.collectGroup);
                         objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
@@ -684,7 +685,8 @@ var objMain =
                             // objMain.ws.send(JSON.stringify({ 'c': 'Donate', 'car': objMain.Task.carSelect, 'TargetOwner': this.CustomTag.indexKey, 'Target': this.CustomTag.fPIndex }));
                             objMain.Task.state = '';
                             objMain.Task.carSelect = '';
-                            objMain.mainF.removeF.removePanle('carsSelectionPanel');
+                            carBtns.clearBtnInFrame();
+                            //objMain.mainF.removeF.removePanle('carsSelectionPanel');
                             carAbility.clear();
                             // objMain.mainF.removeF.clearGroup(objMain.collectGroup);
                             objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
@@ -772,7 +774,8 @@ var objMain =
                         objMain.ws.send(JSON.stringify({ 'c': 'Tax', 'car': objMain.Task.carSelect, 'Target': this.CustomTag.target }));
                         objMain.Task.state = '';
                         objMain.Task.carSelect = '';
-                        objMain.mainF.removeF.removePanle('carsSelectionPanel');
+                        carBtns.clearBtnInFrame();
+                        // objMain.mainF.removeF.removePanle('carsSelectionPanel');
                         carAbility.clear();
 
                         objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
@@ -933,7 +936,8 @@ var objMain =
                                 objMain.ws.send(JSON.stringify({ 'c': 'Ability', 'car': objMain.Task.carSelect, 'pType': that.CustomTag }));
                                 objMain.Task.state = '';
                                 objMain.Task.carSelect = '';
-                                objMain.mainF.removeF.removePanle('carsSelectionPanel');
+                                carBtns.clearBtnInFrame();
+                                //objMain.mainF.removeF.removePanle('carsSelectionPanel');
                                 carAbility.clear();
                                 objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
                             }
@@ -1065,7 +1069,8 @@ var objMain =
                             objMain.ws.send(JSON.stringify({ 'c': 'SetCarReturn', 'car': objMain.Task.carSelect }));
                             objMain.Task.state = '';
                             objMain.Task.carSelect = '';
-                            objMain.mainF.removeF.removePanle('carsSelectionPanel');
+                            carBtns.clearBtnInFrame();
+                            //objMain.mainF.removeF.removePanle('carsSelectionPanel');
                             carAbility.clear();
                             objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
                         }
@@ -1901,6 +1906,7 @@ var startA = function () {
                     objMain.carState[received_obj.carID] = received_obj.State;
                     objNotify.notifyCar(received_obj.carID, received_obj.State);
                 }; break;
+            case '': { }; break;
         }
     };
     ws.onclose = function () {
@@ -2244,7 +2250,8 @@ var set3DHtml = function () {
                                                     objMain.ws.send(JSON.stringify({ 'c': 'Promote', 'pType': objMain.Task.state, 'car': objMain.Task.carSelect }));
                                                     objMain.Task.state = '';
                                                     objMain.Task.carSelect = '';
-                                                    objMain.mainF.removeF.removePanle('carsSelectionPanel');
+                                                    carBtns.clearBtnInFrame();
+                                                    //  objMain.mainF.removeF.removePanle('carsSelectionPanel');
                                                     carAbility.clear();
 
                                                     objMain.mainF.removeF.clearGroup(objMain.promoteDiamond);
@@ -2298,7 +2305,8 @@ var set3DHtml = function () {
                                                         objMain.ws.send(JSON.stringify({ 'c': 'Ability', 'car': objMain.Task.carSelect, 'pType': selectObj.userData.index }));
                                                         objMain.Task.state = '';
                                                         objMain.Task.carSelect = '';
-                                                        objMain.mainF.removeF.removePanle('carsSelectionPanel');
+                                                        carBtns.clearBtnInFrame();
+                                                        //  objMain.mainF.removeF.removePanle('carsSelectionPanel');
                                                         carAbility.clear();
                                                         objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
                                                     }
@@ -2340,7 +2348,8 @@ var set3DHtml = function () {
                                     objMain.ws.send(JSON.stringify({ 'c': 'Collect', 'cType': 'findWork', 'car': objMain.Task.carSelect }));
                                     objMain.Task.state = '';
                                     objMain.Task.carSelect = '';
-                                    objMain.mainF.removeF.removePanle('carsSelectionPanel');
+                                    carBtns.clearBtnInFrame();
+                                    //objMain.mainF.removeF.removePanle('carsSelectionPanel');
                                     carAbility.clear();
                                     // objMain.mainF.removeF.clearGroup(objMain.collectGroup);
                                     objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
@@ -2386,7 +2395,8 @@ var set3DHtml = function () {
                                             objMain.ws.send(JSON.stringify({ 'c': 'SetCarReturn', 'car': objMain.Task.carSelect }));
                                             objMain.Task.state = '';
                                             objMain.Task.carSelect = '';
-                                            objMain.mainF.removeF.removePanle('carsSelectionPanel');
+                                            carBtns.clearBtnInFrame();
+                                            //objMain.mainF.removeF.removePanle('carsSelectionPanel');
                                             carAbility.clear();
                                             objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
                                         }
@@ -2476,7 +2486,8 @@ var set3DHtml = function () {
                                                     objMain.ws.send(JSON.stringify({ 'c': 'Attack', 'car': objMain.Task.carSelect, 'TargetOwner': customTagIndexKey, 'Target': fPIndex }));
                                                     objMain.Task.state = '';
                                                     objMain.Task.carSelect = '';
-                                                    objMain.mainF.removeF.removePanle('carsSelectionPanel');
+                                                    carBtns.clearBtnInFrame();
+                                                    // objMain.mainF.removeF.removePanle('carsSelectionPanel');
                                                     carAbility.clear();
                                                     objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
                                                     return;
@@ -2495,7 +2506,8 @@ var set3DHtml = function () {
                                                 }
                                                 objMain.Task.state = '';
                                                 objMain.Task.carSelect = '';
-                                                objMain.mainF.removeF.removePanle('carsSelectionPanel');
+                                                carBtns.clearBtnInFrame();
+                                                // objMain.mainF.removeF.removePanle('carsSelectionPanel');
                                                 carAbility.clear();
                                                 objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
                                                 return;
@@ -2556,7 +2568,8 @@ var set3DHtml = function () {
                                         objMain.ws.send(JSON.stringify({ 'c': 'Tax', 'car': objMain.Task.carSelect, 'Target': objMain.Tax[fpCode].target }));
                                         objMain.Task.state = '';
                                         objMain.Task.carSelect = '';
-                                        objMain.mainF.removeF.removePanle('carsSelectionPanel');
+                                        carBtns.clearBtnInFrame();
+                                        //  objMain.mainF.removeF.removePanle('carsSelectionPanel');
                                         carAbility.clear();
                                         objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
                                         return;
@@ -2863,7 +2876,7 @@ var set3DHtml = function () {
 
         }
     };
-
+    drawCarBtnsFrame();
     objNotify.carNotifyShow();
 }
 
@@ -3724,6 +3737,53 @@ var drawPoint = function (color, fp, indexKey) {
         objMain.camera.lookAt(objMain.basePoint.MacatuoX, 0, -objMain.basePoint.MacatuoY);
     }
 }
+var drawCarBtnsFrame = function () {
+    while (document.getElementById('carsPanelFrame') != null) {
+        document.getElementById('carsPanelFrame').remove();
+        //carAbility.clear();
+    }
+
+    //  var carsNames = objMain.carsNames;
+    var divCreate = document.createElement('div');
+    divCreate.id = 'carsPanelFrame';
+    divCreate.style.position = 'absolute';
+    divCreate.style.width = '9em';
+    divCreate.style.height = 'calc(6em + 48px)';
+    divCreate.style.zIndex = '6';
+    divCreate.style.left = '0em';
+
+    divCreate.style.top = 'calc(50% - 20px - 2px - 3em)';
+    divCreate.style.fontSize = '20px';
+    divCreate.style.color = 'blue';
+    divCreate.style.textShadow = '1px 1px 1px #000000';
+    divCreate.style.borderColor = 'deepskyblue';
+    var colors = ['yellow', 'red', 'green', 'blue', 'black'];
+    var addChildren = function (length) {
+        for (var i = 0; i < 5; i++) {
+            //text += "        <div style=\"width: calc(100% - 2px);";
+            //text += "        text-align: center;";
+            //text += "        border: 1px solid deepskyblue;";
+            //text += "        border-radius: 0.3em;";
+            //text += "        margin-top: 4px;";
+            //text += "        margin-bottom: 4px;\">";
+            //text += "            <span id=\"carASpan\">啊啊啊啊啊啊啊</span>";
+            //text += "        </div>";
+            var divChildOfItem = document.createElement('div');
+            var id = 'carsPanelFrame' + '_' + 'child' + i;
+            divChildOfItem.id = id;
+            divChildOfItem.style.width = 'calc(100%)';
+            divChildOfItem.style.height = 'calc(( 6em + 48px ) / 5)';
+            //  divChildOfItem.style.backgroundColor = colors[i]; //colors
+            //divChildOfItem.style.display = 'inline';
+
+            divCreate.appendChild(divChildOfItem);
+        }
+    }
+    addChildren(5);
+    //   divCreate.onabort
+
+    document.body.appendChild(divCreate);
+};
 var drawCarBtns = function () {
     {
         var ff = function () {
@@ -4007,6 +4067,8 @@ var drawCarBtns = function () {
 
         var ff2 = function () {
 
+
+
             while (document.getElementById('taskOperatingPanel') != null) {
                 document.getElementById('taskOperatingPanel').remove();
             }
@@ -4043,173 +4105,10 @@ var drawCarBtns = function () {
                 divTaskOperatingPanel.appendChild(div);
             }
             var showBtnEvent = function (show) {
-                while (document.getElementById('carsSelectionPanel') != null) {
-                    document.getElementById('carsSelectionPanel').remove();
-                    carAbility.clear();
-                }
-                if (!show) {
-                    return;
-                }
-                var carsNames = objMain.carsNames;
-                var divCreate = document.createElement('div');
-                divCreate.id = 'carsSelectionPanel';
-                divCreate.style.position = 'absolute';
-                divCreate.style.width = '8em';
-                divCreate.style.height = 'calc(6em + 48px)';
-                divCreate.style.zIndex = '6';
-                divCreate.style.left = '1em';
 
-                divCreate.style.top = 'calc(50% - 20px - 2px - 3em)';
-                divCreate.style.fontSize = '20px';
-                divCreate.style.color = 'blue';
-                divCreate.style.textShadow = '1px 1px 1px #000000';
-                divCreate.style.borderColor = 'deepskyblue';
 
-                var addChildren = function (carsNames) {
-                    for (var i = 0; i < carsNames.length; i++) {
-                        //text += "        <div style=\"width: calc(100% - 2px);";
-                        //text += "        text-align: center;";
-                        //text += "        border: 1px solid deepskyblue;";
-                        //text += "        border-radius: 0.3em;";
-                        //text += "        margin-top: 4px;";
-                        //text += "        margin-bottom: 4px;\">";
-                        //text += "            <span id=\"carASpan\">啊啊啊啊啊啊啊</span>";
-                        //text += "        </div>";
-                        var divChildOfItem = document.createElement('div');
-                        divChildOfItem.style.width = 'calc(100% - 2px)';
-                        divChildOfItem.style.textAlign = 'center';
-                        divChildOfItem.style.border = '1px solid deepskyblue';
-                        divChildOfItem.style.borderRadius = '0.3em';
-                        divChildOfItem.style.marginTop = '4px';
-                        divChildOfItem.style.marginBottom = '4px';
-                        divChildOfItem.yrqTagIndex = i + 0;
-                        //divChildOfItem.parentNode
-                        divChildOfItem.onclick = function () {
-                            //   alert(this.yrqTagIndex);
-                            //console.log('parentNode', this);
-                            //console.log('parentNode', this.parentNode);
-
-                            for (var i = 0; i < 5; i++) {
-                                //  console.log(i, this.parentNode.children[i]);
-
-                                if (i == this.yrqTagIndex) {
-                                    this.parentNode.children[i].style.border = '2px inset #ffc403';
-                                    // alert('');
-                                    while (document.getElementById('itemNodes2') != null) {
-                                        document.getElementById('itemNodes2').remove();
-                                    }
-
-                                    var names = ['carA', 'carB', 'carC', 'carD', 'carE'];
-                                    objMain.Task.carSelect = names[i] + '_' + objMain.indexKey;
-                                    carAbility.drawPanel(names[i]);
-                                    if (objMain.PromoteList.indexOf(objMain.Task.state) >= 0)
-                                        objMain.mainF.lookTwoPositionCenter(objMain.promoteDiamond.children[0].position, objMain.carGroup.getObjectByName(objMain.Task.carSelect).position);
-                                    else if (objMain.Task.state == 'collect')
-                                        objMain.mainF.lookTwoPositionCenter(objMain.collectGroup.children[0].position, objMain.carGroup.getObjectByName(objMain.Task.carSelect).position);
-                                    /*
-                                     * 以下方法用户绘制二级菜单
-                                     */
-                                    if (false) {
-                                        var divCreate2 = document.createElement('div');
-                                        divCreate2.id = 'itemNodes2';
-                                        divCreate2.style.position = 'absolute';
-                                        divCreate2.style.width = '3em';
-                                        divCreate2.style.height = 'calc(6em + 48px)';
-                                        divCreate2.style.zIndex = '6';
-                                        divCreate2.style.left = '11em';
-                                        //calc(50% - 20px - 2px - 3em);
-                                        var emV = i.toString() + 'em';
-                                        var pxV = (i * 12).toString() + 'px'
-                                        divCreate2.style.top = 'calc(50% - 20px - 2px - 3em + ' + emV + ' + ' + pxV + ')';
-                                        divCreate2.style.fontSize = '20px';
-                                        divCreate2.style.color = 'blue';
-                                        divCreate2.style.textShadow = '1px 1px 1px #000000';
-                                        divCreate2.style.borderColor = 'deepskyblue';
-                                        /*这里要显示条目*/
-                                        var displays = ['属性', '任务'];
-                                        for (var jj = 0; jj < 2; jj++) {
-                                            var divChildOfItem2 = document.createElement('div');
-                                            divChildOfItem2.style.width = 'calc(100% - 2px)';
-                                            divChildOfItem2.style.textAlign = 'center';
-                                            divChildOfItem2.style.border = '1px solid #ffc403';
-                                            divChildOfItem2.style.borderRadius = '0.3em';
-                                            divChildOfItem2.style.marginTop = '4px';
-                                            divChildOfItem2.style.marginBottom = '4px';
-                                            // divChildOfItem2.innerText = '啊啊';
-                                            divCreate2.appendChild(divChildOfItem2);
-                                            divChildOfItem2.yrqTagIndex = jj + 0;
-
-                                            var spanOfItem2 = document.createElement('span');
-                                            spanOfItem2.innerText = displays[jj];
-                                            divChildOfItem2.appendChild(spanOfItem2);
-                                            switch (jj) {
-                                                case 0:
-                                                    {
-                                                        divChildOfItem2.onclick = function () {
-                                                            alert('获取属性');
-                                                        }
-                                                    }; break;
-                                                case 1:
-                                                    {
-                                                        divChildOfItem2.onclick = function () {
-                                                            alert('获取任务');
-                                                        }
-                                                    }; break;
-                                            }
-                                        }
-                                        document.body.appendChild(divCreate2);
-                                    }
-                                }
-                                else {
-                                    this.parentNode.children[i].style.border = '1px solid deepskyblue';
-                                }
-                            }
-                            //                this.parentNode
-                        }
-
-                        var spanOfItem = document.createElement('span');
-                        spanOfItem.innerText = carsNames[i];
-                        divChildOfItem.appendChild(spanOfItem);
-                        divCreate.appendChild(divChildOfItem);
-                    }
-                    if (false) {
-                        var divChildOfItem = document.createElement('div');
-                        divChildOfItem.style.width = '3em';
-                        divChildOfItem.style.textAlign = 'center';
-                        divChildOfItem.style.border = '1px solid gray';
-                        divChildOfItem.style.borderRadius = '0.3em';
-                        divChildOfItem.style.marginTop = '4px';
-                        divChildOfItem.style.marginBottom = '4px';
-                        divChildOfItem.style.color = 'yellowgreen';
-
-                        var spanOfItem = document.createElement('span');
-                        spanOfItem.innerText = '隐藏';
-                        divChildOfItem.appendChild(spanOfItem);
-
-                        divChildOfItem.onclick = function () {
-                            this.onclick = function () {
-                                divCreate.innerHTML = '';
-                                addChildren(carsNames);
-                                this.style.width = '3em';
-                                this.children[0].innerText = '隐藏';
-                            }
-                            while (divCreate.children.length > 1) {
-                                divCreate.removeChild(divCreate.children[0]);
-                            }
-                            this.style.width = '5em';
-                            this.children[0].innerText = '显示车辆';
-                            while (document.getElementById('itemNodes2') != null) {
-                                document.getElementById('itemNodes2').remove();
-                            }
-                        }
-                        divCreate.appendChild(divChildOfItem);
-                    }
-                }
-                addChildren(carsNames);
-
-                //   divCreate.onabort
-
-                document.body.appendChild(divCreate);
+                carBtns.addBtnToFrame(objMain.carsNames, true);
+                return;
             }
             addItemToTaskOperatingPanle('收集', 'collectOrTaxBtn', function () {
 
@@ -4407,6 +4306,26 @@ var SysOperatePanel =
                 //      dialogSys.show();
                 //alert('弹出对话框');
                 subsidizeSys.add();
+                //moneyOperator.add();
+            };
+
+            divSysOperatePanel.appendChild(img);
+        }
+        {
+            var img = document.createElement('img');
+            img.id = 'moneySubsidize'
+            img.src = 'Pic/subsidize.png';
+            img.classList.add('chatdialog');
+            img.style.border = 'solid 1px yellowgreen';
+            img.style.borderRadius = '5px';
+            img.style.height = 'calc(2.5em - 2px)';
+            img.style.width = 'auto';
+            img.style.marginLeft = "0.5em";
+            img.onclick = function () {
+                alert('债务框！');
+                //      dialogSys.show();
+                //alert('弹出对话框');
+                //subsidizeSys.add();
                 //moneyOperator.add();
             };
 

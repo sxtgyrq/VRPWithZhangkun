@@ -158,9 +158,16 @@ namespace CommonClass
     public class BradCastSocialResponsibility : CommandNotify
     {
         public long socialResponsibility { get; set; }
-        public string key { get; set; }
+        // public string key { get; set; }
         public string otherKey { get; set; }
     }
+    public class BradCastRightAndDuty : CommandNotify
+    {
+        public string playerKey { get; set; }
+        public long right { get; set; }
+        public long duty { get; set; }
+    }
+
     public class BradCastPromoteInfoDetail : CommandNotify
     {
         /// <summary>

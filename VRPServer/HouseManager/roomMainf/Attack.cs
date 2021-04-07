@@ -80,6 +80,8 @@ namespace HouseManager
                                                             else if (mrr == MileResultReason.CanNotReturn)
                                                             {
                                                             }
+                                                            else if (mrr == MileResultReason.MoneyIsNotEnougt) 
+                                                            { }
                                                             giveMoneyFromCarToPlayer(player, car, ref notifyMsg);
                                                         }
                                                         // doAttack(player, car, sa, ref notifyMsg);
@@ -131,6 +133,10 @@ namespace HouseManager
                                                     {
                                                         carsAttackFailedThenMustReturn(car, player, sa, ref notifyMsg);
                                                     }
+                                                    else if (mrr == MileResultReason.MoneyIsNotEnougt) 
+                                                    {
+                                                        carsAttackFailedThenMustReturn(car, player, sa, ref notifyMsg);
+                                                    }
                                                     // doAttack(player, car, sa, ref notifyMsg);
                                                 }
                                                 else if (state == CarStateForBeAttacked.HasBeenBust)
@@ -168,6 +174,10 @@ namespace HouseManager
                                                     {
                                                         carsAttackFailedThenMustReturn(car, player, sa, ref notifyMsg);
                                                     }
+                                                    else if (mrr == MileResultReason.MoneyIsNotEnougt) 
+                                                    {
+                                                        carsAttackFailedThenMustReturn(car, player, sa, ref notifyMsg);
+                                                    }
                                                     // doAttack(player, car, sa, ref notifyMsg);
                                                 }
                                                 else if (state == CarStateForBeAttacked.HasBeenBust)
@@ -201,6 +211,10 @@ namespace HouseManager
                                                         carsAttackFailedThenMustReturn(car, player, sa, ref notifyMsg);
                                                     }
                                                     else if (mrr == MileResultReason.CanNotReturn)
+                                                    {
+                                                        carsAttackFailedThenMustReturn(car, player, sa, ref notifyMsg);
+                                                    }
+                                                    else if (mrr == MileResultReason.MoneyIsNotEnougt) 
                                                     {
                                                         carsAttackFailedThenMustReturn(car, player, sa, ref notifyMsg);
                                                     }
@@ -365,7 +379,7 @@ namespace HouseManager
             {
                 //if (this._Players[sa.targetOwner].Bust)
 
-
+                if (car.ability.costBusiness + car.ability.costVolume > 0)
                 {
                     var from = this.getFromWhenAttack(player, car);
                     var to = sa.target;
@@ -383,6 +397,7 @@ namespace HouseManager
 
                     var goMile = GetMile(goPath);
                     var returnMile = GetMile(returnPath);
+
 
 
                     //第一步，计算去程和回程。
@@ -411,7 +426,10 @@ namespace HouseManager
                         Mrr = MileResultReason.CanNotReach;
                     }
                 }
-
+                else
+                {
+                    Mrr = MileResultReason.MoneyIsNotEnougt;
+                }
             }
             //else
             //{
@@ -519,9 +537,13 @@ namespace HouseManager
                     {
                         return car.targetFpIndex;
                     };
+                case CarState.waitForTaxOrAttack:
+                    {
+                        return car.targetFpIndex;
+                    }; break;
                 default:
                     {
-                        throw new Exception("错误的汽车状态");
+                        throw new Exception($"错误的汽车状态:{car.state.ToString()}");
                     }
             }
         }
@@ -725,6 +747,7 @@ namespace HouseManager
                                         k++;
                                         if (k > 1000)
                                         {
+                                            Console.WriteLine("出现了金钱没有清0的状况！");
                                             Console.ReadLine();
                                         }
                                     }
@@ -760,6 +783,15 @@ namespace HouseManager
                                     }
                                 }
 
+                                {
+
+                                    /*
+                                     * A.告诉被攻击者，还有多少权利，多少义务。
+                                     * B.告诉攻击者，还有多少权利，多少义务。
+                                     */
+                                    tellMyRightAndDutyToOther(player, victim, ref notifyMsg);
+                                    tellMyRightAndDutyToOther(victim, player, ref notifyMsg);
+                                }
                             }
                             else
                             {
@@ -807,8 +839,59 @@ namespace HouseManager
                 //  await CheckAllPlayersPromoteState(dor.changeType);
             }
         }
+        private async Task TellMeOthersRightAndDuty(string key)
+        {
+            List<string> notifyMsg = new List<string>();
+            if (this._Players.ContainsKey(key))
+            {
+                var self = this._Players[key];
+                foreach (var item in this._Players)
+                {
+                    if (item.Key != key)
+                    {
+                        tellMyRightAndDutyToOther(item.Value, self, ref notifyMsg);
+                    }
+                }
+            }
+            for (var i = 0; i < notifyMsg.Count; i += 2)
+            {
+                var url = notifyMsg[i];
+                var sendMsg = notifyMsg[i + 1];
+                await Startup.sendMsg(url, sendMsg);
+            }
+        }
+        /// <summary>
+        /// 告诉别人我有多少权利和义务。
+        /// </summary>
+        /// <param name="self">被告诉的内容。即self所指对象的权利、义务。</param>
+        /// <param name="other">告诉的对象</param>
+        /// <param name="notifyMsg">传的参数</param>
+        private void tellMyRightAndDutyToOther(Player self, Player other, ref List<string> notifyMsg)
+        {
+            long right;
+            long duty;
+            if (self.DebtsContainsKey(other.Key))
+                right = self.DebtsGet(other.Key);
+            else
+                right = 0;
 
+            if (other.DebtsContainsKey(self.Key))
+                duty = other.DebtsGet(self.Key);
+            else
+                duty = 0;
 
+            var obj = new BradCastRightAndDuty
+            {
+                c = "BradCastRightAndDuty",
+                right = right,
+                duty = duty,
+                WebSocketID = other.WebSocketID,
+                playerKey = self.Key,
 
+            };
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(obj);
+            notifyMsg.Add(other.FromUrl);
+            notifyMsg.Add(json);
+        }
     }
 }

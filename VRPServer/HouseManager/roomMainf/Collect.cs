@@ -174,7 +174,8 @@ namespace HouseManager
             /// <summary>
             /// 能到达但是不能返回
             /// </summary>
-            CanNotReturn
+            CanNotReturn,
+            MoneyIsNotEnougt
         }
         void CollectF(Car car, Player player, SetCollect sc, ref List<string> notifyMsg, out MileResultReason reason)
         {

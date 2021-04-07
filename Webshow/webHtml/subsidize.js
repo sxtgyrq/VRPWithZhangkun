@@ -241,3 +241,102 @@
         document.getElementById('subsidizePanelPromptPrivateKeyValue').value = yrqGetRandomPrivateKey();
     }
 }
+    ;
+var debtInfoSys =
+{ 
+    operateID: 'debtPanel',
+    html: `<div id="subsidizePanel"  style="position:absolute;z-index:8;top:calc(10% - 1px);width:24em; left:calc(50% - 12em);height:auto;border:solid 1px red;text-align:center;background:rgba(104, 48, 8, 0.85);color:#83ffff;overflow-y: scroll;max-height: calc(90%);  ">
+        <table style="width:100%;">
+            <tr>
+                <th>剩余资助</th>
+                <th>现有资助</th>
+            </tr>
+            <tr>
+                <td id="moneyOfSumSubsidizing" >未知</td>
+                <td id="moneyOfSumSubsidized">0</td>
+            </tr>
+        </table>
+        <div style="
+        margin-bottom: 0.25em;
+        margin-top: 0.25em;border:1px solid gray;">
+
+            <label>
+                --↓↓↓输入1打头的比特币地址↓↓↓--
+            </label>
+            <input id="bitcoinSubsidizeAddressInput" type="text" style="width:calc(90% - 10px);margin-bottom:0.25em;background:rgba(127, 255, 127, 0.6);" />
+        </div>
+        <div style="
+        margin-bottom: 0.25em;
+        margin-top: 0.25em;border:1px solid gray;">
+
+            <label onclick="alert('弹出二维码');">
+                --↓↓↓对以下信息进行签名↓↓↓--
+            </label> 
+            <input  id="msgNeedToSign" type="text" style="width:calc(90% - 10px);margin-bottom:0.25em;background:rgba(127, 255, 127, 0.6);" readonly />
+        </div>
+        <div style="
+        margin-bottom: 0.25em;
+        margin-top: 0.25em;border:1px solid gray;">
+
+            <label onclick="alert('弹出扫描二维码');">
+                --↓↓↓输入签名↓↓↓--
+            </label>
+            <textarea id="signatureInputTextArea" style="width:calc(90% - 10px);margin-bottom:0.25em;background:rgba(127, 255, 127, 0.6);height:4em;overflow:hidden;">1111111111111111111111</textarea>
+
+        </div> 
+
+        <table style="width:100%">
+            <tr>
+                <td style="width:50%">
+                    <div style="background: yellowgreen; width:90%;margin-left:5%;" onclick="subsidizeSys.subsidize(50000)" >
+                        资助500
+                    </div>
+                </td>
+                <td style="width: 50%">
+                    <div style="background: yellowgreen; width:90%;margin-left:5%;"  onclick="subsidizeSys.subsidize(100000)" >
+                        资助1000
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td style="width:50%">
+                    <div style="background: yellowgreen; width:90%;margin-left:5%;" onclick="subsidizeSys.subsidize(200000)" >
+                        资助2000
+                    </div>
+                </td>
+                <td style="width: 50%">
+                    <div style="background: yellowgreen; width:90%;margin-left:5%;" onclick="subsidizeSys.subsidize(500000)">
+                        资助5000
+                    </div>
+                </td>
+            </tr> 
+        </table>
+         <div style="background: yellowgreen;
+        margin-bottom: 0.25em;
+        margin-top: 0.25em;" onclick="subsidizeSys.signOnline();">
+            线上私钥签名
+        </div>
+        <div style="background: yellowgreen;
+        margin-bottom: 0.25em;
+        margin-top: 0.25em;" onclick="subsidizeSys.add();">
+            取消
+        </div>
+    </div>`,
+    add: function () {
+        var that = subsidizeSys;
+        if (document.getElementById(that.operateID) == null) {
+            // var obj = new DOMParser().parseFromString(that.html, 'text/html');
+            var frag = document.createRange().createContextualFragment(that.html);
+            frag.id = that.operateID;
+
+            document.body.appendChild(frag);
+            that.updateMoney();
+            that.updateSignInfomation();
+            that.updateMoneyOfSumSubsidized();
+            that.updateMoneyOfSumSubsidizing();
+        }
+        else {
+            document.getElementById(that.operateID).remove();
+        }
+    },
+};

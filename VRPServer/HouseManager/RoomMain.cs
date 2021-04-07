@@ -674,6 +674,9 @@ namespace HouseManager
                 await CheckCollectState(getPosition.Key);
                 await sendCarAbilityState(getPosition.Key);
                 await sendCarStateAndPurpose(getPosition.Key);
+                await TellOtherPlayerMyFatigueDegree(getPosition.Key);
+                await TellMeOtherPlayersFatigueDegree(getPosition.Key);
+                await TellMeOthersRightAndDuty(getPosition.Key);
             }
             else if (OpenMore > 0)
             {
@@ -683,6 +686,10 @@ namespace HouseManager
 
                 await sendCarAbilityState(getPosition.Key);
                 await sendCarStateAndPurpose(getPosition.Key);
+                await TellOtherPlayerMyFatigueDegree(getPosition.Key);
+                await TellMeOtherPlayersFatigueDegree(getPosition.Key);
+                await TellMeOthersRightAndDuty(getPosition.Key);
+                //   await sendPlayerFatigueDegree(getPosition.Key);
                 //for(var i=0;i<)
                 //AbilityChanged(player, car, ref notifyMsg, "business");
                 //AbilityChanged(player, car, ref notifyMsg, "volume");
@@ -691,6 +698,7 @@ namespace HouseManager
             return result;
         }
 
+        
         private void SendMaxHolderInfoMation(Player player, ref List<string> notifyMsgs)
         {
             foreach (var item in this._Players)
