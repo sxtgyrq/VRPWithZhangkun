@@ -147,5 +147,25 @@
         if (document.getElementById('abilityCanvasContainer') != null) {
             document.getElementById('abilityCanvasContainer').remove();
         }
+    },
+    updateNotify: function () {
+        var that = carAbility;
+        var carIDs = ['carA', 'carB', 'carC', 'carD', 'carE'];
+        var operateId = objNotify.ids;
+        for (var i = 0; i < 5; i++) {
+            var operateObj = document.getElementById(operateId[i]);
+            if (that.data[carIDs[i]].volume.costValue >= that.data[carIDs[i]].volume.sumValue) {
+                operateObj.classList.add('volumefull');
+            }
+            else {
+                operateObj.classList.remove('volumefull');
+            }
+            if (that.data[carIDs[i]].business.costValue >= that.data[carIDs[i]].business.sumValue) {
+                operateObj.classList.add('businessfull');
+            }
+            else {
+                operateObj.classList.remove('businessfull');
+            }
+        }
     }
 };

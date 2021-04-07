@@ -1,4 +1,5 @@
-﻿using HouseManager;
+﻿using AllPathGenerator;
+using HouseManager;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,7 +17,7 @@ namespace TestAllPath
             Console.WriteLine("此程序目的是校验所有的路径均能走！！！");
             Console.WriteLine("此程序目的是将运算结果压缩存储-最大存储单元2G！！！");
 
-            Console.WriteLine("write or check?");
+            Console.WriteLine("write or check  or mulThread?");
             Console.WriteLine("combine可以结合程序?");
             var select = Console.ReadLine();
             if (select.ToLower().Trim() == "write")
@@ -40,10 +41,16 @@ namespace TestAllPath
                 Content.Generate();
                 //  Combine.DoCombine();
             }
+            else if (select.ToLower() == "multhread")
+            {
+                multhread_writeC.multhread_write();
+            }
             Console.WriteLine("Hello World!");
 
             Console.ReadLine();
         }
+
+
 
         private static void testCompress()
         {

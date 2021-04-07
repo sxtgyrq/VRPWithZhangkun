@@ -141,6 +141,10 @@ namespace HouseManager
                                 }
                                 await context.Response.WriteAsync("ok");
                             }; break;
+                        //case "GetRightAndDuty": 
+                        //    {
+                                
+                        //    };break;
                         case "FinishTask":
                             {
 

@@ -147,18 +147,35 @@
 
         .carState {
             border: 1px solid transparent;
-            width: calc(100% - 2px);
-            height: calc(1em + 6px);
+            width: calc( 1em - 2px);
+            height: calc(100% - 3px);
             text-align: center;
-            border-radius: calc(50% - 1px);
-            margin-top: 4px;
-            margin-bottom: 4px;
+            border-radius: 0.5em;
+            /*margin-top: 2px;
+            margin-bottom: 2px;*/
+            /* position:relative;*/
+            /* position:absolute;*/
+            left: 0px;
+            display: inline-block;
+            /*position:*/
         }
 
             .carState.wait {
                 animation: isWaiting 1.9s infinite;
                 -webkit-animation: isWaiting 1.9s infinite;
                 border: 1px solid deepskyblue;
+            }
+
+            .carState.volumefull {
+                border-bottom-left-radius: 0.1em;
+                border-bottom-right-radius: 0.1em;
+                /*border: 1px solid deepskyblue;*/
+            }
+
+            .carState.businessfull {
+                border-top-left-radius: 0.1em;
+                border-top-right-radius: 0.1em;
+                /*border: 1px solid deepskyblue;*/
             }
     </style>
     <script src="ThreeJs/three.js"></script>

@@ -124,12 +124,19 @@ namespace HouseManager
         }
 
         //更新玩家的贡献率！
+        /// <summary>
+        /// 更新玩家的资金回报率！
+        /// </summary>
         internal async void UpdatePlayerFatigueDegree()
         {
+            /*
+             * 后台，调整了玩家的资金回报率（游戏难度），要进行广播。告诉所有参与的人！
+             */
             List<string> notifyMsg = new List<string>();
+            List<string> keysOfAll = new List<string>();
             lock (this.PlayerLock)
             {
-                List<string> keysOfAll = new List<string>();
+                // List<string> keysOfAll = new List<string>();
                 foreach (var item in this._Players)
                 {
                     if (!item.Value.Bust)
@@ -141,6 +148,8 @@ namespace HouseManager
                 {
                     var recordValue = this._Players[keysOfAll[i]].brokenParameterT1 + 1;
                     this._Players[keysOfAll[i]].setBrokenParameterT1(recordValue, ref notifyMsg);
+
+                    //  await TellOtherPlayerMyFatigueDegree(getPosition.Key);
 
                     for (var j = 0; j < keysOfAll.Count; j++)
                     {
@@ -168,6 +177,10 @@ namespace HouseManager
                 await Startup.sendMsg(url, sendMsg);
             }
 
+            for (var i = 0; i < keysOfAll.Count; i++)
+            {
+                await TellOtherPlayerMyFatigueDegree(keysOfAll[i]);
+            }
             //    return;
             //List<string> notifyMsg = new List<string>();
             //lock (this.PlayerLock)
@@ -245,6 +258,52 @@ namespace HouseManager
             //    //   Console.WriteLine($"url:{url}");
             //    await Startup.sendMsg(url, sendMsg);
             //}
+        }
+        internal async Task TellMeOtherPlayersFatigueDegree(string selfKey)
+        {
+            List<string> notifyMsg = new List<string>();
+            lock (this.PlayerLock)
+            {
+                foreach (var item in this._Players)
+                {
+                    {
+                        brokenParameterT1RecordChanged(selfKey, item.Key, item.Value.brokenParameterT1, ref notifyMsg);
+                    }
+                }
+            }
+            for (var i = 0; i < notifyMsg.Count; i += 2)
+            {
+                var url = notifyMsg[i];
+                var sendMsg = notifyMsg[i + 1];
+                // Console.WriteLine($"url:{url}");
+
+                await Startup.sendMsg(url, sendMsg);
+            }
+        }
+        internal async Task TellOtherPlayerMyFatigueDegree(string key)
+        {
+
+            List<string> notifyMsg = new List<string>();
+            lock (this.PlayerLock)
+            {
+                foreach (var item in this._Players)
+                {
+                    if (item.Key == key) { }
+                    else
+                    {
+                        // item.Value.brokenParameterT1;
+                        brokenParameterT1RecordChanged(item.Key, key, this._Players[key].brokenParameterT1, ref notifyMsg);
+                    }
+                }
+            }
+            for (var i = 0; i < notifyMsg.Count; i += 2)
+            {
+                var url = notifyMsg[i];
+                var sendMsg = notifyMsg[i + 1];
+                // Console.WriteLine($"url:{url}");
+
+                await Startup.sendMsg(url, sendMsg);
+            }
         }
 
         private void carsBustFailedThenMustReturn(Car car, Player player, SetBust sb, ref List<string> notifyMsg)
