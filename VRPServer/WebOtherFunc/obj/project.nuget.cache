@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "uOK1l70cjN6f4cT5Hdsk9pfu3dBCfbY3P2Ag8k2u7q3AGOik70CWFcaKnqRcK5YG9sij6uBNH0g8KHLODzChEg==",
+  "success": true,
+  "projectFilePath": "F:\\MyProject\\VRPWithZhangkun\\MainApp\\VRPWithZhangkun\\VRPServer\\WebOtherFunc\\WebOtherFunc.fsproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\sxtgy\\.nuget\\packages\\fsharp.core\\5.0.0\\fsharp.core.5.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

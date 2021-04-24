@@ -36,7 +36,7 @@ namespace HouseManager
             });
         }
 
-     
+
         public void Configure(IApplicationBuilder app, Microsoft.AspNetCore.Hosting.IWebHostEnvironment env)
         {
             //app.Map("/websocket", WebSocket);
@@ -143,7 +143,7 @@ namespace HouseManager
                             }; break;
                         //case "GetRightAndDuty": 
                         //    {
-                                
+
                         //    };break;
                         case "FinishTask":
                             {
@@ -173,16 +173,16 @@ namespace HouseManager
                                 var result = await BaseInfomation.rm.updateTax(st);
                                 await context.Response.WriteAsync("ok");
                             }; break;
-                        case "CommandToReturn": 
+                        case "CommandToReturn":
                             {
-                                
-                            };break;
+
+                            }; break;
                     }
                 }
             });
         }
 
-      
+
         public class ReceiveObj
         {
             public WebSocketReceiveResult wr { get; set; }
@@ -384,7 +384,7 @@ namespace HouseManager
 
         public static async Task sendMsg(string controllerUrl, string json)
         {
-            await TcpFunction.WithoutResponse.SendInmationToUrl(controllerUrl, json);
+            await Task.Run(() => TcpFunction.WithoutResponse.SendInmationToUrl(controllerUrl, json));
         }
 
 

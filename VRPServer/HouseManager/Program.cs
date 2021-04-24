@@ -12,6 +12,7 @@ namespace HouseManager
         public static DateTime startTime;
         public static Data dt;
         public static bool Debug = false;
+        public static Boundary boundary;
         static void Main(string[] args)
         {
             var version = "1.0.2";
@@ -22,7 +23,8 @@ namespace HouseManager
             namal();
             startTaskForAwait();
             BaseInfomation.rm = new RoomMain();
-
+            //boundary = new Boundary();
+            //  boundary.load();
             {
                 var ip = "127.0.0.1";
                 int tcpPort = 11100;
@@ -93,11 +95,22 @@ namespace HouseManager
         {
             while (true)
             {
+                Thread.Sleep(10 * 1000);
+                BaseInfomation.rm.UpdatePlayerFatigueDegree();
+                Thread.Sleep(10 * 1000);
+                BaseInfomation.rm.UpdatePlayerFatigueDegree();
+                Thread.Sleep(10 * 1000);
+                BaseInfomation.rm.UpdatePlayerFatigueDegree();
+                Thread.Sleep(10 * 1000);
+                BaseInfomation.rm.UpdatePlayerFatigueDegree();
+                Thread.Sleep(10 * 1000);
+                BaseInfomation.rm.UpdatePlayerFatigueDegree();
+                Thread.Sleep(10 * 1000);
                 count++;
-                Thread.Sleep(60 * 1000);
+                //Thread.Sleep(60 * 1000);
                 BaseInfomation.rm.SetReturn();
                 BaseInfomation.rm.ClearPlayers();
-                BaseInfomation.rm.UpdatePlayerFatigueDegree();
+
                 //BaseInfomation.rm.GetTax();
             }
         }
@@ -106,6 +119,9 @@ namespace HouseManager
         {
             //Thread t=new Thread()
         }
+        /// <summary>
+        /// 主要是加载地图
+        /// </summary>
         static void namal()
         {
             Program.dt = new Data();

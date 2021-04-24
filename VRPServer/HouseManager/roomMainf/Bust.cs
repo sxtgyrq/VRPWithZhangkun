@@ -146,6 +146,11 @@ namespace HouseManager
                 }
                 for (var i = 0; i < keysOfAll.Count; i++)
                 {
+                    if (this.rm.Next(0, 5) != 0)
+                    {
+                        continue;
+                    }
+
                     var recordValue = this._Players[keysOfAll[i]].brokenParameterT1 + 1;
                     this._Players[keysOfAll[i]].setBrokenParameterT1(recordValue, ref notifyMsg);
 
@@ -161,6 +166,7 @@ namespace HouseManager
                                 if (other.brokenParameterT1Record != recordValue)
                                 {
                                     other.setBrokenParameterT1Record(recordValue, ref notifyMsg);
+                                    tellMyRightAndDutyToOther(this._Players[keysOfAll[i]], this._Players[keysOfAll[j]], ref notifyMsg);
                                 }
                             }
                         }

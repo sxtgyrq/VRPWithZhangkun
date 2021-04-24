@@ -80,7 +80,7 @@ namespace HouseManager
                                                             else if (mrr == MileResultReason.CanNotReturn)
                                                             {
                                                             }
-                                                            else if (mrr == MileResultReason.MoneyIsNotEnougt) 
+                                                            else if (mrr == MileResultReason.MoneyIsNotEnougt)
                                                             { }
                                                             giveMoneyFromCarToPlayer(player, car, ref notifyMsg);
                                                         }
@@ -133,7 +133,7 @@ namespace HouseManager
                                                     {
                                                         carsAttackFailedThenMustReturn(car, player, sa, ref notifyMsg);
                                                     }
-                                                    else if (mrr == MileResultReason.MoneyIsNotEnougt) 
+                                                    else if (mrr == MileResultReason.MoneyIsNotEnougt)
                                                     {
                                                         carsAttackFailedThenMustReturn(car, player, sa, ref notifyMsg);
                                                     }
@@ -174,7 +174,7 @@ namespace HouseManager
                                                     {
                                                         carsAttackFailedThenMustReturn(car, player, sa, ref notifyMsg);
                                                     }
-                                                    else if (mrr == MileResultReason.MoneyIsNotEnougt) 
+                                                    else if (mrr == MileResultReason.MoneyIsNotEnougt)
                                                     {
                                                         carsAttackFailedThenMustReturn(car, player, sa, ref notifyMsg);
                                                     }
@@ -214,7 +214,7 @@ namespace HouseManager
                                                     {
                                                         carsAttackFailedThenMustReturn(car, player, sa, ref notifyMsg);
                                                     }
-                                                    else if (mrr == MileResultReason.MoneyIsNotEnougt) 
+                                                    else if (mrr == MileResultReason.MoneyIsNotEnougt)
                                                     {
                                                         carsAttackFailedThenMustReturn(car, player, sa, ref notifyMsg);
                                                     }
@@ -868,17 +868,37 @@ namespace HouseManager
         /// <param name="notifyMsg">传的参数</param>
         private void tellMyRightAndDutyToOther(Player self, Player other, ref List<string> notifyMsg)
         {
+            /*
+             * 三种情况下应该被调用。
+             * 第一种情况，启动。
+             * 第二种情况，攻击。
+             * 第三种情况，参数变更。
+             */
             long right;
+            int rightPercent;
             long duty;
+            int dutyPercent;
             if (self.DebtsContainsKey(other.Key))
+            {
                 right = self.DebtsGet(other.Key);
+                rightPercent = self.DebtsPercent(other.Key);
+            }
             else
+            {
                 right = 0;
+                rightPercent = 0;
+            }
 
             if (other.DebtsContainsKey(self.Key))
+            {
                 duty = other.DebtsGet(self.Key);
+                dutyPercent = other.DebtsPercent(self.Key);
+            }
             else
+            {
                 duty = 0;
+                dutyPercent = 0;
+            }
 
             var obj = new BradCastRightAndDuty
             {
@@ -887,7 +907,8 @@ namespace HouseManager
                 duty = duty,
                 WebSocketID = other.WebSocketID,
                 playerKey = self.Key,
-
+                rightPercent = rightPercent,
+                dutyPercent = dutyPercent
             };
             var json = Newtonsoft.Json.JsonConvert.SerializeObject(obj);
             notifyMsg.Add(other.FromUrl);

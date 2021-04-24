@@ -77,38 +77,49 @@ namespace WsOfWebClient
         //private async void startTcp()
         async Task StartTcpDealWithF(string notifyJson)
         {
-            CommonClass.CommandNotify c = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.CommandNotify>(notifyJson);
-            WebSocket ws = null;
-            lock (ConnectInfo.connectedWs_LockObj)
+            try
             {
-                if (ConnectInfo.connectedWs.ContainsKey(c.WebSocketID))
+                CommonClass.CommandNotify c = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.CommandNotify>(notifyJson);
+                WebSocket ws = null;
+                lock (ConnectInfo.connectedWs_LockObj)
                 {
-                    if (ConnectInfo.connectedWs[c.WebSocketID].State == WebSocketState.Open)
+                    if (ConnectInfo.connectedWs.ContainsKey(c.WebSocketID))
                     {
-                        ws = ConnectInfo.connectedWs[c.WebSocketID];
-                    }
-                    else
-                    {
-                        ConnectInfo.connectedWs.Remove(c.WebSocketID);
+                        if (!ConnectInfo.connectedWs[c.WebSocketID].CloseStatus.HasValue)
+                        {
+                            ws = ConnectInfo.connectedWs[c.WebSocketID];
+                        }
+                        else
+                        {
+                            ConnectInfo.connectedWs.Remove(c.WebSocketID);
+                        }
                     }
                 }
-            }
-            // await context.Response.WriteAsync("ok");
-            if (ws != null)
-            {
-                if (ws.State == WebSocketState.Open)
+                // await context.Response.WriteAsync("ok");
+                if (ws != null)
                 {
-                    try
-                    {
-                        var sendData = Encoding.UTF8.GetBytes(notifyJson);
-                        await ws.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
-                    }
-                    catch
-                    {
 
+                    if (ws.State == WebSocketState.Open)
+                    {
+                        try
+                        {
+                            var sendData = Encoding.UTF8.GetBytes(notifyJson);
+
+                            await ws.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+                        }
+                        catch
+                        {
+
+                        }
                     }
                 }
             }
+            catch (Exception e)
+            {
+
+                throw e;
+            }
+
         }
         private static void WebSocketF(IApplicationBuilder app)
         {
@@ -118,6 +129,7 @@ namespace WsOfWebClient
                 {
 
                     var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+
                     await Echo(webSocket);
                 }
             });
@@ -138,7 +150,9 @@ namespace WsOfWebClient
                 addWs(webSocket, s.WebsocketID);
 
                 var carsNames = new string[] { "车1", "车2", "车3", "车4", "车5" };
-                var playerName = "玩家" + DateTime.Now.GetHashCode() % 10000;
+                var playerName = "玩家" + Math.Abs(DateTime.Now.GetHashCode() % 10000);
+
+
                 //if(s.Ls== LoginState.)
 
                 do
@@ -437,26 +451,49 @@ namespace WsOfWebClient
                                         await Room.setBust(s, bust);
                                     }
                                 }; break;
+                            case "BuyDiamond":
+                                {
+                                    if (s.Ls == LoginState.OnLine)
+                                    {
+                                        BuyDiamond bd = Newtonsoft.Json.JsonConvert.DeserializeObject<BuyDiamond>(returnResult.result);
+                                        await Room.buyDiamond(s, bd);
+                                    }
+                                }; break;
+                            case "SellDiamond":
+                                {
+                                    if (s.Ls == LoginState.OnLine)
+                                    {
+                                        BuyDiamond bd = Newtonsoft.Json.JsonConvert.DeserializeObject<BuyDiamond>(returnResult.result);
+                                        await Room.sellDiamond(s, bd);
+                                    }
+                                }; break;
                         }
                     }
                     catch (Exception e)
                     {
                         Console.WriteLine($"{ Newtonsoft.Json.JsonConvert.SerializeObject(e)}");
+                        await Room.setOffLine(s);
+                        removeWs(s.WebsocketID);
                         // Console.WriteLine($"step2：webSockets数量：{   BufferImage.webSockets.Count}");
-                        return;
+                        // return;
+                        throw e;
                     }
                 }
                 while (!wResult.CloseStatus.HasValue);
-                try
-                {
-                    // await webSocket.CloseAsync(wResult.CloseStatus.Value, wResult.CloseStatusDescription, CancellationToken.None);
+                await Room.setOffLine(s);
+                removeWs(s.WebsocketID);
+                //try
+                //{
+                //    // await webSocket.CloseAsync(wResult.CloseStatus.Value, wResult.CloseStatusDescription, CancellationToken.None);
+                //    // ConnectInfo.connectedWs.Remove(c.WebSocketID);
 
-
-                }
-                catch
-                {
-                    //  return;
-                }
+                //}
+                //catch (Exception e)
+                //{
+                //    throw e;
+                //    // ConnectInfo.connectedWs.Remove(c.WebSocketID);
+                //    //  return;
+                //}
             };
         }
 
@@ -464,10 +501,27 @@ namespace WsOfWebClient
         //static Dictionary<string, ClientWebSocket> _sockets = new Dictionary<string, ClientWebSocket>();
         public static async Task<string> sendInmationToUrlAndGetRes(string roomUrl, string sendMsg)
         {
-            return await TcpFunction.WithResponse.SendInmationToUrlAndGetRes(roomUrl, sendMsg);
+            return await Task.Run(() => TcpFunction.WithResponse.SendInmationToUrlAndGetRes(roomUrl, sendMsg));
         }
 
-
+        private static void removeWs(int websocketID)
+        {
+            try
+            {
+                lock (ConnectInfo.connectedWs_LockObj)
+                {
+                    if (ConnectInfo.connectedWs.ContainsKey(websocketID))
+                    {
+                        ConnectInfo.connectedWs[websocketID].Dispose();
+                        ConnectInfo.connectedWs.Remove(websocketID);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
 
         private static void addWs(System.Net.WebSockets.WebSocket webSocket, int websocketID)
         {
@@ -516,9 +570,11 @@ namespace WsOfWebClient
             {
                 do
                 {
+                    // ct.IsCancellationRequested
                     ct.ThrowIfCancellationRequested();
 
                     result = await socket.ReceiveAsync(buffer, ct);
+
                     ms.Write(buffer.Array, buffer.Offset, result.Count);
                 }
                 while (!result.EndOfMessage);

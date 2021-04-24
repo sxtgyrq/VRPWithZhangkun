@@ -60,7 +60,7 @@ namespace WsOfWebClient
                 DebugInLocalHost = false;
             }
         }
-        internal static async Task<PlayerAdd> getRoomNum(int websocketID, string playerName, string[] carsNames)
+        internal static async Task<PlayerAdd_V2> getRoomNum(int websocketID, string playerName, string[] carsNames)
         {
             int roomIndex = 0;
             if (DebugInLocalHost)
@@ -79,9 +79,9 @@ namespace WsOfWebClient
                 {
                     var frequency1 = await getFrequency(Room.roomUrls[index1]); ; //Startup.sendInmationToUrlAndGetRes(Room.roomUrls[roomInfo.RoomIndex], sendMsg);
                     var frequency2 = await getFrequency(Room.roomUrls[index2]);
-                    //这里的2000，极值是1/6Hz(2000)。极限是1/4Hz(3000)
-                    var value1 = frequency1 < 2000 ? frequency1 : Math.Max(1, 6000 - 2 * frequency1);
-                    var value2 = frequency2 < 2000 ? frequency2 : Math.Max(1, 6000 - 2 * frequency2);
+                    //100代表1/120hz,这里的2000，极值是1Hz(12000)。极限是2Hz(24000)
+                    var value1 = frequency1 < 12000 ? frequency1 : Math.Max(1, 24000 - frequency1);
+                    var value2 = frequency2 < 12000 ? frequency2 : Math.Max(1, 24000 - frequency2);
                     var sumV = value1 + value2;
                     var rIndex = rm.Next(sumV);
                     if (rIndex < value1)
@@ -97,16 +97,15 @@ namespace WsOfWebClient
             // var  
             var key = CommonClass.Random.GetMD5HashFromStr(ConnectInfo.HostIP + websocketID + DateTime.Now.ToString());
             var roomUrl = roomUrls[roomIndex];
-            return new PlayerAdd()
+            return new PlayerAdd_V2()
             {
                 Key = key,
-                c = "PlayerAdd",
+                c = "PlayerAdd_V2",
                 FromUrl = $"{ConnectInfo.HostIP}:{ConnectInfo.tcpServerPort}",// ConnectInfo.ConnectedInfo + "/notify",
                 RoomIndex = roomIndex,
                 WebSocketID = websocketID,
                 Check = CommonClass.Random.GetMD5HashFromStr(key + roomUrl + CheckParameter),
                 PlayerName = playerName,
-                CarsNames = carsNames
             };
             // throw new NotImplementedException();
         }
@@ -123,19 +122,18 @@ namespace WsOfWebClient
             return int.Parse(result);
         }
 
-        private static PlayerAdd getRoomNumByRoom(int websocketID, int roomIndex, string playerName, string[] carsNames)
+        private static PlayerAdd_V2 getRoomNumByRoom(int websocketID, int roomIndex, string playerName, string[] carsNames)
         {
             var key = CommonClass.Random.GetMD5HashFromStr(ConnectInfo.HostIP + websocketID + DateTime.Now.ToString());
             var roomUrl = roomUrls[roomIndex];
-            return new PlayerAdd()
+            return new PlayerAdd_V2()
             {
                 Key = key,
-                c = "PlayerAdd",
+                c = "PlayerAdd_V2",
                 FromUrl = $"{ConnectInfo.HostIP}:{ConnectInfo.tcpServerPort}",// ConnectInfo.ConnectedInfo + "/notify",
                 RoomIndex = roomIndex,
                 WebSocketID = websocketID,
                 Check = CommonClass.Random.GetMD5HashFromStr(key + roomUrl + CheckParameter),
-                CarsNames = carsNames,
                 PlayerName = playerName
             };
         }
@@ -182,11 +180,11 @@ namespace WsOfWebClient
             //var result = await setState(s, webSocket, LoginState.OnLine);
             // string json;
             {
-                if (string.IsNullOrEmpty(ConnectInfo.mapRoadAndCrossJson))
-                {
-                    ConnectInfo.mapRoadAndCrossJson = await getRoadInfomation(s);
-                    Console.WriteLine($"获取ConnectInfo.mapRoadAndCrossJson json的长度为{ConnectInfo.mapRoadAndCrossJson.Length}");
-                }
+                //if (string.IsNullOrEmpty(ConnectInfo.mapRoadAndCrossJson))
+                //{
+                //    ConnectInfo.mapRoadAndCrossJson = await getRoadInfomation(s);
+                //    Console.WriteLine($"获取ConnectInfo.mapRoadAndCrossJson json的长度为{ConnectInfo.mapRoadAndCrossJson.Length}");
+                //}
                 if (false)
                 {
                     var msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { c = "MapRoadAndCrossJson", action = "start" });
@@ -203,24 +201,24 @@ namespace WsOfWebClient
                         #endregion
                     }
 
-                    for (var i = 0; i < ConnectInfo.mapRoadAndCrossJson.Length; i += 1000)
-                    {
-                        var passStr = ConnectInfo.mapRoadAndCrossJson.Substring(i, (i + 1000) <= ConnectInfo.mapRoadAndCrossJson.Length ? 1000 : (ConnectInfo.mapRoadAndCrossJson.Length % 1000));
-                        msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { c = "MapRoadAndCrossJson", action = "mid", passStr = passStr });
-                        sendData = Encoding.ASCII.GetBytes(msg);
-                        await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+                    //for (var i = 0; i < ConnectInfo.mapRoadAndCrossJson.Length; i += 1000)
+                    //{
+                    //    var passStr = ConnectInfo.mapRoadAndCrossJson.Substring(i, (i + 1000) <= ConnectInfo.mapRoadAndCrossJson.Length ? 1000 : (ConnectInfo.mapRoadAndCrossJson.Length % 1000));
+                    //    msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { c = "MapRoadAndCrossJson", action = "mid", passStr = passStr });
+                    //    sendData = Encoding.ASCII.GetBytes(msg);
+                    //    await webSocket.SendAsync(new ArraySegment<byte>(sendData, 0, sendData.Length), WebSocketMessageType.Text, true, CancellationToken.None);
 
-                        {
-                            #region 校验响应
-                            var checkIsOk = await CheckRespon(webSocket, "MapRoadAndCrossJson,mid");
-                            if (checkIsOk) { }
-                            else
-                            {
-                                return null;
-                            }
-                            #endregion
-                        }
-                    }
+                    //    {
+                    //        #region 校验响应
+                    //        var checkIsOk = await CheckRespon(webSocket, "MapRoadAndCrossJson,mid");
+                    //        if (checkIsOk) { }
+                    //        else
+                    //        {
+                    //            return null;
+                    //        }
+                    //        #endregion
+                    //    }
+                    //}
 
                     msg = Newtonsoft.Json.JsonConvert.SerializeObject(new { c = "MapRoadAndCrossJson", action = "end" });
                     sendData = Encoding.ASCII.GetBytes(msg);
@@ -684,25 +682,121 @@ namespace WsOfWebClient
             #endregion
         }
 
+
+
+        internal static async Task<string> buyDiamond(State s, BuyDiamond bd)
+        {
+            {
+                switch (bd.pType)
+                {
+                    case "mile":
+                    case "business":
+                    case "volume":
+                    case "speed":
+                        {
+                            SetBuyDiamond sbd = new SetBuyDiamond()
+                            {
+                                c = "SetBuyDiamond",
+                                Key = s.Key,
+                                pType = bd.pType
+                            };
+                            var msg = Newtonsoft.Json.JsonConvert.SerializeObject(sbd);
+                            await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[s.roomIndex], msg);
+                        }; break;
+                    default: { }; break;
+                }
+            }
+            return "";
+        }
+
+        internal static async Task<string> sellDiamond(State s, BuyDiamond bd)
+        {
+            {
+                switch (bd.pType)
+                {
+                    case "mile":
+                    case "business":
+                    case "volume":
+                    case "speed":
+                        {
+                            SetSellDiamond ssd = new SetSellDiamond()
+                            {
+                                c = "SetSellDiamond",
+                                Key = s.Key,
+                                pType = bd.pType
+                            };
+                            var msg = Newtonsoft.Json.JsonConvert.SerializeObject(ssd);
+                            await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[s.roomIndex], msg);
+                        }; break;
+                    default: { }; break;
+                }
+            }
+            return "";
+        }
+
+        internal static async Task<string> setOffLine(State s)
+        {
+#warning 这里要优化！！！
+            return "";
+            //var getPosition = new SetBust()
+            //{
+            //    c = "SetBust",
+            //    Key = s.Key,
+            //    car = "car" + m.Groups["car"].Value,
+            //    targetOwner = targetOwner,
+            //    target = bust.Target
+            //};
+            //var msg = Newtonsoft.Json.JsonConvert.SerializeObject(getPosition);
+            //await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[s.roomIndex], msg);
+            //internal static async Task<string> setBust(State s, Bust bust)
+            //{
+            //    Regex r = new Regex("^car(?<car>[A-E]{1})_(?<key>[a-f0-9]{32})$");
+            //    Regex rex_Target = new Regex("^(?<target>[a-f0-9]{32})$");
+
+            //    var m = r.Match(bust.car);
+            //    var m_Target = rex_Target.Match(bust.TargetOwner);
+            //    if (m.Success && m_Target.Success)
+            //    {
+            //        var targetOwner = m_Target.Groups["target"].Value;
+
+            //        Console.WriteLine($"正则匹配成功：{m.Groups["car"] }+{m.Groups["key"] }");
+            //        if (m.Groups["key"].Value == s.Key)
+            //        {
+            //            var getPosition = new SetBust()
+            //            {
+            //                c = "SetBust",
+            //                Key = s.Key,
+            //                car = "car" + m.Groups["car"].Value,
+            //                targetOwner = targetOwner,
+            //                target = bust.Target
+            //            };
+            //            var msg = Newtonsoft.Json.JsonConvert.SerializeObject(getPosition);
+            //            await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[s.roomIndex], msg);
+            //        }
+            //    }
+            //    return "";
+            //}
+        }
+
         internal static async Task<string> setCarReturn(State s, SetCarReturn scr)
         {
 
             {
-                Regex r = new Regex("^car(?<car>[A-E]{1})_(?<key>[a-f0-9]{32})$");
-                var m = r.Match(scr.car);
+                //  Regex r = new Regex("^car(?<car>[A-E]{1})_(?<key>[a-f0-9]{32})$");
+                // var m = r.Match(scr.car);
                 // var m_Target = rex_Target.Match(attack.TargetOwner);
-                if (m.Success)//&& m_Target.Success)
+                //   if (m.Success)//&& m_Target.Success)
                 {
                     //   var targetOwner = m_Target.Groups["target"].Value;
 
-                    Console.WriteLine($"正则匹配成功：{m.Groups["car"] }+{m.Groups["key"] }");
-                    if (m.Groups["key"].Value == s.Key)
+                    //     Console.WriteLine($"正则匹配成功：{m.Groups["car"] }+{m.Groups["key"] }");
+                    //   if (m.Groups["key"].Value == s.Key)
                     {
                         var getPosition = new OrderToReturn()
                         {
                             c = "OrderToReturn",
                             Key = s.Key,
-                            car = "car" + m.Groups["car"].Value,
+                            //  car = "car" + m.Groups["car"].Value,
                         };
                         var msg = Newtonsoft.Json.JsonConvert.SerializeObject(getPosition);
                         await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[s.roomIndex], msg);
@@ -734,23 +828,23 @@ namespace WsOfWebClient
 
         internal static async Task<string> setBust(State s, Bust bust)
         {
-            Regex r = new Regex("^car(?<car>[A-E]{1})_(?<key>[a-f0-9]{32})$");
+            //Regex r = new Regex("^car(?<car>[A-E]{1})_(?<key>[a-f0-9]{32})$");
             Regex rex_Target = new Regex("^(?<target>[a-f0-9]{32})$");
 
-            var m = r.Match(bust.car);
+            //var m = r.Match(bust.car);
             var m_Target = rex_Target.Match(bust.TargetOwner);
-            if (m.Success && m_Target.Success)
+            if (m_Target.Success)
             {
                 var targetOwner = m_Target.Groups["target"].Value;
 
-                Console.WriteLine($"正则匹配成功：{m.Groups["car"] }+{m.Groups["key"] }");
-                if (m.Groups["key"].Value == s.Key)
+                // Console.WriteLine($"正则匹配成功： {m.Groups["key"] }");
+                //   if (m.Groups["key"].Value == s.Key)
                 {
                     var getPosition = new SetBust()
                     {
                         c = "SetBust",
                         Key = s.Key,
-                        car = "car" + m.Groups["car"].Value,
+                        //  car = "car" + m.Groups["car"].Value,
                         targetOwner = targetOwner,
                         target = bust.Target
                     };
@@ -783,21 +877,21 @@ namespace WsOfWebClient
             }
             else
             {
-                Regex r = new Regex("^car(?<car>[A-E]{1})_(?<key>[a-f0-9]{32})$");
-                var m = r.Match(a.car);
-                // var m_Target = rex_Target.Match(attack.TargetOwner);
-                if (m.Success)//&& m_Target.Success)
+                ////Regex r = new Regex("^car(?<car>[A-E]{1})_(?<key>[a-f0-9]{32})$");
+                ////var m = r.Match(a.car);
+                //// var m_Target = rex_Target.Match(attack.TargetOwner);
+                ////  if (m.Success)//&& m_Target.Success)
                 {
                     //   var targetOwner = m_Target.Groups["target"].Value;
 
-                    Console.WriteLine($"正则匹配成功：{m.Groups["car"] }+{m.Groups["key"] }");
-                    if (m.Groups["key"].Value == s.Key)
+                    //  Console.WriteLine($"正则匹配成功：{m.Groups["car"] }+{m.Groups["key"] }");
+                    //if (m.Groups["key"].Value == s.Key)
                     {
                         var getPosition = new SetAbility()
                         {
                             c = "SetAbility",
                             Key = s.Key,
-                            car = "car" + m.Groups["car"].Value,
+                            //   car = "car" + m.Groups["car"].Value,
                             pType = a.pType
                         };
                         var msg = Newtonsoft.Json.JsonConvert.SerializeObject(getPosition);
@@ -846,23 +940,23 @@ namespace WsOfWebClient
         }
         internal static async Task<string> setToCollectTax(State s, Tax tax)
         {
-            Regex r = new Regex("^car(?<car>[A-E]{1})_(?<key>[a-f0-9]{32})$");
+            //  Regex r = new Regex("^car(?<car>[A-E]{1})_(?<key>[a-f0-9]{32})$");
             //   Regex rex_Target = new Regex("^(?<target>[a-f0-9]{32})$");
 
-            var m = r.Match(tax.car);
+            //var m = r.Match(tax.car);
             // var m_Target = rex_Target.Match(attack.TargetOwner);
-            if (m.Success)//&& m_Target.Success)
+            //if (m.Success)//&& m_Target.Success)
             {
                 //   var targetOwner = m_Target.Groups["target"].Value;
 
-                Console.WriteLine($"正则匹配成功：{m.Groups["car"] }+{m.Groups["key"] }");
-                if (m.Groups["key"].Value == s.Key)
+                // Console.WriteLine($"正则匹配成功：{m.Groups["car"] }+{m.Groups["key"] }");
+                // if (m.Groups["key"].Value == s.Key)
                 {
                     var getPosition = new SetTax()
                     {
                         c = "SetTax",
                         Key = s.Key,
-                        car = "car" + m.Groups["car"].Value,
+                        //       car = "car" + m.Groups["car"].Value,
                         target = tax.Target
                     };
                     var msg = Newtonsoft.Json.JsonConvert.SerializeObject(getPosition);
@@ -874,23 +968,23 @@ namespace WsOfWebClient
 
         internal static async Task<string> setAttack(State s, Attack attack)
         {
-            Regex r = new Regex("^car(?<car>[A-E]{1})_(?<key>[a-f0-9]{32})$");
+            //Regex r = new Regex("^car(?<car>[A-E]{1})_(?<key>[a-f0-9]{32})$");
             Regex rex_Target = new Regex("^(?<target>[a-f0-9]{32})$");
 
-            var m = r.Match(attack.car);
+            //var m = r.Match(attack.car);
             var m_Target = rex_Target.Match(attack.TargetOwner);
-            if (m.Success && m_Target.Success)
+            if (m_Target.Success)
             {
                 var targetOwner = m_Target.Groups["target"].Value;
 
-                Console.WriteLine($"正则匹配成功：{m.Groups["car"] }+{m.Groups["key"] }");
-                if (m.Groups["key"].Value == s.Key)
+                //   Console.WriteLine($"正则匹配成功：{m.Groups["car"] }+{m.Groups["key"] }");
+                // if (m.Groups["key"].Value == s.Key)
                 {
                     var getPosition = new SetAttack()
                     {
                         c = "SetAttack",
                         Key = s.Key,
-                        car = "car" + m.Groups["car"].Value,
+                        //car = "car" + m.Groups["car"].Value,
                         targetOwner = targetOwner,
                         target = attack.Target
                     };
@@ -960,7 +1054,7 @@ namespace WsOfWebClient
             return s;
         }
 
-        static async Task WriteSession(PlayerAdd roomInfo, WebSocket webSocket)
+        static async Task WriteSession(PlayerAdd_V2 roomInfo, WebSocket webSocket)
         {
             // roomNumber
             /*
@@ -1021,19 +1115,18 @@ namespace WsOfWebClient
             {
                 // string A = "carA_bb6a1ef1cb8c5193bec80b7752c6d54c";
                 // A = Console.ReadLine();
-                Regex r = new Regex("^car(?<car>[A-E]{1})_(?<key>[a-f0-9]{32})$");
+                //Regex r = new Regex("^car_(?<key>[a-f0-9]{32})$");
 
-                var m = r.Match(promote.car);
-                if (m.Success)
+                //var m = r.Match(promote.car);
+                //if (m.Success)
                 {
-                    Console.WriteLine($"正则匹配成功：{m.Groups["car"] }+{m.Groups["key"] }");
-                    if (m.Groups["key"].Value == s.Key)
+                    // Console.WriteLine($"正则匹配成功：{m.Groups["car"] }+{m.Groups["key"] }");
+                    // if (m.Groups["key"].Value == s.Key)
                     {
                         var getPosition = new SetPromote()
                         {
                             c = "SetPromote",
                             Key = s.Key,
-                            car = "car" + m.Groups["car"].Value,
                             pType = promote.pType
                         };
                         var msg = Newtonsoft.Json.JsonConvert.SerializeObject(getPosition);
@@ -1052,22 +1145,16 @@ namespace WsOfWebClient
         {
             if (collect.cType == "findWork")
             {
-                // string A = "carA_bb6a1ef1cb8c5193bec80b7752c6d54c";
-                // A = Console.ReadLine();
-                Regex r = new Regex("^car(?<car>[A-E]{1})_(?<key>[a-f0-9]{32})$");
-
-                var m = r.Match(collect.car);
-                if (m.Success)
                 {
-                    Console.WriteLine($"正则匹配成功：{m.Groups["car"] }+{m.Groups["key"] }");
-                    if (m.Groups["key"].Value == s.Key)
                     {
                         var getPosition = new SetCollect()
                         {
                             c = "SetCollect",
                             Key = s.Key,
-                            car = "car" + m.Groups["car"].Value,
-                            cType = collect.cType
+                            //car = "car" + m.Groups["car"].Value,
+                            cType = collect.cType,
+                            fastenpositionID = collect.fastenpositionID,
+                            collectIndex = collect.collectIndex
                         };
                         var msg = Newtonsoft.Json.JsonConvert.SerializeObject(getPosition);
                         await Startup.sendInmationToUrlAndGetRes(Room.roomUrls[s.roomIndex], msg);

@@ -29,6 +29,13 @@ namespace CommonClass
         public string key { get; set; }
         public string PlayerName { get; set; }
     }
+    public class GetPositionNotify_v2 : CommandNotify
+    {
+        public Model.FastonPosition fp { get; set; }
+        public string key { get; set; }
+        public string PlayerName { get; set; }
+        public int positionInStation { get; set; }
+    }
     public class GetOthersPositionNotify : CommandNotify
     {
         public Model.FastonPosition fp { get; set; }
@@ -36,6 +43,14 @@ namespace CommonClass
         public string key { get; set; }
         public string PlayerName { get; set; }
         public int fPIndex { get; set; }
+    }
+    public class GetOthersPositionNotify_v2 : CommandNotify
+    {
+        public Model.FastonPosition fp { get; set; }
+        public string key { get; set; }
+        public string PlayerName { get; set; }
+        public int fPIndex { get; set; }
+        public int positionInStation { get; set; }
     }
 
     public class TaxNotify : CommandNotify
@@ -135,6 +150,13 @@ namespace CommonClass
         public string State { get; set; }
         public string carID { get; set; }
     }
+    public class BradDiamondPrice : CommandNotify
+    {
+        public string State { get; set; }
+        public string carID { get; set; }
+        public string priceType { get; set; }
+        public long price { get; set; }
+    }
     public class BradCarPurpose : CommandNotify
     {
         public string Purpose { get; set; }
@@ -166,6 +188,8 @@ namespace CommonClass
         public string playerKey { get; set; }
         public long right { get; set; }
         public long duty { get; set; }
+        public int rightPercent { get; set; }
+        public int dutyPercent { get; set; }
     }
 
     public class BradCastPromoteInfoDetail : CommandNotify
@@ -182,7 +206,12 @@ namespace CommonClass
         public Model.FastonPosition Fp { get; set; }
         public int collectMoney { get; set; }
     }
-
+    public class BradCastCollectInfoDetail_v2 : CommandNotify
+    {
+        public Model.FastonPosition Fp { get; set; }
+        public int collectMoney { get; set; }
+        public int collectIndex { get; set; }
+    }
 
     public class PlayerAdd : Command
     {
@@ -195,12 +224,22 @@ namespace CommonClass
         public string PlayerName { get; set; }
         public string[] CarsNames { get; set; }
     }
+    public class PlayerAdd_V2 : Command
+    {
+        public string Key { get; set; }
+        public string FromUrl { get; set; }
+        public int RoomIndex { get; set; }
+
+        public string Check { get; set; }
+        public int WebSocketID { get; set; }
+        public string PlayerName { get; set; }
+    }
 
     public class GetFrequency : Command
     {
     }
 
-    public class PlayerCheck : PlayerAdd { }
+    public class PlayerCheck : PlayerAdd_V2 { }
 
     public class GetPosition : Command
     {
@@ -214,22 +253,25 @@ namespace CommonClass
         /// 取值如mile
         /// </summary>
         public string pType { get; set; }
-        public string car { get; set; }
+        //   public string car { get; set; }
     }
     public class SetCollect : Command
     {
         public string Key { get; set; }
         /// <summary>
-        /// 取值如mile
+        /// 取值如findWork
         /// </summary>
         public string cType { get; set; }
-        public string car { get; set; }
+
+        public string fastenpositionID { get; set; }
+        public int collectIndex { get; set; }
+        //public string car { get; set; }
     }
 
     public class SetAttack : Command
     {
         public string Key { get; set; }
-        public string car { get; set; }
+        //public string car { get; set; }
         public string targetOwner { get; set; }
         public int target { get; set; }
     }
@@ -237,28 +279,29 @@ namespace CommonClass
     public class SetBust : Command
     {
         public string Key { get; set; }
-        public string car { get; set; }
+        //  public string car { get; set; }
         public string targetOwner { get; set; }
         public int target { get; set; }
     }
+
     public class SetTax : Command
     {
         public string Key { get; set; }
-        public string car { get; set; }
+        //public string car { get; set; }
         public int target { get; set; }
     }
 
     public class SetAbility : Command
     {
         public string Key { get; set; }
-        public string car { get; set; }
+        //public string car { get; set; }
         public string pType { get; set; }
     }
 
     public class OrderToReturn : Command
     {
         public string Key { get; set; }
-        public string car { get; set; }
+        //public string car { get; set; }
     }
 
     public class OrderToSubsidize : Command

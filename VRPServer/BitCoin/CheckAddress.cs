@@ -1,14 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace BitCoin
 {
-    class CheckAddress
+    public class CheckAddress
     {
-        void CheckAddressIsUseful(string address)
+        public static bool CheckAddressIsUseful(string address)
         {
-            //NBitcoin.BitcoinAddress.Create("", )
+            var regx = new Regex("^[1][a-km-zA-HJ-NP-Z0-9]{26,33}$");
+            if (regx.Match(address).Success)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
+
     }
 }

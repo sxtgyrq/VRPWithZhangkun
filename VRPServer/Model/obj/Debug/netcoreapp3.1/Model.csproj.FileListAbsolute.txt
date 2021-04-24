@@ -6,4 +6,3 @@ F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Model\obj\Debug\n
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Model\obj\Debug\netcoreapp3.1\Model.csproj.CoreCompileInputs.cache
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Model\obj\Debug\netcoreapp3.1\Model.dll
 F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Model\obj\Debug\netcoreapp3.1\Model.pdb
-F:\MyProject\VRPWithZhangkun\MainApp\VRPWithZhangkun\VRPServer\Model\obj\Debug\netcoreapp3.1\Model.csprojAssemblyReference.cache

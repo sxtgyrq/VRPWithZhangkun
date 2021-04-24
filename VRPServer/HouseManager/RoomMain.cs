@@ -19,9 +19,10 @@ namespace HouseManager
         {
             //这儿采用0，用于样例测试
             //如果用于生产环境，请用当前时间！
-            this.rm = new System.Random(0);
+            this.rm = new System.Random(DateTime.Now.GetHashCode());
             //  breakMiniSecods
-
+            this.Market = new Market(this.priceChanged);
+            //this.Market.PriceChanged=
             lock (PlayerLock)
             {
                 this._Players = new Dictionary<string, Player>();
@@ -63,7 +64,31 @@ namespace HouseManager
             //}; break;
         }
 
-
+        private async void priceChanged(string priceType, long value)
+        {
+            List<string> msgs = new List<string>();
+            lock (this.PlayerLock)
+            {
+                foreach (var item in this._Players)
+                {
+                    var player = item.Value;
+                    var obj = new BradDiamondPrice
+                    {
+                        c = "BradDiamondPrice",
+                        WebSocketID = player.WebSocketID,
+                        priceType = priceType,
+                        price = value
+                    };
+                    var json = Newtonsoft.Json.JsonConvert.SerializeObject(obj);
+                    msgs.Add(player.FromUrl);
+                    msgs.Add(json);
+                }
+            }
+            for (var i = 0; i < msgs.Count; i += 2)
+            {
+                await Startup.sendMsg(msgs[i], msgs[i + 1]);
+            }
+        }
 
         object PlayerLock = new object();
         /// <summary>
@@ -539,32 +564,32 @@ namespace HouseManager
             return new Complex(cc.Real / m, cc.Imaginary / m);
         }
 
-        private int getCarIndex(string car)
+        private int getCarIndex()
         {
             int result = 0;
-            switch (car)
-            {
-                case "carA":
-                    {
-                        return 0;
-                    };
-                case "carB":
-                    {
-                        return 1;
-                    };
-                case "carC":
-                    {
-                        return 2;
-                    };
-                case "carD":
-                    {
-                        return 3;
-                    };
-                case "carE":
-                    {
-                        return 4;
-                    };
-            }
+            //switch (car)
+            //{
+            //    case "carA":
+            //        {
+            //            return 0;
+            //        };
+            //    case "carB":
+            //        {
+            //            return 1;
+            //        };
+            //    case "carC":
+            //        {
+            //            return 2;
+            //        };
+            //    case "carD":
+            //        {
+            //            return 3;
+            //        };
+            //    case "carE":
+            //        {
+            //            return 4;
+            //        };
+            //}
             return result;
         }
 
@@ -698,7 +723,7 @@ namespace HouseManager
             return result;
         }
 
-        
+
         private void SendMaxHolderInfoMation(Player player, ref List<string> notifyMsgs)
         {
             foreach (var item in this._Players)
@@ -729,7 +754,7 @@ namespace HouseManager
             {
                 var url = notifyMsg[i];
                 var sendMsg = notifyMsg[i + 1];
-                Console.WriteLine($"url:{url}");
+                // Console.WriteLine($"url:{url}");
 
                 await Startup.sendMsg(url, sendMsg);
             }
@@ -881,13 +906,21 @@ namespace HouseManager
             throw new Exception("错误的序数");
         }
 
-
-        int GetRandomPosition()
+        //int GetRandomPosition()
+        //{
+        //    return GetRandomPosition(false);
+        //}
+        int GetRandomPosition(bool withWeight)
         {
             int index;
             do
             {
                 index = rm.Next(0, Program.dt.GetFpCount());
+                if (withWeight)
+                    if (Program.dt.GetFpByIndex(index).Weight + 1 < rm.Next(100))
+                    {
+                        continue;
+                    }
             }
             while (this.FpIsUsing(index));
             return index;
@@ -923,13 +956,13 @@ namespace HouseManager
         {
             lock (this.PlayerLock)
             {
-                this.promoteMilePosition = GetRandomPosition();
-                this.promoteBusinessPosition = GetRandomPosition();
-                this.promoteVolumePosition = GetRandomPosition();
-                this.promoteSpeedPosition = GetRandomPosition();
+                this.promoteMilePosition = GetRandomPosition(true);
+                this.promoteBusinessPosition = GetRandomPosition(true);
+                this.promoteVolumePosition = GetRandomPosition(true);
+                this.promoteSpeedPosition = GetRandomPosition(true);
 
 
-                this.collectPosition = GetRandomPosition();
+                this.collectPosition = GetRandomPosition(true);
 
                 //BaseInfomation.rm._Players[checkItem.Key]
             }

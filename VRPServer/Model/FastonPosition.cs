@@ -21,5 +21,7 @@ namespace Model
         public double positionLatitudeOnRoad { get; set; }
         public int MacatuoX { get; set; }
         public int MacatuoY { get; set; }
+        public int Weight { get; set; }
+        public string region { get; set; }
     }
 }

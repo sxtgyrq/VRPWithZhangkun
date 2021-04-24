@@ -52,9 +52,12 @@
         }
         var keys = Object.keys(theLagestHoderKey.data);
         for (var i = 0; i < keys.length; i++) {
-            var name = 'collect_' + keys[i];
-            var key = keys[i];
-            theLagestHoderKey.updateLeaveGameModel(key, name);
+            // if(keys[i]==
+            if (theLagestHoderKey.data[keys[i]].ChangeTo == objMain.indexKey) {
+                var name = 'collect_' + keys[i];
+                var key = keys[i];
+                theLagestHoderKey.updateLeaveGameModel(key, name);
+            }
         }
     },
     animate: function () {

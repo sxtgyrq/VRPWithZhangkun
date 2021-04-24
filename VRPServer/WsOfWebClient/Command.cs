@@ -44,43 +44,49 @@ namespace WsOfWebClient
     public class Promote : CommonClass.Command
     {
         public string pType { get; set; }
-        public string car { get; set; }
+        //public string car { get; set; }
     }
 
     public class Collect : CommonClass.Command
     {
         public string cType { get; set; }
-        public string car { get; set; }
+        //public string car { get; set; }
+        public string fastenpositionID { get; set; }
+        public int collectIndex { get; set; }
     }
     public class Attack : CommonClass.Command
     {
         public int Target { get; set; }
         public string TargetOwner { get; set; }
-        public string car { get; set; }
+        //public string car { get; set; }
     }
 
     public class Bust : Attack
     {
         public int Target { get; set; }
         public string TargetOwner { get; set; }
-        public string car { get; set; }
+        //public string car { get; set; }
     }
-
+    public class BuyDiamond : CommonClass.Command
+    { 
+        public string pType { get; set; } 
+         
+    }
     public class Tax : CommonClass.Command
     {
         public int Target { get; set; }
-        public string car { get; set; }
+        //public string car { get; set; }
     }
     public class Ability : CommonClass.Command
     {
         //  public int Target { get; set; }
         public string pType { get; set; }
-        public string car { get; set; }
+        //public string car { get; set; }
     }
 
     public class SetCarReturn : CommonClass.Command
     {
-        public string car { get; set; }
+        //public string car { get; set; }
     }
 
     public class Donate : CommonClass.Command

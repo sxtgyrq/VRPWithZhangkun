@@ -12,7 +12,7 @@ namespace WsOfWebClient
         static void Main(string[] args)
         {
             Room.SetWhenStart();
-            Console.WriteLine("你好！此服务为网页端的webSocket服务！");
+            Console.WriteLine("你好！此服务为网页端的webSocket服务！20210430");
             var ip = "127.0.0.1";
             int websocketPort = 11001;
 

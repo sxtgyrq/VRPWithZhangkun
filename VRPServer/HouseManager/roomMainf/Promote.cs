@@ -11,6 +11,7 @@ namespace HouseManager
     {
         internal async Task<string> updatePromote(SetPromote sp)
         {
+            throw new Exception("作废！");
             //{"Key":"1faff8e98891e33f6defc9597354c08b","pType":"mile","car":"carE","c":"SetPromote"}
             //  Console.WriteLine($"{Newtonsoft.Json.JsonConvert.SerializeObject(sp)}");
             //return "";
@@ -593,13 +594,13 @@ namespace HouseManager
         private void setPromtePosition(string changeType)
         {
             if (changeType == "mile")
-                this.promoteMilePosition = GetRandomPosition();
+                this.promoteMilePosition = GetRandomPosition(true);
             else if (changeType == "business")
-                this.promoteBusinessPosition = GetRandomPosition();
+                this.promoteBusinessPosition = GetRandomPosition(true);
             else if (changeType == "volume")
-                this.promoteVolumePosition = GetRandomPosition();
+                this.promoteVolumePosition = GetRandomPosition(true);
             else if (changeType == "speed")
-                this.promoteSpeedPosition = GetRandomPosition();
+                this.promoteSpeedPosition = GetRandomPosition(true);
             else
             {
                 throw new Exception($"{changeType}是什么类型？");

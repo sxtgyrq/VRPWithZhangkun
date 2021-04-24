@@ -49,8 +49,7 @@ namespace HouseManager
                 c = "MoneyForSaveNotify",
                 WebSocketID = player.WebSocketID,
                 MoneyForSave = player.MoneyForSave
-            };
-
+            }; 
             var sendMsg = Newtonsoft.Json.JsonConvert.SerializeObject(tn);
             notifyMsg.Add(url);
             notifyMsg.Add(sendMsg);

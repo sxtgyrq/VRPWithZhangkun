@@ -412,7 +412,7 @@ namespace HouseManager
                     car.ability.setCostVolume(car.ability.costVolume + selfGet, player, car, ref notifyMsg);
                     addFrequencyRecord(ref notifyMsg);
                 }
-                this.collectPosition = this.GetRandomPosition();
+                this.collectPosition = this.GetRandomPosition(true);
                 needUpdateCollectState = true;
 
                 Console.WriteLine("----Do the collect process----！");

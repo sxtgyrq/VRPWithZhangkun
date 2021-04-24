@@ -11,6 +11,9 @@ namespace HouseManager
         const string AttackFailedReturn = "attack-failed-return";
         const string CollectReturn = "collect-return";
 
+
+
+
         //internal static void SubsidizeChanged(Player player, Car car, ref List<string> notifyMsgs, long subsidize)
         //{
         //    Console.WriteLine($"SubsidizeChanged 方法没有编写");

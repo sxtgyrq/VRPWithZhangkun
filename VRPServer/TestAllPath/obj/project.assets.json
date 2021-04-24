@@ -1852,6 +1852,7 @@
           "BitCoin": "1.0.0",
           "CommonClass": "1.0.0",
           "DalOfAddress": "1.0.0",
+          "LogClass": "1.0.0",
           "Microsoft.AspNetCore.Mvc.NewtonsoftJson": "3.1.3",
           "Microsoft.Extensions.Configuration": "3.1.3",
           "Microsoft.Extensions.Configuration.Json": "3.1.3",
@@ -1867,6 +1868,16 @@
         "frameworkReferences": [
           "Microsoft.AspNetCore.App"
         ]
+      },
+      "LogClass/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v3.1",
+        "compile": {
+          "bin/placeholder/LogClass.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/LogClass.dll": {}
+        }
       },
       "Model/1.0.0": {
         "type": "project",
@@ -6282,6 +6293,11 @@
       "type": "project",
       "path": "../HouseManager/HouseManager.csproj",
       "msbuildProject": "../HouseManager/HouseManager.csproj"
+    },
+    "LogClass/1.0.0": {
+      "type": "project",
+      "path": "../LogClass/LogClass.csproj",
+      "msbuildProject": "../LogClass/LogClass.csproj"
     },
     "Model/1.0.0": {
       "type": "project",

@@ -8,3 +8,5 @@
 /.vs
 /VRPServer/WsOfWebClient/bin/
 /VRPServer/WsOfWebClient/obj/
+/VRPServer/MarketConsoleApp/bin/
+/VRPServer/HouseManager2_0/bin/

@@ -18,6 +18,7 @@ namespace HouseManager
         public string Key { get; internal set; }
         public string FromUrl { get; internal set; }
         public int WebSocketID { get; internal set; }
+
         public string PlayerName { get; internal set; }
         public string[] CarsNames
         {
@@ -697,7 +698,24 @@ namespace HouseManager
         {
             return this.Debts[key];
         }
-
+        internal int DebtsPercent(string key)
+        {
+            if (this.Debts.ContainsKey(key))
+            {
+                long sum = 0;
+                sum += this.Money;
+                foreach (var item in this.Debts)
+                {
+                    sum += this.Magnify(item.Value);
+                }
+                var percent = Convert.ToInt32(this.Magnify(this.Debts[key]) * 1000 / sum);
+                return percent;
+            }
+            else
+            {
+                return 0;
+            }
+        }
         internal void SetDebts(string key, long v, ref List<string> notifyMsg)
         {
             this.Debts[key] = v;
@@ -752,6 +770,12 @@ namespace HouseManager
                 this.DrawSingleRoadF(this, roadCode, ref notifyMsgs);
             }
         }
+        internal void clearUsedRoad()
+        {
+            this.usedRoad.Clear();
+            var roadCode = Program.dt.GetFpByIndex(this.StartFPIndex).RoadCode;
+            this.usedRoad.Add(roadCode, true);
+        }
 
         public List<string> usedRoadsList
         {
@@ -795,6 +819,8 @@ namespace HouseManager
                 return result;
             }
         }
+
+
     }
     public class OtherPlayers
     {

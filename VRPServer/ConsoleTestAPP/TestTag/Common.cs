@@ -94,7 +94,7 @@ namespace ConsoleTestAPP.TestTag
         // static Dictionary<string, ClientWebSocket> _sockets = new Dictionary<string, ClientWebSocket>();
         static async Task<string> sendInmationToUrlAndGetRes(string roomUrl, string sendMsg)
         {
-            return await TcpFunction.WithResponse.SendInmationToUrlAndGetRes(roomUrl, sendMsg);
+            return await Task.Run(() => TcpFunction.WithResponse.SendInmationToUrlAndGetRes(roomUrl, sendMsg));
             // await  
         }
         internal static async Task<string> PromoteDiamondCount(string checkUrl, string key, string pType)

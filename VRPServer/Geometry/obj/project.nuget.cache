@@ -1,8 +1,14 @@
 {
   "version": 2,
-  "dgSpecHash": "gfNp298Zy+6kToSsnkRVzrRCGshzK61N1iADvmEpRFAsamBpqUCk2oaYGOUDzsmbYDQ1DPhlU3PbcOUoZQLabQ==",
+  "dgSpecHash": "Yhd0fT65ZLELRd5G60z3gUG/hWZS3h9q81Hq+znLMbfa+sSi4yNh2Mbw+LvohmGtNl2w0smhR8Fyv8s/7CLdpg==",
   "success": true,
   "projectFilePath": "F:\\MyProject\\VRPWithZhangkun\\MainApp\\VRPWithZhangkun\\VRPServer\\Geometry\\Geometry.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\sxtgy\\.nuget\\packages\\microsoft.aspnetcore.jsonpatch\\3.1.3\\microsoft.aspnetcore.jsonpatch.3.1.3.nupkg.sha512",
+    "C:\\Users\\sxtgy\\.nuget\\packages\\microsoft.aspnetcore.mvc.newtonsoftjson\\3.1.3\\microsoft.aspnetcore.mvc.newtonsoftjson.3.1.3.nupkg.sha512",
+    "C:\\Users\\sxtgy\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",
+    "C:\\Users\\sxtgy\\.nuget\\packages\\newtonsoft.json\\12.0.2\\newtonsoft.json.12.0.2.nupkg.sha512",
+    "C:\\Users\\sxtgy\\.nuget\\packages\\newtonsoft.json.bson\\1.0.2\\newtonsoft.json.bson.1.0.2.nupkg.sha512"
+  ],
   "logs": []
 }

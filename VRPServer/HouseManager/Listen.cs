@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -87,9 +88,9 @@ namespace HouseManager
             }
             return outPut;
         }
-        private static Task<string> DealWithMonitor(string notifyJson)
+        private static async Task<string> DealWithMonitor(string notifyJson)
         {
-            return Task.Factory.StartNew(() => DealWithMonitorValue(notifyJson));
+            return await Task.Run(() => DealWithMonitorValue(notifyJson));
         }
 
         private static async Task<string> DealWith(string notifyJson)
@@ -161,11 +162,11 @@ namespace HouseManager
                                         PlayerName = GPResult.PlayerName
                                     };
 
-                                    await sendMsg(GPResult.FromUrl, Newtonsoft.Json.JsonConvert.SerializeObject(notify));
+                                    await sendMsg(GPResult.FromUrl, Newtonsoft.Json.JsonConvert.SerializeObject(notify), true);
                                     var notifyMsgs = GPResult.NotifyMsgs;
                                     for (var i = 0; i < notifyMsgs.Count; i += 2)
                                     {
-                                        await sendMsg(notifyMsgs[i], notifyMsgs[i + 1]);
+                                        await sendMsg(notifyMsgs[i], notifyMsgs[i + 1], true);
                                     }
                                 }
                                 outPut = "ok";
@@ -250,6 +251,24 @@ namespace HouseManager
                             {
                                 outPut = BaseInfomation.rm.GetFrequency().ToString();
                             }; break;
+                        case "MarketPrice":
+                            {
+                                CommonClass.MarketPrice sa = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.MarketPrice>(notifyJson);
+
+                                BaseInfomation.rm.Market.Update(sa);
+                            }; break;
+                        case "SetBuyDiamond":
+                            {
+                                CommonClass.SetBuyDiamond bd = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.SetBuyDiamond>(notifyJson);
+
+                                BaseInfomation.rm.Buy(bd);
+                            }; break;
+                        case "SetSellDiamond": 
+                            {
+                                CommonClass.SetSellDiamond ss = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.SetSellDiamond>(notifyJson);
+
+                                BaseInfomation.rm.Sell(ss);
+                            };break;
                     }
                 }
             }
@@ -258,9 +277,11 @@ namespace HouseManager
             }
         }
 
-        static async Task sendMsg(string fromUrl, string v)
+        static async Task sendMsg(string fromUrl, string v, bool send)
         {
             await Startup.sendMsg(fromUrl, v);
+            //if (send)
+            //    await Startup.sendMsg(fromUrl, v,true);
         }
 
     }

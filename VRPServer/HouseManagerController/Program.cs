@@ -29,7 +29,7 @@ namespace HouseManagerController
 
         public static async Task<string> sendInmationToUrlAndGetRes(string roomUrl, string sendMsg)
         {
-            return await TcpFunction.WithResponse.SendInmationToUrlAndGetRes(roomUrl, sendMsg);
+            return await Task.Run(() => TcpFunction.WithResponse.SendInmationToUrlAndGetRes(roomUrl, sendMsg));
         }
     }
 }

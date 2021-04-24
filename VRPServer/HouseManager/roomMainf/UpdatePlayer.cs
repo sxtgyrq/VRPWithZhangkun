@@ -33,6 +33,7 @@ namespace HouseManager
                         };
                         BaseInfomation.rm._Players[checkItem.Key].Collect = -1;
                         BaseInfomation.rm._Players[checkItem.Key].OpenMore++;
+                        BaseInfomation.rm._Players[checkItem.Key].clearUsedRoad();
                     }
                     else
                     {

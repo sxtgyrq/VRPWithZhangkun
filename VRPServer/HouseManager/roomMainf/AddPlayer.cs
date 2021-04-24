@@ -90,7 +90,7 @@ namespace HouseManager
                     // this._Players[addItem.Key].SysRemovePlayerByKeyF = BaseInfomation.rm.SysRemovePlayerByKey;
                     //System.Random rm = new System.Random(DateTime.Now.GetHashCode());
 
-                    int fpIndex = this.GetRandomPosition(); // this.rm.Next(0, Program.dt.GetFpCount());
+                    int fpIndex = this.GetRandomPosition(false); // this.rm.Next(0, Program.dt.GetFpCount());
 
                     // this._FpOwner.Add(fpIndex, addItem.Key);
                     this._Players[addItem.Key].StartFPIndex = fpIndex;
@@ -136,6 +136,6 @@ namespace HouseManager
             //  throw new NotImplementedException();
         }
 
-        
+
     }
 }

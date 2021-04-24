@@ -17,6 +17,7 @@
     <ProjectReference Include="..\BitCoin\BitCoin.csproj" />
     <ProjectReference Include="..\CommonClass\CommonClass.csproj" />
     <ProjectReference Include="..\DalOfAddress\DalOfAddress.csproj" />
+    <ProjectReference Include="..\LogClass\LogClass.csproj" />
     <ProjectReference Include="..\Model\Model.csproj" />
     <ProjectReference Include="..\TcpFunction\TcpFunction.csproj" />
   </ItemGroup>
