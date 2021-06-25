@@ -315,10 +315,11 @@ namespace MarketConsoleApp
             try
             {
                 await Task.Run(() => TcpFunction.WithResponse.SendInmationToUrlAndGetRes(controllerUrl, json));
+                Console.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}往{controllerUrl}发送消息--成功！");
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
-                Console.WriteLine($"往{controllerUrl}发送消息--{json}失败！");
+                Console.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}往{controllerUrl}发送消息--{json}失败！");
             }
         }
         private long getPrice(int mileCount)

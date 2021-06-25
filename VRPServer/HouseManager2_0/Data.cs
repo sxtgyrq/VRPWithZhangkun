@@ -313,18 +313,43 @@ namespace HouseManager2_0
                 }
             }
         }
-
-
-        public class PathResult
+        public class PathStartPoint2
         {
-            public double x0 { get; set; }
-            public double y0 { get; set; }
-            public int t0 { get; set; }
-
-            public double x1 { get; set; }
-            public double y1 { get; set; }
-            public int t1 { get; set; }
+            /// <summary>
+            /// 要采用变换后的坐标 19级坐标×256
+            /// </summary>
+            public int x { get; set; }
+            /// <summary>
+            /// 要采用变换后的坐标 19级坐标×256
+            /// </summary>
+            public int y { get; set; }
         }
+        public class PathResult3
+        {
+            /// <summary>
+            /// 单位是10e-6°（经纬度）
+            /// </summary>
+            public int x { get; set; }//angle
+            /// <summary>
+            /// 单位是10e-6°（经纬度）
+            /// </summary>
+            public int y { get; set; }
+            public int t { get; set; }
+
+            //public int a1 { get; set; }//angle
+            //public int r1 { get; set; }
+            //public int t1 { get; set; }
+        }
+        //public class PathResult
+        //{
+        //    public double x0 { get; set; }
+        //    public double y0 { get; set; }
+        //    public int t0 { get; set; }
+
+        //    public double x1 { get; set; }
+        //    public double y1 { get; set; }
+        //    public int t1 { get; set; }
+        //}
 
         /// <summary>
         /// 获取路径
@@ -334,7 +359,7 @@ namespace HouseManager2_0
         /// <param name="speed">速度</param>
         /// <param name="result">ref path的结果。</param>
         /// <param name="startT">ref 时间结果</param>
-        internal void GetAFromBPoint(List<OssModel.MapGo.nyrqPosition> dataResult, OssModel.FastonPosition fpLast, int speed, ref List<PathResult> result, ref int startT)
+        internal void GetAFromBPoint(List<OssModel.MapGo.nyrqPosition> dataResult, OssModel.FastonPosition fpLast, int speed, ref List<int> result, ref int startT)
         {
             for (var i = 0; i < dataResult.Count; i++)
             {
@@ -351,17 +376,48 @@ namespace HouseManager2_0
                     CommonClass.Geography.calculatBaideMercatorIndex.getBaiduPicIndex(dataResult[i].BDlongitude, dataResult[i].BDlatitude, out endX, out endY);
                     //  var interview =
                     var interview = Convert.ToInt32(CommonClass.Geography.getLengthOfTwoPoint.GetDistance(fpLast.positionLatitudeOnRoad, fpLast.positionLongitudeOnRoad, dataResult[i].BDlatitude, dataResult[i].BDlongitude) / dataResult[i].maxSpeed * 3.6 / 20 * 1000 * 50 / speed);
-                    var animate1 = new Data.PathResult()
+
+
+                    if (result.Count == 0)
                     {
-                        t0 = startT + 0,
-                        x0 = startX,
-                        y0 = startY,
-                        t1 = startT + interview,
-                        x1 = endX,
-                        y1 = endY
+                        var animate0 = new PathResult3()
+                        {
+                            t = startT,
+                            x = 0,
+                            y = 0
+                        };
+                        if (animate0.t != 0)
+                        {
+                            result.Add(animate0.x);
+                            result.Add(animate0.y);
+                            result.Add(animate0.t);
+                        }
+                        // result.Add(animate0);
+                    }
+                    var animate1 = new PathResult3()
+                    {
+                        t = interview,
+                        x = Convert.ToInt32((endX - startX) * 256),
+                        y = Convert.ToInt32((endY - startY) * 256),
                     };
+                    if (animate1.t != 0)
+                    {
+                        result.Add(animate1.x);
+                        result.Add(animate1.y);
+                        result.Add(animate1.t);
+                    }
+                    //result.Add(animate1);
+                    //var animate1 = new Data.PathResult()
+                    //{
+                    //    t0 = startT + 0,
+                    //    x0 = startX,
+                    //    y0 = startY,
+                    //    t1 = startT + interview,
+                    //    x1 = endX,
+                    //    y1 = endY
+                    //};
                     startT += interview;
-                    result.Add(animate1);
+                    // result.Add(animate1);
                 }
                 else if (dataResult[i].roadCode == dataResult[i - 1].roadCode)
                 {
@@ -375,17 +431,30 @@ namespace HouseManager2_0
                     // var length = CommonClass.Geography.getLengthOfTwoPoint.
                     //  var interview =
                     var interview = Convert.ToInt32(CommonClass.Geography.getLengthOfTwoPoint.GetDistance(dataResult[i - 1].BDlatitude, dataResult[i - 1].BDlongitude, dataResult[i].BDlatitude, dataResult[i].BDlongitude) / dataResult[i].maxSpeed * 3.6 / 20 * 1000 * 50 / speed);
-                    var animate1 = new Data.PathResult()
+
+                    var animate1 = new Data.PathResult3()
                     {
-                        t0 = startT + 0,
-                        x0 = startX,
-                        y0 = startY,
-                        t1 = startT + interview,
-                        x1 = endX,
-                        y1 = endY
+                        x = Convert.ToInt32((endX - startX) * 256),
+                        y = Convert.ToInt32((endY - startY) * 256),
+                        t = interview
                     };
+                    //var animate1 = new Data.PathResult()
+                    //{
+                    //    t0 = startT + 0,
+                    //    x0 = startX,
+                    //    y0 = startY,
+                    //    t1 = startT + interview,
+                    //    x1 = endX,
+                    //    y1 = endY
+                    //};
                     startT += interview;
-                    result.Add(animate1);
+                    if (animate1.t != 0)
+                    {
+                        result.Add(animate1.x);
+                        result.Add(animate1.y);
+                        result.Add(animate1.t);
+                    }
+                    // result.Add(animate1);
                 }
             }
         }

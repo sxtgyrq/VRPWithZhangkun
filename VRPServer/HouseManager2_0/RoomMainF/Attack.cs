@@ -1,6 +1,7 @@
 ﻿using CommonClass;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -357,6 +358,7 @@ namespace HouseManager2_0.RoomMainF
                     if (car.ability.leftMile >= goMile + returnMile)
                     {
                         int startT;
+
                         EditCarStateWhenAttackStartOK(player, ref car, to, fp1, sa, goPath, out startT, ref notifyMsg);
                         SetAttackArrivalThread(startT, car, sa, returnPath);
                         // getAllCarInfomations(sa.Key, ref notifyMsg);
@@ -465,22 +467,28 @@ namespace HouseManager2_0.RoomMainF
             */
             var speed = car.ability.Speed;
             startT = 0;
-            List<Data.PathResult> result;
+            //List<Data.PathResult3> result;
+            List<int> result;
+            Data.PathStartPoint2 startPosition;
             if (car.state == CarState.waitAtBaseStation)
             {
+                getStartPositionByFp(out startPosition, fp1);
                 result = getStartPositon(fp1, player.positionInStation, ref startT);
             }
             else if (car.state == CarState.waitForCollectOrAttack)
             {
-                result = new List<Data.PathResult>();
+                result = new List<int>();
+                getStartPositionByGoPath(out startPosition, goPath);
             }
             else if (car.state == CarState.waitForTaxOrAttack)
             {
-                result = new List<Data.PathResult>();
+                result = new List<int>();
+                getStartPositionByGoPath(out startPosition, goPath);
             }
             else if (car.state == CarState.waitOnRoad)
             {
-                result = new List<Data.PathResult>();
+                result = new List<int>();
+                getStartPositionByGoPath(out startPosition, goPath);
             }
             else
             {
@@ -492,10 +500,11 @@ namespace HouseManager2_0.RoomMainF
 
 
             Program.dt.GetAFromBPoint(goPath, fp1, speed, ref result, ref startT);
-            result.RemoveAll(item => item.t0 == item.t1);
+            //  result.RemoveAll(item => item.t == 0);
 
-            var animateData = new AnimateData()
+            var animateData = new AnimateData2()
             {
+                start = startPosition,
                 animateData = result,
                 recordTime = DateTime.Now
             };
@@ -507,6 +516,8 @@ namespace HouseManager2_0.RoomMainF
             //    recordTime = DateTime.Now
             //};
         }
+
+
 
         private void SetAttackArrivalThread(int startT, Car car, SetAttack sa, List<Model.MapGo.nyrqPosition> returnPath)
         {

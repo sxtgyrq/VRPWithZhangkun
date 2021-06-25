@@ -138,6 +138,18 @@ namespace HouseManager2_0
 
                             Program.rm.Sell(ss);
                         }; break;
+                    case "OrderToSubsidize":
+                        {
+                            CommonClass.OrderToSubsidize ots = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.OrderToSubsidize>(notifyJson);
+                            await Program.rm.OrderToSubsidize(ots);
+                            outPut = "ok";
+                        }; break;
+                    case "DialogMsg":
+                        {
+                            CommonClass.DialogMsg dm = Newtonsoft.Json.JsonConvert.DeserializeObject<CommonClass.DialogMsg>(notifyJson);
+                            await Program.rm.SendMsg(dm);
+                            outPut = "ok";
+                        }; break;
                 }
             }
             {

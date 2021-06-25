@@ -1,6 +1,7 @@
 ﻿using CommonClass;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -410,6 +411,9 @@ namespace HouseManager2_0.RoomMainF
                 needUpdateCollectState = true;
 
                 Console.WriteLine("----Do the collect process----！");
+
+                GetMusic(player, ref notifyMsg);
+                GetBackground(player, ref notifyMsg);
             }
             else
             {
@@ -437,6 +441,7 @@ namespace HouseManager2_0.RoomMainF
                 //第二步，更改状态
                 //car.changeState++;
                 //getAllCarInfomations(pa.key, ref notifyMsg);
+
             }
             else
             {
@@ -444,6 +449,8 @@ namespace HouseManager2_0.RoomMainF
                 throw new Exception("");
             }
         }
+
+
 
         private void setCollectPosition(int target)
         {
@@ -679,14 +686,22 @@ namespace HouseManager2_0.RoomMainF
 
             var speed = car.ability.Speed;
             startT = 0;
-            List<Data.PathResult> result;
+            List<int> result;
+            Data.PathStartPoint2 startPosition;
             if (car.state == CarState.waitAtBaseStation)
+            {
+                getStartPositionByFp(out startPosition, fp1);
                 result = getStartPositon(fp1, player.positionInStation, ref startT);
+            }
             else if (car.state == CarState.waitForCollectOrAttack)
-                result = new List<Data.PathResult>();
+            {
+                result = new List<int>();
+                getStartPositionByGoPath(out startPosition, goPath);
+            }
             else if (car.state == CarState.waitOnRoad && car.ability.diamondInCar == "" && (car.purpose == Purpose.@null || car.purpose == Purpose.collect))
             {
-                result = new List<Data.PathResult>();
+                result = new List<int>();
+                getStartPositionByGoPath(out startPosition, goPath);
             }
             else
             {
@@ -696,18 +711,14 @@ namespace HouseManager2_0.RoomMainF
             //car.state = CarState.roadForCollect;
 
             Program.dt.GetAFromBPoint(goPath, fp1, speed, ref result, ref startT);
-            result.RemoveAll(item => item.t0 == item.t1);
+            //  result.RemoveAll(item => item.t == 0);
 
-            car.setAnimateData(player, ref notifyMsg, new AnimateData()
+            car.setAnimateData(player, ref notifyMsg, new AnimateData2()
             {
+                start = startPosition,
                 animateData = result,
                 recordTime = DateTime.Now
             });
-            //car.animateData = new AnimateData()
-            //{
-            //    animateData = result,
-            //    recordTime = DateTime.Now
-            //};
         }
 
 

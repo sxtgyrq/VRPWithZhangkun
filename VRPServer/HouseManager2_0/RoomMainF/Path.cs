@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 using OssModel = Model;
@@ -17,7 +18,7 @@ namespace HouseManager2_0.RoomMainF
             }
             return path;
         }
-        private void getEndPositon(Model.FastonPosition fp, int initPosition, ref List<Data.PathResult> animateResult, ref int startTInput)
+        private void getEndPositon(Model.FastonPosition fp, int initPosition, ref List<int> animateResult, ref int startTInput)
         {
             double endX, endY;
             CommonClass.Geography.calculatBaideMercatorIndex.getBaiduPicIndex(fp.Longitude, fp.Latitde, out endX, out endY);
@@ -82,32 +83,78 @@ namespace HouseManager2_0.RoomMainF
             startT1 = startTInput;
             endT1 = startT1 + interview;
             startTInput += interview;
-            var animate2 = new Data.PathResult()
+            var animate2 = new Data.PathResult3()
             {
-                t0 = startT1,
-                x0 = startX,
-                y0 = startY,
-                t1 = endT1,
-                x1 = endX,
-                y1 = endY
+                x = Convert.ToInt32((endX - startX) * 256),
+                y = Convert.ToInt32((endY - startY) * 256),
+                t = interview
             };
-            animateResult.Add(animate2);
+            //var animate2 = new Data.PathResult()
+            //{
+            //    t0 = startT1,
+            //    x0 = startX,
+            //    y0 = startY,
+            //    t1 = endT1,
+            //    x1 = endX,
+            //    y1 = endY
+            //};
+            //animateResult.Add(animate2);
+            if (animate2.t != 0)
+            {
+                animateResult.Add(animate2.x);
+                animateResult.Add(animate2.y);
+                animateResult.Add(animate2.t);
+            }
 
-
-            startT0 = startTInput;
-            endT0 = startT0 + 500;
+            //  startT0 = startTInput;
+            //    endT0 = startT0 + 500;
             startTInput += 500;
-            var animate1 = new Data.PathResult()
-            {
-                t0 = startT0,
-                x0 = endX,
-                y0 = endY,
-                t1 = endT0,
-                x1 = carPositionX,
-                y1 = carPositionY
-            };
-            animateResult.Add(animate1);
 
+            var animate1 = new Data.PathResult3()
+            {
+                x = Convert.ToInt32((carPositionX - endX) * 256),
+                y = Convert.ToInt32((carPositionY - endY) * 256),
+                t = 500
+            };
+            //var animate1 = new Data.PathResult()
+            //{
+            //    t0 = startT0,
+            //    x0 = endX,
+            //    y0 = endY,
+            //    t1 = endT0,
+            //    x1 = carPositionX,
+            //    y1 = carPositionY
+            //};
+            //  animateResult.Add(animate1);
+            if (animate1.t != 0)
+            {
+                animateResult.Add(animate1.x);
+                animateResult.Add(animate1.y);
+                animateResult.Add(animate1.t);
+            }
+
+        }
+
+        private void getStartPositionByGoPath(out Data.PathStartPoint2 startPosition, List<Model.MapGo.nyrqPosition> goPath)
+        {
+            var firstPosition = goPath.First();
+            double startX, startY;
+            CommonClass.Geography.calculatBaideMercatorIndex.getBaiduPicIndex(firstPosition.BDlongitude, firstPosition.BDlatitude, out startX, out startY);
+            startPosition = new Data.PathStartPoint2()
+            {
+                x = Convert.ToInt32(startX * 256),
+                y = Convert.ToInt32(startY * 256)
+            };
+        }
+        private void getStartPositionByFp(out Data.PathStartPoint2 startPosition, Model.FastonPosition fp1)
+        {
+            double startX, startY;
+            CommonClass.Geography.calculatBaideMercatorIndex.getBaiduPicIndex(fp1.Longitude, fp1.Latitde, out startX, out startY);
+            startPosition = new Data.PathStartPoint2()
+            {
+                x = Convert.ToInt32(startX * 256),
+                y = Convert.ToInt32(startY * 256)
+            };
         }
     }
 }

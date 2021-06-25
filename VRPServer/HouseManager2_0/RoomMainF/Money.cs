@@ -128,5 +128,57 @@ namespace HouseManager2_0.RoomMainF
             }
             return "";
         }
+
+        internal async Task OrderToSubsidize(OrderToSubsidize ots)
+        {
+            List<string> notifyMsg = new List<string>();
+            if (BitCoin.Sign.checkSign(ots.signature, ots.Key, ots.address))
+            {
+
+                lock (this.PlayerLock)
+                    if (this._Players.ContainsKey(ots.Key))
+                    {
+                        if (!this._Players[ots.Key].Bust)
+                        {
+                            long subsidizeGet, subsidizeLeft;
+                            DalOfAddress.MoneyGet.GetSubsidizeAndLeft(ots.address, ots.value, out subsidizeGet, out subsidizeLeft);
+
+                            var player = this._Players[ots.Key];
+                            player.MoneySet(player.Money + subsidizeGet, ref notifyMsg);
+                            //  player.setSupportToPlayMoney(player.SupportToPlayMoney + subsidizeGet, ref notifyMsg);
+
+                            SendLeftMoney(player, subsidizeLeft, ots.address, ref notifyMsg);
+                            //player.SupportToPlay.
+                        }
+                    }
+            }
+            else
+            {
+                Console.WriteLine($"检验签名失败,{ots.Key},{ots.signature},{ots.address}");
+            }
+            for (var i = 0; i < notifyMsg.Count; i += 2)
+            {
+                var url = notifyMsg[i];
+                var sendMsg = notifyMsg[i + 1];
+                Console.WriteLine($"url:{url}");
+                await Startup.sendMsg(url, sendMsg);
+            }
+        }
+
+        private void SendLeftMoney(Player player, long subsidizeLeft, string address, ref List<string> notifyMsg)
+        {
+            var url = player.FromUrl;
+            LeftMoneyInDB lmdb = new LeftMoneyInDB()
+            {
+                c = "LeftMoneyInDB",
+                WebSocketID = player.WebSocketID,
+                Money = subsidizeLeft,
+                address = address
+            };
+            var sendMsg = Newtonsoft.Json.JsonConvert.SerializeObject(lmdb);
+            notifyMsg.Add(url);
+            notifyMsg.Add(sendMsg);
+        }
+
     }
 }

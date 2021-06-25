@@ -342,9 +342,11 @@ namespace HouseManager2_0.RoomMainF
             */
             var speed = car.ability.Speed;
             startT = 0;
-            List<Data.PathResult> result;
+            List<int> result;
+            Data.PathStartPoint2 startPosition;
             if (car.state == CarState.waitAtBaseStation)
             {
+                getStartPositionByFp(out startPosition, fp1);
                 result = getStartPositon(fp1, player.positionInStation, ref startT);
             }
             else
@@ -357,10 +359,11 @@ namespace HouseManager2_0.RoomMainF
 
 
             Program.dt.GetAFromBPoint(goPath, fp1, speed, ref result, ref startT);
-            result.RemoveAll(item => item.t0 == item.t1);
+            //    result.RemoveAll(item => item.t == 0);
 
-            var animateData = new AnimateData()
+            var animateData = new AnimateData2()
             {
+                start = startPosition,
                 animateData = result,
                 recordTime = DateTime.Now
             };

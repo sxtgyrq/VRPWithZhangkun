@@ -659,46 +659,59 @@ var objMain =
                 var div2 = document.createElement('div');
 
                 var b = document.createElement('b');
-                b.innerHTML = '到[<span style="color:#05ffba">' + objMain.othersBasePoint[key].basePoint.FastenPositionName + '</span>]打压<span style="color:#05ffba">' + objMain.othersBasePoint[key].playerName + '</span>。';
-                div2.appendChild(b);
-
-                var div3 = document.createElement('div');
-                div3.style.textAlign = 'center';
-                div3.style.width = '3em';
-                div3.style.border = '2px inset #ffc403';
-                div3.style.borderRadius = '0.3em';
-                div3.style.marginTop = '4px';
-                div3.style.marginBottom = '4px';
-                div3.style.position = 'relative';
-                div3.style.left = 'calc(100% - 3em - 4px)';
-
-                var span = document.createElement('span');
-                span.innerText = '打压';
-                div3.CustomTag = objMain.othersBasePoint[key];
-                div3.onclick = function () {
-                    if (objMain.Task.state == '') {
-                        throw 'task not select';
-                    }
-                    else if (objMain.Task.carSelect == '') {
-                        alert('请选择要执行此任务的车辆');
+                b.innerHTML = '到[<span style="color:#05ffba">' + objMain.othersBasePoint[key].basePoint.FastenPositionName + '</span>]打压<span style="color:#05ffba">' + objMain.othersBasePoint[key].playerName + '</span>。' + function () {
+                    if (objMain.rightAndDuty.data[key] == undefined) {
+                        return "";
                     }
                     else {
-                        objMain.ws.send(JSON.stringify({ 'c': 'Attack', 'car': objMain.Task.carSelect, 'TargetOwner': this.CustomTag.indexKey, 'Target': this.CustomTag.fPIndex }));
-                        objMain.Task.state = '';
-                        objMain.Task.carSelect = '';
-                        carBtns.clearBtnInFrame();
-                        //objMain.mainF.removeF.removePanle('carsSelectionPanel');
-                        //   carAbility.clear();
-                        // objMain.mainF.removeF.clearGroup(objMain.collectGroup);
-                        objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
-
+                        if (objMain.rightAndDuty.data[key].right > 0) {
+                            return '其欠你<span style="color:#05ffba">' + (objMain.rightAndDuty.data[key].right / 100).toFixed(2) + '</span>,你在此有<span style="color:#05ffba">' + (objMain.rightAndDuty.data[key].rightPercent / 10).toFixed(1) + '%</span>股份';
+                        }
+                        else if (objMain.rightAndDuty.data[key].duty > 0) {
+                            return '你欠其<span style="color:#05ffba">' + (objMain.rightAndDuty.data[key].duty / 100).toFixed(2) + '</span>,其在此有<span style="color:#05ffba">' + (objMain.rightAndDuty.data[key].dutyPercent / 10).toFixed(1) + '%</span>股份';
+                        }
+                        else return "";
                     }
-                }
+                }();
+                div2.appendChild(b);
 
-                div3.appendChild(span);
+                //var div3 = document.createElement('div');
+                //div3.style.textAlign = 'center';
+                //div3.style.width = '3em';
+                //div3.style.border = '2px inset #ffc403';
+                //div3.style.borderRadius = '0.3em';
+                //div3.style.marginTop = '4px';
+                //div3.style.marginBottom = '4px';
+                //div3.style.position = 'relative';
+                //div3.style.left = 'calc(100% - 3em - 4px)';
+
+                //var span = document.createElement('span');
+                //span.innerText = '打压';
+                //div3.CustomTag = objMain.othersBasePoint[key];
+                //div3.onclick = function () {
+                //    if (objMain.Task.state == '') {
+                //        throw 'task not select';
+                //    }
+                //    else if (objMain.Task.carSelect == '') {
+                //        alert('请选择要执行此任务的车辆');
+                //    }
+                //    else {
+                //        objMain.ws.send(JSON.stringify({ 'c': 'Attack', 'car': objMain.Task.carSelect, 'TargetOwner': this.CustomTag.indexKey, 'Target': this.CustomTag.fPIndex }));
+                //        objMain.Task.state = '';
+                //        objMain.Task.carSelect = '';
+                //        carBtns.clearBtnInFrame();
+                //        //objMain.mainF.removeF.removePanle('carsSelectionPanel');
+                //        //   carAbility.clear();
+                //        // objMain.mainF.removeF.clearGroup(objMain.collectGroup);
+                //        objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
+
+                //    }
+                //}
+
+                //div3.appendChild(span);
 
                 element.appendChild(div2);
-                element.appendChild(div3);
+                // element.appendChild(div3);
 
                 if (theLagestHoderKey.data[key] != undefined && theLagestHoderKey.data[key].ChangeTo == objMain.indexKey) {
                     var div4 = document.createElement('div');
@@ -1313,10 +1326,7 @@ var objMain =
         }
     },
     Task: new TaskClass('', ''),
-    //{
-    //    state: '',
-    //    carSelect: ''
-    //},
+
     animation:
     {
         animateCameraByCarAndTask: function () {
@@ -1367,7 +1377,98 @@ var objMain =
     },
     FrequencyOfCollectReward: 0,
     panOrRotate: 'rotate',
-    carState: {}
+    carState: {},
+    music:
+    {
+        theme: '',
+        change: function () {
+            var bgm = document.getElementById('backGroudMusick');
+            if (bgm.currentTime === 0 || bgm.ended) {
+                switch (this.theme) {
+                    case '':
+                        {
+                            var itemCount = bgm.children.length - 1;
+                            for (var i = itemCount; i >= 0; i--) {
+                                bgm.children[i].remove();
+                            }
+                            var source1 = document.createElement('source');
+                            source1.src = 'bgm/changshoucunwai.ogg';
+                            source1.type = 'audio/ogg';
+
+                            var source2 = document.createElement('source');
+                            source2.src = 'bgm/changshoucunwai.mp3';
+                            source2.type = 'audio/mpeg';
+
+                            bgm.appendChild(source1);
+                            bgm.appendChild(source2);
+                            bgm.load();
+                            bgm.play();
+                        }; break;
+                    default:
+                        {
+                            var itemCount = bgm.children.length - 1;
+                            for (var i = itemCount; i >= 0; i--) {
+                                bgm.children[i].remove();
+                            }
+                            var source1 = document.createElement('source');
+                            source1.src = 'bgm/' + this.theme + '.ogg';
+                            source1.type = 'audio/ogg';
+
+                            var source2 = document.createElement('source');
+                            source2.src = 'bgm/' + this.theme + '.mp3';
+                            source2.type = 'audio/mpeg';
+
+                            bgm.appendChild(source1);
+                            bgm.appendChild(source2);
+
+                            bgm.load();
+                            bgm.play();
+                        }; break;
+                }
+
+            }
+        }
+    },
+    background:
+    {
+        path: '',
+        change: function () {
+            switch (this.path) {
+                case '':
+                    {
+                        var cubeTextureLoader = new THREE.CubeTextureLoader();
+                        cubeTextureLoader.setPath('Pic/');
+                        var cubeTexture = cubeTextureLoader.load([
+                            "xi_r.jpg", "dong_r.jpg",
+                            "ding_r.jpg", "di_r.jpg",
+                            "nan_r.jpg", "bei_r.jpg"
+                        ]);
+                        //var cubeTexture = cubeTextureLoader.load([
+                        //    "px.png", "nx.png",
+                        //    "py.jpg", "ny.jpg",
+                        //    "pz.png", "nz.png"
+                        //]);
+                        objMain.scene.background = cubeTexture;
+                    }; break;
+                default:
+                    {
+                        var cubeTextureLoader = new THREE.CubeTextureLoader();
+                        cubeTextureLoader.setPath('Pic/' + this.path + '/');
+                        var cubeTexture = cubeTextureLoader.load([
+                            "px.png", "nx.png",
+                            "py.jpg", "ny.jpg",
+                            "pz.png", "nz.png"
+                        ]);
+                        objMain.scene.background = cubeTexture;
+                    }; break;
+            }
+        }
+    },
+    rightAndDuty:
+    {
+        data: {},
+        update: function () { }
+    }
 };
 var startA = function () {
     var connected = false;
@@ -1688,15 +1789,51 @@ var startA = function () {
                 }; break;
             case 'BradCastAnimateOfSelfCar':
             case 'BradCastAnimateOfOthersCar':
+            //{
+            //    //var passObj = JSON.parse(evt.data);
+            //    //var animateData = passObj.Animate.animateData;
+            //    //var deltaT = passObj.Animate.deltaT;
+            //    //var carId = passObj.carID;
+
+            //    //var recordTime = Date.now() - deltaT;
+            //    //objMain.carsAnimateData[carId] = { 'recordTime': recordTime, 'animateData': animateData };
+            //}; break;
+
+            case 'BradCastAnimateOfOthersCar2':
                 {
                     var passObj = JSON.parse(evt.data);
-                    var animateData = passObj.Animate.animateData;
+                    console.log('新对象', passObj);
                     var deltaT = passObj.Animate.deltaT;
                     var carId = passObj.carID;
-
                     var recordTime = Date.now() - deltaT;
-                    //   animateData.recordTime = recordTime;
+                    var animateData = [];
+                    var start = passObj.Animate.start;
+                    start.x /= 256;
+                    start.y /= 256;
+                    var startT = 0;
+                    for (var i = 0; i < passObj.Animate.animateData.length; i += 3) {
+                        animateData.push(
+                            {
+                                x0: start.x,
+                                y0: start.y,
+                                t0: startT,
+                                x1: passObj.Animate.animateData[i] / 256 + start.x,
+                                y1: passObj.Animate.animateData[i + 1] / 256 + start.y,
+                                t1: passObj.Animate.animateData[i + 2] + startT
+                            });
+                        start.x += passObj.Animate.animateData[i] / 256;
+                        start.y += passObj.Animate.animateData[i + 1] / 256;
+                        startT += passObj.Animate.animateData[i + 2];
+                    }
                     objMain.carsAnimateData[carId] = { 'recordTime': recordTime, 'animateData': animateData };
+                    return;
+                    //var animateData = passObj.Animate.animateData;
+                    //var deltaT = passObj.Animate.deltaT;
+                    //var carId = passObj.carID;
+
+                    //var recordTime = Date.now() - deltaT;
+                    ////   animateData.recordTime = recordTime;
+                    //objMain.carsAnimateData[carId] = { 'recordTime': recordTime, 'animateData': animateData };
                 }; break;
             case 'BradCastPromoteInfoDetail':
                 {
@@ -1790,6 +1927,7 @@ var startA = function () {
                     theLagestHoderKey.removeData(received_obj.othersKey);
 
                     delete SocialResponsibility.data[received_obj.othersKey];
+                    delete objMain.rightAndDuty.data[received_obj.othersKey];
                     // SocialResponsibility.data[received_obj.otherKey] = received_obj.socialResponsibility;
                 }; break;
             case 'FrequencyNotify':
@@ -1990,12 +2128,26 @@ var startA = function () {
                 }; break;
             case 'BradCastRightAndDuty':
                 {
-                    console.log('显示', 'BradCastRightAndDuty');
+                    objMain.rightAndDuty.data[received_obj.playerKey] =
+                    {
+                        right: received_obj.right,
+                        duty: received_obj.duty,
+                        rightPercent: received_obj.rightPercent,
+                        dutyPercent: received_obj.dutyPercent
+                    }
                 }; break;
-
+            case 'BradCastMusicTheme':
+                {
+                    objMain.music.theme = received_obj.theme;
+                }; break;
+            case 'BradCastBackground':
+                {
+                    objMain.background.path = received_obj.path;
+                    objMain.background.change();
+                }; break;
             default:
                 {
-                    alert(received_obj.c + "__没有注册。");
+                    console.log('命令未注册', received_obj.c + "__没有注册。");
                 }; break;
         }
     };
@@ -2257,16 +2409,16 @@ var set3DHtml = function () {
 
     var cubeTextureLoader = new THREE.CubeTextureLoader();
     cubeTextureLoader.setPath('Pic/');
-    var cubeTexture = cubeTextureLoader.load([
-        "xi_r.jpg", "dong_r.jpg",
-        "ding_r.jpg", "di_r.jpg",
-        "nan_r.jpg", "bei_r.jpg"
-    ]);
     //var cubeTexture = cubeTextureLoader.load([
-    //    "px.png", "nx.png",
-    //    "py.jpg", "ny.jpg",
-    //    "pz.png", "nz.png"
+    //    "xi_r.jpg", "dong_r.jpg",
+    //    "ding_r.jpg", "di_r.jpg",
+    //    "nan_r.jpg", "bei_r.jpg"
     //]);
+    var cubeTexture = cubeTextureLoader.load([
+        "px.jpg", "nx.jpg",
+        "py.jpg", "ny.jpg",
+        "pz.jpg", "nz.jpg"
+    ]);
     objMain.scene.background = cubeTexture;
 
     objMain.renderer = new THREE.WebGLRenderer({ alpha: true });
@@ -2336,11 +2488,8 @@ var set3DHtml = function () {
 
     //objMain.labelRenderer.domElement.addEventListener
     var fuckF = function (event) {
-        var bgm = document.getElementById('backGroudMusick');
-        if (bgm.currentTime === 0) {
-            bgm.load();
-            bgm.play();
-        }
+        objMain.music.change();
+
         //if (mouseClickInterviewState.click()) {
         //    mouseClickInterviewState.init()
         //}
@@ -2683,7 +2832,7 @@ var set3DHtml = function () {
                                     if (objMain.Tax[fpCode] != undefined) {
                                         objMain.ws.send(JSON.stringify({ 'c': 'Tax', 'Target': objMain.Tax[fpCode].target }));
                                         objMain.Task.state = '';
-                                        objMain.Task.carSelect = ''; 
+                                        objMain.Task.carSelect = '';
                                         objMain.mainF.removeF.clearGroup(objMain.groupOfOperatePanle);
                                         return;
                                     }

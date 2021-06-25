@@ -74,8 +74,8 @@ namespace HouseManager2_0
         int _changeState = 0;
         public int changeState { get { return this._changeState; } }
         public SetAnimateChangedF SetAnimateChanged;
-        public AnimateData animateData { get; private set; }
-        internal void setAnimateData(Player player, ref List<string> notifyMsg, AnimateData data)
+        public AnimateData2 animateData { get; private set; }
+        internal void setAnimateData(Player player, ref List<string> notifyMsg, AnimateData2 data)
         {
             this.animateData = data;
             this._changeState++;
@@ -110,9 +110,11 @@ namespace HouseManager2_0
             //throw new NotImplementedException();
         }
 
-        public class AnimateData
+        public class AnimateData2
         {
-            public List<Data.PathResult> animateData { get; internal set; }
+            public Data.PathStartPoint2 start { get; internal set; }
+            //public List<Data.PathResult3> animateData { get; internal set; }
+            public List<int> animateData { get; internal set; }
             public DateTime recordTime { get; internal set; }
         }
     }

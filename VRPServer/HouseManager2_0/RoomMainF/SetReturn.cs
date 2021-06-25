@@ -107,10 +107,10 @@ namespace HouseManager2_0.RoomMainF
         {
             var speed = car.ability.Speed;
             int startT = 0;
-            var result = new List<Data.PathResult>();
+            var result = new List<int>();
             Program.dt.GetAFromBPoint(cmp.returnPath, Program.dt.GetFpByIndex(cmp.target), speed, ref result, ref startT);
             getEndPositon(Program.dt.GetFpByIndex(this._Players[cmp.key].StartFPIndex), this._Players[cmp.key].positionInStation, ref result, ref startT);
-            result.RemoveAll(item => item.t0 == item.t1);
+            // result.RemoveAll(item => item.t == 0);
 
             car.setState(this._Players[cmp.key], ref notifyMsg, CarState.returning);
             // car.state = CarState.returning;
@@ -121,10 +121,12 @@ namespace HouseManager2_0.RoomMainF
                 key = cmp.key
             }));
             th.Start();
-
+            Data.PathStartPoint2 startPosition;
+            this.getStartPositionByGoPath(out startPosition, cmp.returnPath);
             //var player = this._Players[cmp.key];
-            car.setAnimateData(player, ref notifyMsg, new AnimateData()
+            car.setAnimateData(player, ref notifyMsg, new AnimateData2()
             {
+                start = startPosition,
                 animateData = result,
                 recordTime = DateTime.Now
             });

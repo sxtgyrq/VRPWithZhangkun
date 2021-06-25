@@ -672,6 +672,7 @@ namespace HouseManager2_0
                 {
                     sum += this.Magnify(item.Value);
                 }
+                sum = Math.Max(sum, 1);
                 var percent = Convert.ToInt32(this.Magnify(this.Debts[key]) * 1000 / sum);
                 return percent;
             }

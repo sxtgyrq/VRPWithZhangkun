@@ -292,14 +292,37 @@ namespace HouseManager2_0.RoomMainF
                 //car.purpose = Purpose.tax;
                 var speed = car.ability.Speed;
                 int startT = 0;
-                List<Data.PathResult> result;
+                List<int> result;
+                Data.PathStartPoint2 startPosition;
                 if (car.state == CarState.waitAtBaseStation)
+                {
                     result = getStartPositon(fp1, player.positionInStation, ref startT);
+                    this.getStartPositionByFp(out startPosition, fp1);
+                }
                 else if (car.state == CarState.waitForTaxOrAttack)
-                    result = new List<Data.PathResult>();
+                {
+                    result = new List<int>();
+                    if (from == to)
+                    {
+                        startPosition = null;
+                        // this.getStartPositionByFp(out startPosition, fp1);
+                    }
+                    else
+                    {
+                        this.getStartPositionByGoPath(out startPosition, goPath);
+                    }
+                }
                 else if (car.state == CarState.waitOnRoad && car.ability.diamondInCar == "" && (car.purpose == Purpose.@null || car.purpose == Purpose.tax))
                 {
-                    result = new List<Data.PathResult>();
+                    result = new List<int>();
+                    if (from == to)
+                    {
+                        startPosition = null;
+                    }
+                    else
+                    {
+                        this.getStartPositionByGoPath(out startPosition, goPath);
+                    }
                 }
                 else
                 {
@@ -308,10 +331,11 @@ namespace HouseManager2_0.RoomMainF
                 car.setState(player, ref notifyMsg, CarState.roadForTax);
                 //car.state = CarState.roadForTax;
                 Program.dt.GetAFromBPoint(goPath, fp1, speed, ref result, ref startT);
-                result.RemoveAll(item => item.t0 == item.t1);
+                // result.RemoveAll(item => item.t == 0);
 
-                var animateData = new AnimateData()
+                var animateData = new AnimateData2()
                 {
+                    start = startPosition,
                     animateData = result,
                     recordTime = DateTime.Now
                 };
@@ -326,7 +350,7 @@ namespace HouseManager2_0.RoomMainF
                 {
                     c = "placeArriving",
                     key = st.Key,
-                 //   car = st.car,
+                    //   car = st.car,
                     returnPath = returnPath,
                     target = to,
                     costMile = goMile

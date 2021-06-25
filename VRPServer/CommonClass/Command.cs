@@ -118,7 +118,7 @@ namespace CommonClass
 
         public object Animate { get; set; }
     }
-    public class BradCastAnimateOfOthersCar : CommandNotify
+    public class BradCastAnimateOfOthersCar2 : CommandNotify
     {
         public string carID;
 
@@ -211,6 +211,16 @@ namespace CommonClass
         public Model.FastonPosition Fp { get; set; }
         public int collectMoney { get; set; }
         public int collectIndex { get; set; }
+    }
+
+    public class BradCastMusicTheme : CommandNotify
+    {
+        public string theme { get; set; }
+    }
+
+    public class BradCastBackground : CommandNotify
+    {
+        public string path { get; set; }
     }
 
     public class PlayerAdd : Command

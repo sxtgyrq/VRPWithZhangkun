@@ -15,6 +15,9 @@ namespace HouseManager2_0.RoomMainF
         {
             this.rm = new System.Random(DateTime.Now.GetHashCode());
             this.Market = new Market(this.priceChanged);
+            this.Music = new Music();
+            this.bg = new BackGround();
+
             lock (PlayerLock)
             {
                 this._Players = new Dictionary<string, Player>();
@@ -159,20 +162,27 @@ namespace HouseManager2_0.RoomMainF
             double endX, endY;
             CommonClass.Geography.calculatBaideMercatorIndex.getBaiduPicIndex(fp.positionLongitudeOnRoad, fp.positionLatitudeOnRoad, out endX, out endY);
 
-            var animate = new AnimateData()
+
+            var animate = new AnimateData2()
             {
-                animateData = new List<Data.PathResult>()
-                        {
-                              new Data.PathResult()
-                              {
-                                  t0=0,
-                                  x0=endX,
-                                  y0=endY,
-                                  t1=200000,
-                                  x1=endX,
-                                  y1=endY
-                              }
-                        },
+                start = new Data.PathStartPoint2()
+                {
+                    x = Convert.ToInt32(endX * 256),
+                    y = Convert.ToInt32(endY * 256)
+                },
+                animateData = new List<int>()
+                {
+                    0,0,20000
+                },
+                //animateData = new List<Data.PathResult3>()
+                //        {
+                //              new Data.PathResult3()
+                //              {
+                //                  x=0,
+                //                  y=0,
+                //                  t=20000
+                //              }
+                //        },
                 recordTime = DateTime.Now
             };
             car.setAnimateData(player, ref notifyMsgs, animate);

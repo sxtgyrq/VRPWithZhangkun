@@ -1,6 +1,7 @@
 ﻿using CommonClass;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -582,22 +583,32 @@ namespace HouseManager2_0.RoomMainF
              */
             var speed = car.ability.Speed;
             startT = 0;
-            List<Data.PathResult> result;
+            List<int> result;
+            Data.PathStartPoint2 startPosition;
             if (car.state == CarState.waitOnRoad)
             {
-                result = new List<Data.PathResult>();
+                result = new List<int>();
+                getStartPositionByGoPath(out startPosition, goPath);
+                //startPosition = new Data.PathStartPoint()
+                //{
+                //    x = goPath.First().BDlongitude,
+                //    y = goPath.First().BDlatitude
+                //};
             }
             else if (car.state == CarState.waitAtBaseStation)
             {
                 result = getStartPositon(fp1, player.positionInStation, ref startT);
+                getStartPositionByFp(out startPosition, fp1);
             }
             else if (car.state == CarState.waitForCollectOrAttack)
             {
-                result = new List<Data.PathResult>();
+                result = new List<int>();
+                getStartPositionByGoPath(out startPosition, goPath);
             }
             else if (car.state == CarState.waitForTaxOrAttack)
             {
-                result = new List<Data.PathResult>();
+                result = new List<int>();
+                getStartPositionByGoPath(out startPosition, goPath);
             }
             else
             {
@@ -605,10 +616,11 @@ namespace HouseManager2_0.RoomMainF
                 throw new Exception("错误的汽车类型！！！");
             }
             Program.dt.GetAFromBPoint(goPath, fp1, speed, ref result, ref startT);
-            result.RemoveAll(item => item.t0 == item.t1);
+            // result.RemoveAll(item => item.t == 0);
 
-            var animateData = new AnimateData()
+            var animateData = new AnimateData2()
             {
+                start = startPosition,
                 animateData = result,
                 recordTime = DateTime.Now
             };

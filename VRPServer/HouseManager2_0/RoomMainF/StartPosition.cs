@@ -14,7 +14,7 @@ namespace HouseManager2_0.RoomMainF
         /// <param name="car">carA？-carE</param>
         /// <param name="startTInput">时间</param>
         /// <returns></returns>
-        private List<Data.PathResult> getStartPositon(Model.FastonPosition fp, int positionInStation, ref int startTInput)
+        private List<int> getStartPositon(Model.FastonPosition fp, int positionInStation, ref int startTInput)
         {
             double startX, startY;
             CommonClass.Geography.calculatBaideMercatorIndex.getBaiduPicIndex(fp.Longitude, fp.Latitde, out startX, out startY);
@@ -67,20 +67,32 @@ namespace HouseManager2_0.RoomMainF
             double carPositionX = startX + position.Real * percentOfPosition;
             double carPositionY = startY - position.Imaginary * percentOfPosition;
 
-            List<Data.PathResult> animateResult = new List<Data.PathResult>();
+            List<int> animateResult = new List<int>();
             startT0 = startTInput;
             endT0 = startT0 + 500;
             startTInput += 500;
-            var animate1 = new Data.PathResult()
+            var animate1 = new Data.PathResult3()
             {
-                t0 = startT0,
-                x0 = carPositionX,
-                y0 = carPositionY,
-                t1 = endT0,
-                x1 = startX,
-                y1 = startY
+                x = Convert.ToInt32((startX - carPositionX) * 256),
+                y = Convert.ToInt32((startY - carPositionY) * 256),
+                t = endT0 - startT0
             };
-            animateResult.Add(animate1);
+            //var animate1 = new Data.PathResult()
+            //{
+            //    t0 = startT0,
+            //    x0 = carPositionX,
+            //    y0 = carPositionY,
+            //    t1 = endT0,
+            //    x1 = startX,
+            //    y1 = startY
+            //};
+            if (animate1.t != 0)
+            {
+                animateResult.Add(animate1.x);
+                animateResult.Add(animate1.y);
+                animateResult.Add(animate1.t);
+            }
+            // animateResult.Add(animate1);
             /*
              * 上道路的速度为10m/s 即36km/h
              */
@@ -88,16 +100,29 @@ namespace HouseManager2_0.RoomMainF
             startT1 = startTInput;
             endT1 = startT1 + interview;
             startTInput += interview;
-            var animate2 = new Data.PathResult()
+
+            var animate2 = new Data.PathResult3()
             {
-                t0 = startT1,
-                x0 = startX,
-                y0 = startY,
-                t1 = endT1,
-                x1 = endX,
-                y1 = endY
+                x = Convert.ToInt32((endX - startX) * 256),
+                y = Convert.ToInt32((endY - startY) * 256),
+                t = interview
             };
-            animateResult.Add(animate2);
+            //var animate2 = new Data.PathResult()
+            //{
+            //    t0 = startT1,
+            //    x0 = startX,
+            //    y0 = startY,
+            //    t1 = endT1,
+            //    x1 = endX,
+            //    y1 = endY
+            //};
+            if (animate2.t != 0)
+            {
+                animateResult.Add(animate2.x);
+                animateResult.Add(animate2.y);
+                animateResult.Add(animate2.t);
+            }
+            //  animateResult.Add(animate2);
             return animateResult;
         }
 
